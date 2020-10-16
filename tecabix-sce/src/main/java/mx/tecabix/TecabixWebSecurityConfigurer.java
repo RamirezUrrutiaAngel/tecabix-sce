@@ -21,18 +21,25 @@ public class TecabixWebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-			http.csrf().disable()
+		// permite las peticiones POST con el security 
+		http.csrf().disable()
 		
 		.authorizeRequests()
+		
+		// No requieren autentificacion
+		.antMatchers("/usuario/findIsExist").permitAll()
+		
+		// las peticiones tienen que estar autentificadas
 		.anyRequest().authenticated().and().httpBasic();
+
 	}
 	
 	@Override
     protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
 		auth.jdbcAuthentication()
 		.dataSource(dataSource)
-		.usersByUsernameQuery("SELECT nombre, psw, true FROM tecabix.usuario WHERE nombre = ?")
-		.authoritiesByUsernameQuery("SELECT nombre AS usuario ,'AUTHORITY_A' AS ROL FROM tecabix.usuario WHERE nombre = ?")
+		.usersByUsernameQuery("SELECT nombre, psw, true FROM tecabix_spv.usuario u WHERE u.id_estatus = 1 AND u.nombre = ?")
+		.authoritiesByUsernameQuery("SELECT u.nombre AS USUARIO, a.nombre AS ROL FROM tecabix_spv.authority a JOIN tecabix_spv.perfil_authority pa ON (a.id_authority = pa.id_authority) JOIN tecabix_spv.perfil p ON (pa.id_perfil = p.id_perfil) JOIN tecabix_spv.usuario u ON ( p.id_perfil = u.id_perfil) WHERE u.id_estatus = 1 AND  u.nombre = ?")
 		.passwordEncoder(passwordEncoder());
     }
 	

@@ -45,7 +45,7 @@ public class Municipio implements Serializable {
 	private static final long serialVersionUID = -9218053756023446113L;
 	@Id
     @Column(name = "id_municipio", unique = true, nullable = false)
-	@SequenceGenerator(name = "municipio_id_municipio_gen", sequenceName = "tecabix.municipio_seq", allocationSize = 1)
+	@SequenceGenerator(name = "municipio_id_municipio_gen", sequenceName = "tecabix_spv.municipio_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "municipio_id_municipio_gen")
     private Integer id;
 	@Column(name = "nombre")

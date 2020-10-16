@@ -38,12 +38,12 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "persona_moral")
-public class Empresa implements Serializable {
+public class Escuela implements Serializable {
 
 	private static final long serialVersionUID = 4047413230691680424L;
 	@Id
     @Column(name = "id_persona_moral", unique = true, nullable = false)
-	@SequenceGenerator(name = "persona_moral_id_persona_moral_gen", sequenceName = "tecabix.persona_moral_seq", allocationSize = 1)
+	@SequenceGenerator(name = "persona_moral_id_persona_moral_gen", sequenceName = "tecabix_spv.persona_moral_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "persona_moral_id_persona_moral_gen")
     private Long id;
 	@OneToOne

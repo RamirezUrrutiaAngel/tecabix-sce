@@ -28,6 +28,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -38,6 +40,16 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "trabajador")
+@NamedQueries({
+	@NamedQuery(name = "Trabajador.findByKey",query = "SELECT t FROM Trabajador t WHERE t.id = ?1 AND t.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Trabajador.findByKeyAndPendiente",query = "SELECT t FROM Trabajador t WHERE t.id = ?1 AND t.estatus.nombre = 'PENDIENTE' "),
+	
+	@NamedQuery(name = "Trabajador.findAll",query = "SELECT t FROM Trabajador t WHERE t.idEscuela = ?1 AND t.estatus.nombre = 'ACTIVO' ORDER BY t.personaFisica.apellidoPaterno"),
+	@NamedQuery(name = "Trabajador.findAllByNombre",query = "SELECT t FROM Trabajador t WHERE t.idEscuela = ?1 AND t.estatus.nombre = 'ACTIVO' AND t.personaFisica.nombre LIKE ?2 ORDER BY t.personaFisica.nombre"),
+
+	@NamedQuery(name = "Trabajador.findByUsuario",query = "SELECT t FROM Trabajador t WHERE t.usuario.nombre = ?1 AND t.estatus.nombre = 'ACTIVO' ")
+
+})
 public class Trabajador implements Serializable{
 	/**
 	 * 
@@ -45,14 +57,17 @@ public class Trabajador implements Serializable{
 	private static final long serialVersionUID = -7407043110565368553L;
 	@Id
     @Column(name = "id_trabajador", unique = true, nullable = false)
-	@SequenceGenerator(name = "trabajador_id_trabajador_gen", sequenceName = "tecabix.trabajador_seq", allocationSize = 1)
+	@SequenceGenerator(name = "trabajador_id_trabajador_gen", sequenceName = "tecabix_spv.trabajador_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "trabajador_id_trabajador_gen")
     private Long id;
+	@Column(name = "curp")
+	private String CURP;
 	@ManyToOne
     @JoinColumn(name = "id_persona_fisica")
 	private PersonaFisica personaFisica;
-	@Column(name = "id_usuario")
-	private Long idUsuario;
+	@ManyToOne
+    @JoinColumn(name = "id_usuario")
+	private Usuario usuario;
 	@ManyToOne
     @JoinColumn(name = "id_puesto")
 	private Puesto puesto;
@@ -76,17 +91,23 @@ public class Trabajador implements Serializable{
 	public void setId(Long id) {
 		this.id = id;
 	}
+	public String getCURP() {
+		return CURP;
+	}
+	public void setCURP(String cURP) {
+		CURP = cURP;
+	}
 	public PersonaFisica getPersonaFisica() {
 		return personaFisica;
 	}
 	public void setPersonaFisica(PersonaFisica personaFisica) {
 		this.personaFisica = personaFisica;
 	}
-	public Long getIdUsuario() {
-		return idUsuario;
+	public Usuario getUsuario() {
+		return usuario;
 	}
-	public void setIdUsuario(Long idUsuario) {
-		this.idUsuario = idUsuario;
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
 	}
 	public Puesto getPuesto() {
 		return puesto;

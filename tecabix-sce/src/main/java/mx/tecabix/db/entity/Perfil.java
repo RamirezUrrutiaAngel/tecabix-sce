@@ -18,6 +18,7 @@
 package mx.tecabix.db.entity;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -29,6 +30,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -39,6 +43,13 @@ import javax.persistence.Table;
  */
 @Entity()
 @Table(name = "perfil")
+@NamedQueries({
+	@NamedQuery(name = "Perfil.findByKey",query = "SELECT p FROM Perfil p WHERE p.id = ?1 AND p.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Perfil.findAll",query = "SELECT p FROM Perfil p WHERE p.idEscuela = ?1 AND p.estatus.nombre = 'ACTIVO' ORDER BY p.nombre"),
+	@NamedQuery(name = "Perfil.findAllByNombre",query = "SELECT p FROM Perfil p WHERE p.estatus.nombre = 'ACTIVO' AND p.idEscuela = ?1 AND p.nombre LIKE ?2 ORDER BY p.nombre"),
+	@NamedQuery(name = "Perfil.findByNombre",query = "SELECT p FROM Perfil p WHERE p.estatus.nombre = 'ACTIVO' AND p.idEscuela = ?1 AND p.nombre = ?2 ")
+
+})
 public class Perfil implements Serializable{
 
 	/**
@@ -47,7 +58,7 @@ public class Perfil implements Serializable{
 	private static final long serialVersionUID = 1945352087628007583L;
 	@Id
     @Column(name = "id_perfil", unique = true, nullable = false)
-	@SequenceGenerator(name = "perfil_id_perfil_gen", sequenceName = "tecabix.tecabix.perfil_seq", allocationSize = 1)
+	@SequenceGenerator(name = "perfil_id_perfil_gen", sequenceName = "tecabix_spv.tecabix.perfil_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "perfil_id_perfil_gen")
     private Long id;
     @Column(name = "nombre")
@@ -56,6 +67,13 @@ public class Perfil implements Serializable{
     private String descripcion;
     @Column(name = "id_escuela")
     private Long idEscuela;
+    @Column(name = "id_usuario_modificado")
+    private Long idUsuarioModificado;
+    @Column(name = "fecha_modificado")
+    private LocalDateTime fechaDeModificacion;
+    @ManyToOne
+    @JoinColumn(name = "id_estatus")
+    private Catalogo estatus;
 	@ManyToMany(cascade = { CascadeType.ALL })
     @JoinTable(
         name = "perfil_authority", 
@@ -87,11 +105,30 @@ public class Perfil implements Serializable{
 	public void setIdEscuela(Long idEscuela) {
 		this.idEscuela = idEscuela;
 	}
+	public Long getIdUsuarioModificado() {
+		return idUsuarioModificado;
+	}
+	public void setIdUsuarioModificado(Long idUsuarioModificado) {
+		this.idUsuarioModificado = idUsuarioModificado;
+	}
+	public LocalDateTime getFechaDeModificacion() {
+		return fechaDeModificacion;
+	}
+	public void setFechaDeModificacion(LocalDateTime fechaDeModificacion) {
+		this.fechaDeModificacion = fechaDeModificacion;
+	}
+	public Catalogo getEstatus() {
+		return estatus;
+	}
+	public void setEstatus(Catalogo estatus) {
+		this.estatus = estatus;
+	}
 	public List<Authority> getAuthorities() {
 		return authorities;
 	}
 	public void setAuthorities(List<Authority> authorities) {
 		this.authorities = authorities;
 	}
+	
 	
 }

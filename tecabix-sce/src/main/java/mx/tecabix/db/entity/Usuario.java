@@ -32,6 +32,9 @@ import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 /**
  * 
  * @author Ramirez Urrutia Angel Abinad
@@ -39,7 +42,8 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "usuario")
 @NamedQueries({
-    @NamedQuery(name = "Usuario.findByNombre",query = "SELECT u FROM Usuario u WHERE u.nombre = ?1 AND u.estatus.id = 1"),
+	@NamedQuery(name = "Usuario.findByPerfil",query = "SELECT u FROM Usuario u WHERE u.perfil.id = ?1"),
+    @NamedQuery(name = "Usuario.findByNombre",query = "SELECT u FROM Usuario u WHERE u.nombre = ?1 AND u.estatus.nombre = 'ACTIVO'"),
     @NamedQuery(name = "Usuario.findByNameRegardlessOfStatus",query = "SELECT u FROM Usuario u WHERE upper(u.nombre) =  upper(?1)")
 })
 public class Usuario implements Serializable{
@@ -47,15 +51,19 @@ public class Usuario implements Serializable{
 	private static final long serialVersionUID = 8367658930410205355L;
 	@Id
     @Column(name = "id_usuario", unique = true, nullable = false)
-	@SequenceGenerator(name = "usuario_id_usuario_gen", sequenceName = "tecabix.usuario_seq", allocationSize = 1)
+	@SequenceGenerator(name = "usuario_id_usuario_gen", sequenceName = "tecabix_spv.usuario_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "usuario_id_usuario_gen")
     private Long id;
     @Column(name = "nombre")
     private String nombre;
+    @JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "psw")
     private String password;
     @Column(name = "correo")
     private String correo;
+    @ManyToOne
+    @JoinColumn(name = "id_perfil")
+    private Perfil perfil;
     @Column(name = "id_usuario_modificado")
     private Long idUsuarioModificado;
     @Column(name = "fecha_modificado")
@@ -63,6 +71,7 @@ public class Usuario implements Serializable{
     @ManyToOne
     @JoinColumn(name = "id_estatus")
     private Catalogo estatus;
+    
 	public Long getId() {
 		return id;
 	}
@@ -87,6 +96,12 @@ public class Usuario implements Serializable{
 	public void setCorreo(String correo) {
 		this.correo = correo;
 	}
+	public Perfil getPerfil() {
+		return perfil;
+	}
+	public void setPerfil(Perfil perfil) {
+		this.perfil = perfil;
+	}
 	public Long getIdUsuarioModificado() {
 		return idUsuarioModificado;
 	}
@@ -106,5 +121,4 @@ public class Usuario implements Serializable{
 		this.estatus = estatus;
 	}
     
-
 }

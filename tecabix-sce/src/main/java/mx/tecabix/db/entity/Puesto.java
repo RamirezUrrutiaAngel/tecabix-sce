@@ -47,7 +47,7 @@ public class Puesto implements Serializable{
 
 	@Id
     @Column(name = "id_puesto", unique = true, nullable = false)
-	@SequenceGenerator(name = "puesto_id_puesto_gen", sequenceName = "tecabix.puesto_seq", allocationSize = 1)
+	@SequenceGenerator(name = "puesto_id_puesto_gen", sequenceName = "tecabix_spv.puesto_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "puesto_id_puesto_gen")
     private Long id;
 	@Column(name = "nombre")

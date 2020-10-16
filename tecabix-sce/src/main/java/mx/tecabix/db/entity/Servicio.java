@@ -43,13 +43,15 @@ public class Servicio  implements Serializable{
 	private static final long serialVersionUID = -34582993453527056L;
 	@Id
     @Column(name = "id_servicio", unique = true, nullable = false)
-	@SequenceGenerator(name = "servicio_id_servicio_gen", sequenceName = "tecabix.servicio_seq", allocationSize = 1)
+	@SequenceGenerator(name = "servicio_id_servicio_gen", sequenceName = "tecabix_spv.servicio_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "servicio_id_servicio_gen")
     private Integer id;
     @Column(name = "nombre")
     private String nombre;
     @Column(name = "descripcion")
     private String descripcion;
+    @Column(name = "peticiones")
+    private Integer peticiones;
     
 	public Integer getId() {
 		return id;
@@ -69,6 +71,10 @@ public class Servicio  implements Serializable{
 	public void setDescripcion(String descripcion) {
 		this.descripcion = descripcion;
 	}
-    
-    
+	public Integer getPeticiones() {
+		return peticiones;
+	}
+	public void setPeticiones(Integer peticiones) {
+		this.peticiones = peticiones;
+	}
 }

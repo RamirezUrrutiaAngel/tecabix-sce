@@ -27,6 +27,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -38,6 +40,13 @@ import javax.persistence.Table;
  */
 @Entity()
 @Table(name = "sesion")
+@NamedQueries({
+    @NamedQuery(name = "Sesion.findByActive",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND vencimiento > NOW() AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' "),
+    @NamedQuery(name = "Sesion.findByUsuarioAndActive",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND s.idUsuarioModificado = ?2 AND vencimiento > NOW() AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' "),
+    @NamedQuery(name = "Sesion.findByToken",query = "SELECT s FROM Sesion s WHERE s.token = ?1 AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' AND ( s.licencia.tipo.nombre = 'WEB' OR s.vencimiento > NOW() )"),
+    @NamedQuery(name = "Sesion.findByNow",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND DATE(s.vencimiento) = DATE(NOW()) ORDER BY s.peticionesRestantes"),
+    @NamedQuery(name = "Sesion.findByUsuarioAndNow",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND s.idUsuarioModificado = ?2 AND DATE(s.vencimiento) = DATE(NOW()) ORDER BY s.peticionesRestantes")
+})
 public class Sesion implements Serializable{
 	
 
@@ -47,7 +56,7 @@ public class Sesion implements Serializable{
 	private static final long serialVersionUID = -1073408998327677969L;
 	@Id
     @Column(name = "id_sesion", unique = true, nullable = false)
-	@SequenceGenerator(name = "sesion_id_sesion_gen", sequenceName = "tecabix.sesion_seq", allocationSize = 1)
+	@SequenceGenerator(name = "sesion_id_sesion_gen", sequenceName = "tecabix_spv.sesion_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sesion_id_sesion_gen")
     private Long id;
     @Column(name = "key_token")
@@ -57,6 +66,8 @@ public class Sesion implements Serializable{
     @ManyToOne
     @JoinColumn(name = "id_licencia")
     private Licencia licencia;
+    @Column(name = "peticiones_restantes")
+    private Integer peticionesRestantes;
     @Column(name = "id_usuario_modificado")
     private Long idUsuarioModificado;
     @Column(name = "fecha_modificado")
@@ -88,6 +99,12 @@ public class Sesion implements Serializable{
 	public void setLicencia(Licencia licencia) {
 		this.licencia = licencia;
 	}
+	public Integer getPeticionesRestantes() {
+		return peticionesRestantes;
+	}
+	public void setPeticionesRestantes(Integer peticionesRestantes) {
+		this.peticionesRestantes = peticionesRestantes;
+	}
 	public Long getIdUsuarioModificado() {
 		return idUsuarioModificado;
 	}
@@ -106,6 +123,5 @@ public class Sesion implements Serializable{
 	public void setEstatus(Catalogo estatus) {
 		this.estatus = estatus;
 	}
-    
     
 }

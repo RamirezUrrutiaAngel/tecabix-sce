@@ -25,7 +25,7 @@ public class PersonaFisica implements Serializable{
 	private static final long serialVersionUID = 701859570029260114L;
 	@Id
     @Column(name = "id_persona_fisica", unique = true, nullable = false)
-	@SequenceGenerator(name = "persona_fisica_id_persona_fisica_gen", sequenceName = "tecabix.persona_fisica_seq", allocationSize = 1)
+	@SequenceGenerator(name = "persona_fisica_id_persona_fisica_gen", sequenceName = "tecabix_spv.persona_fisica_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "persona_fisica_id_persona_fisica_gen")
     private Long id;
 	@OneToOne
@@ -37,6 +37,10 @@ public class PersonaFisica implements Serializable{
     private String apellidoPaterno;
     @Column(name = "apellido_materno")
     private String apellidoMaterno;
+    @ManyToOne
+    @JoinColumn(name = "id_sexo")
+    private Catalogo sexo;
+	
     @Column(name = "fecha_nacimiento")
     private LocalDate fechaNacimiento;
     @OneToOne
@@ -79,6 +83,12 @@ public class PersonaFisica implements Serializable{
 	public void setApellidoMaterno(String apellidoMaterno) {
 		this.apellidoMaterno = apellidoMaterno;
 	}
+	public Catalogo getSexo() {
+		return sexo;
+	}
+	public void setSexo(Catalogo sexo) {
+		this.sexo = sexo;
+	}
 	public LocalDate getFechaNacimiento() {
 		return fechaNacimiento;
 	}
@@ -109,5 +119,7 @@ public class PersonaFisica implements Serializable{
 	public void setEstatus(Catalogo estatus) {
 		this.estatus = estatus;
 	}
+	
+    
     
 }

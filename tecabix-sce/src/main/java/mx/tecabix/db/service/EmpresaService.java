@@ -1,8 +1,8 @@
 package mx.tecabix.db.service;
 
-import mx.tecabix.db.entity.Empresa;
+import mx.tecabix.db.entity.Escuela;
 
 public interface EmpresaService {
 
-	public Empresa save(Empresa save);
+	public Escuela save(Escuela save);
 }

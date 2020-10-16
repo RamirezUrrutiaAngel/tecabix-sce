@@ -46,14 +46,14 @@ public class Plantel implements Serializable{
 	private static final long serialVersionUID = -1144141703432606826L;
 	@Id
     @Column(name = "id_plantel", unique = true, nullable = false)
-	@SequenceGenerator(name = "plantel_id_plantel_gen", sequenceName = "tecabix.plantel_seq", allocationSize = 1)
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "plantel_id_plantel_gen")
+	@SequenceGenerator(name = "sucursal_id_sucursal_gen", sequenceName = "tecabix_spv.sucursal_seq", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sucursal_id_sucursal_gen")
     private Long id;
     @Column(name = "nombre")
     private String nombre;
     @ManyToOne
-    @JoinColumn(name = "id_director")
-    private Trabajador director;
+    @JoinColumn(name = "id_gerente")
+    private Trabajador gerente;
     @ManyToOne
     @JoinColumn(name = "id_direccion")
     private Direccion direccion;
@@ -78,11 +78,11 @@ public class Plantel implements Serializable{
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
 	}
-	public Trabajador getDirector() {
-		return director;
+	public Trabajador getGerente() {
+		return gerente;
 	}
-	public void setDirector(Trabajador director) {
-		this.director = director;
+	public void setGerente(Trabajador gerente) {
+		this.gerente = gerente;
 	}
 	public Direccion getDireccion() {
 		return direccion;
@@ -114,6 +114,5 @@ public class Plantel implements Serializable{
 	public void setEstatus(Catalogo estatus) {
 		this.estatus = estatus;
 	}
-    
     
 }

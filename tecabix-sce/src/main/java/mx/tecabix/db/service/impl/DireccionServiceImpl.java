@@ -20,5 +20,11 @@ public class DireccionServiceImpl implements DireccionService {
 		save = direccionRepository.save(save);
 		return save;
 	}
+
+	@Override
+	public Direccion update(Direccion update) {
+		update = direccionRepository.save(update);
+		return update;
+	}
 	
 }

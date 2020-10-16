@@ -46,17 +46,20 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 public class Catalogo implements Serializable{
 
 	private static final long serialVersionUID = 8898558749708373148L;
+	
 	@Id
     @Column(name = "id_catalogo", unique = true, nullable = false)
-	@SequenceGenerator(name = "catalogo_id_catalogo_gen", sequenceName = "tecabix.catalogo_seq", allocationSize = 1)
+	@SequenceGenerator(name = "catalogo_id_catalogo_gen", sequenceName = "tecabix_spv.catalogo_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "catalogo_id_catalogo_gen")
-    private Integer id;
+	private Integer id;
     @Column(name = "nombre")
     private String nombre;
+    @JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "nombre_completo")
     private String nombreCompleto;
     @Column(name = "descripcion")
     private String descripcion;
+    @JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "orden")
     private Integer orden;
     @JsonProperty(access = Access.WRITE_ONLY)

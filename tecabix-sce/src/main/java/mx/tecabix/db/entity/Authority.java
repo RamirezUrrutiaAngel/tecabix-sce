@@ -56,7 +56,7 @@ public class Authority implements Serializable{
 	
 	@Id
     @Column(name = "id_authority", unique = true, nullable = false)
-	@SequenceGenerator(name = "authority_id_authority_gen", sequenceName = "tecabix.authority_seq", allocationSize = 1)
+	@SequenceGenerator(name = "authority_id_authority_gen", sequenceName = "tecabix_spv.authority_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "authority_id_authority_gen")
     private Integer id;
     @Column(name = "nombre")
@@ -68,6 +68,7 @@ public class Authority implements Serializable{
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "id_pre_authority")
     private Authority preAuthority;
+    @JsonProperty(access = Access.WRITE_ONLY)
     @OneToMany(fetch = FetchType.LAZY, mappedBy="preAuthority", cascade=CascadeType.REMOVE)
     private List<Authority> subAuthority;
     @JsonProperty(access = Access.WRITE_ONLY)

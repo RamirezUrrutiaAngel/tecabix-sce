@@ -48,7 +48,7 @@ public class Suscripcion implements Serializable{
 	private static final long serialVersionUID = -6577049550950356830L;
 	@Id
     @Column(name = "id_suscripcion", unique = true, nullable = false)
-	@SequenceGenerator(name = "suscripcion_id_suscripcion_gen", sequenceName = "tecabix.suscripcion_seq", allocationSize = 1)
+	@SequenceGenerator(name = "suscripcion_id_suscripcion_gen", sequenceName = "tecabix_spv.suscripcion_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "suscripcion_id_suscripcion_gen")
     private Long id;
 	@ManyToOne
@@ -56,7 +56,7 @@ public class Suscripcion implements Serializable{
 	private Plan plan;
 	@ManyToOne
     @JoinColumn(name = "id_escuela")
-	private Empresa escuela;
+	private Escuela escuela;
 	@Column(name = "vencimiento")
 	private LocalDate vencimiento;
     @Column(name = "id_usuario_modificado")
@@ -78,10 +78,10 @@ public class Suscripcion implements Serializable{
 	public void setPlan(Plan plan) {
 		this.plan = plan;
 	}
-	public Empresa getEscuela() {
+	public Escuela getEscuela() {
 		return escuela;
 	}
-	public void setEscuela(Empresa escuela) {
+	public void setEscuela(Escuela escuela) {
 		this.escuela = escuela;
 	}
 	public LocalDate getVencimiento() {
@@ -109,5 +109,4 @@ public class Suscripcion implements Serializable{
 		this.estatus = estatus;
 	}
     
-
 }

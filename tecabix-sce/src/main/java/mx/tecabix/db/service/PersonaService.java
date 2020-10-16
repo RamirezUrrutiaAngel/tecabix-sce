@@ -6,4 +6,5 @@ import mx.tecabix.db.entity.Persona;
 public interface PersonaService {
 	
 	Persona save(Persona save);
+	Persona update(Persona update);
 }

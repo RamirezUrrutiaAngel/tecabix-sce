@@ -27,6 +27,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -38,6 +40,9 @@ import javax.persistence.Table;
  */
 @Entity()
 @Table(name = "licencia")
+@NamedQueries({
+    @NamedQuery(name = "Licencia.findByToken",query = "SELECT l FROM Licencia l WHERE l.token = ?1 AND l.estatus.nombre = 'ACTIVO' ")
+})
 public class Licencia implements Serializable{
 	
 
@@ -47,7 +52,7 @@ public class Licencia implements Serializable{
 	private static final long serialVersionUID = -7984126238616476436L;
 	@Id
     @Column(name = "id_licencia", unique = true, nullable = false)
-	@SequenceGenerator(name = "licencia_id_licencia_gen", sequenceName = "tecabix.licencia_seq", allocationSize = 1)
+	@SequenceGenerator(name = "licencia_id_licencia_gen", sequenceName = "tecabix_spv.licencia_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "licencia_id_licencia_gen")
     private Long id;
     @Column(name = "nombre")
@@ -60,6 +65,9 @@ public class Licencia implements Serializable{
     @ManyToOne
     @JoinColumn(name = "id_plantel")
     private Plantel plantel;
+    @ManyToOne
+    @JoinColumn(name = "id_tipo")
+    private Catalogo tipo;
     @Column(name = "id_usuario_modificado")
     private Long idUsuarioModificado;
     @Column(name = "fecha_modificado")
@@ -96,6 +104,12 @@ public class Licencia implements Serializable{
 	}
 	public void setPlantel(Plantel plantel) {
 		this.plantel = plantel;
+	}
+	public Catalogo getTipo() {
+		return tipo;
+	}
+	public void setTipo(Catalogo tipo) {
+		this.tipo = tipo;
 	}
 	public Long getIdUsuarioModificado() {
 		return idUsuarioModificado;

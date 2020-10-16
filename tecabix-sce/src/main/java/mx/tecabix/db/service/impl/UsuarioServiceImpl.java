@@ -1,6 +1,9 @@
 package mx.tecabix.db.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.entity.Usuario;
@@ -34,5 +37,12 @@ public class UsuarioServiceImpl implements UsuarioService{
 	public Usuario findByNameRegardlessOfStatus(String nombre) {
 		Usuario usr = usuarioRepository.findByNameRegardlessOfStatus(nombre);
 		return usr;
+	}
+
+	@Override
+	public Page<Usuario> findByPerfil(Long idPerfil, int elements, int page) {
+		Pageable pageable = PageRequest.of(page, elements);
+		Page<Usuario> entitys = usuarioRepository.findByPerfil(idPerfil, pageable);
+		return entitys;
 	}
 }

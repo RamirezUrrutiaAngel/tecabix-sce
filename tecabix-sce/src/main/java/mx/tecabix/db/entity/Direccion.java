@@ -44,7 +44,7 @@ public class Direccion implements Serializable {
 	
 	@Id
     @Column(name = "id_direccion", unique = true, nullable = false)
-	@SequenceGenerator(name = "direccion_id_direccion_gen", sequenceName = "tecabix.direccion_seq", allocationSize = 1)
+	@SequenceGenerator(name = "direccion_id_direccion_gen", sequenceName = "tecabix_spv.direccion_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "direccion_id_direccion_gen")
     private Long id;
 	@Column(name = "calle")
@@ -55,8 +55,8 @@ public class Direccion implements Serializable {
     private String numInt;
 	@Column(name = "num_ext")
     private String numExt;
-	@Column(name = "colonia")
-    private String colonia;
+	@Column(name = "asentamiento")
+    private String asentamiento;
 	@Column(name = "entre_calle")
     private String entreCalle;
 	@Column(name = "referencia")
@@ -101,11 +101,11 @@ public class Direccion implements Serializable {
 	public void setNumExt(String numExt) {
 		this.numExt = numExt;
 	}
-	public String getColonia() {
-		return colonia;
+	public String getAsentamiento() {
+		return asentamiento;
 	}
-	public void setColonia(String colonia) {
-		this.colonia = colonia;
+	public void setAsentamiento(String asentamiento) {
+		this.asentamiento = asentamiento;
 	}
 	public String getEntreCalle() {
 		return entreCalle;
@@ -143,8 +143,5 @@ public class Direccion implements Serializable {
 	public void setEstatus(Catalogo estatus) {
 		this.estatus = estatus;
 	}
-    
-    
-    
     
 }

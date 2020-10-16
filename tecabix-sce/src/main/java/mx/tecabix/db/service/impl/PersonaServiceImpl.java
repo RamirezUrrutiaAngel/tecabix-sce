@@ -18,4 +18,10 @@ public class PersonaServiceImpl implements PersonaService{
 		save = personaRepository.save(save);
 		return save;
 	}
+
+	@Override
+	public Persona update(Persona update) {
+		update = personaRepository.save(update);
+		return update;
+	}
 }

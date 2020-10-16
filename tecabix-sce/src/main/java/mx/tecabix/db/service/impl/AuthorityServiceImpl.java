@@ -1,6 +1,7 @@
 package mx.tecabix.db.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,5 +19,11 @@ public class AuthorityServiceImpl implements AuthorityService{
 	public List<Authority> findAll(){
 		List<Authority> list = authorityRepository.findAll();
 		return list;
+	}
+
+	@Override
+	public Optional<Authority> findById(Integer id) {
+		Optional<Authority> response = authorityRepository.findById(id);
+		return response;
 	}
 }

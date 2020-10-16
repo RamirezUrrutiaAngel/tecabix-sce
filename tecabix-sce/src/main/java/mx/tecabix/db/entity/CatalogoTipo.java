@@ -21,7 +21,7 @@ public class CatalogoTipo implements Serializable{
 	private static final long serialVersionUID = -4174323806062618433L;
 	@Id
     @Column(name = "id_catalogo_tipo", unique = true, nullable = false)
-	@SequenceGenerator(name = "catalogo_tipo_id_catalogo_tipo_gen", sequenceName = "tecabix.catalogo_tipo_seq", allocationSize = 1)
+	@SequenceGenerator(name = "catalogo_tipo_id_catalogo_tipo_gen", sequenceName = "tecabix_spv.catalogo_tipo_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "catalogo_tipo_id_catalogo_tipo_gen")
     private Integer id;
 	@Column(name = "nombre")

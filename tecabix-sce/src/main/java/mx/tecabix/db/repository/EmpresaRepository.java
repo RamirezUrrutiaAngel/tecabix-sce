@@ -2,9 +2,9 @@ package mx.tecabix.db.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import mx.tecabix.db.entity.Empresa;
+import mx.tecabix.db.entity.Escuela;
 
-public interface EmpresaRepository extends JpaRepository<Empresa, Long>{
+public interface EmpresaRepository extends JpaRepository<Escuela, Long>{
 
 	
 }
