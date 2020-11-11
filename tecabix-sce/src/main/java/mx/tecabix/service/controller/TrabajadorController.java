@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import mx.tecabix.Auth;
 import mx.tecabix.db.entity.Catalogo;
 import mx.tecabix.db.entity.Direccion;
@@ -35,7 +37,11 @@ import mx.tecabix.db.service.PersonaService;
 import mx.tecabix.db.service.SesionService;
 import mx.tecabix.db.service.TrabajadorService;
 import mx.tecabix.db.service.UsuarioService;
-
+/**
+ * 
+ * @author Ramirez Urrutia Angel Abinadi
+ * 
+ */
 @RestController
 @RequestMapping("trabajador")
 public class TrabajadorController {
@@ -74,10 +80,13 @@ public class TrabajadorController {
 	private final String TRABAJADOR_ACTIVAR = "TRABAJADOR_ACTIVAR";
 	private final String TRABAJADOR_ELIMINAR = "TRABAJADOR_ELIMINAR";
 	
-	private final String USUARIO_TRABAJADOR_CREAR = "USUARIO_TRABAJADOR_CREAR";
 	
 	
-	
+	@ApiOperation(value = "Devuelve los datos del trabajador que realiza la petición.")
+	@ApiResponses(value = {
+				@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
+				@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso.")
+		})
 	@GetMapping
 	public ResponseEntity<Trabajador> get(@RequestParam(value="token") String token) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -93,6 +102,11 @@ public class TrabajadorController {
 		return new ResponseEntity<Trabajador>(trabajador,HttpStatus.OK);
 	}
 	
+	@ApiOperation(value = "Trae todos los trabajadores paginados con estatus ACTIVO.")
+	@ApiResponses(value = {
+				@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
+				@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso.")
+			})
 	@GetMapping("findAll")
 	public ResponseEntity<Page<Trabajador>> findAll(@RequestParam(value="token") String token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -109,6 +123,11 @@ public class TrabajadorController {
 		return new ResponseEntity<Page<Trabajador>>(trabajador,HttpStatus.OK);
 	}
 	
+	@ApiOperation(value = "Trae los trabajadores por coincidencia de nombre")
+	@ApiResponses(value = {
+				@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
+				@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso.")
+			})
 	@GetMapping("findAllByNombre")
 	public ResponseEntity<Page<Trabajador>> findAllByNombre(@RequestParam(value="token") String token, @RequestParam(value="nombre") String nombre,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -126,6 +145,15 @@ public class TrabajadorController {
 	}
 	
 	
+	@ApiOperation(value = "Dar de alta un nuevo trabajador",
+			notes = "Dar de alta un trabajador nuevo en una empresa ya existente, pero no se encontrara habilitado hasta que se active con el serivicio trabajador/activar.")
+	@ApiResponses(value = {
+				@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
+				@ApiResponse(code = 400, message = "Faltan datos para poder procesar la petición o no son validos."),
+				@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso."),
+				@ApiResponse(code = 406, message = "Uno o varios datos ingresados no son validos para procesar la petición."),
+				@ApiResponse(code = 409, message = "La petición no pudo realizarse por que el usuario que se intenta guardar ya existe.")
+			})
 	@PostMapping
 	public ResponseEntity<Trabajador> save(@RequestBody Trabajador trabajador, @RequestParam(value="token") String token) {
 		
@@ -144,7 +172,6 @@ public class TrabajadorController {
 		if(trabajador.getJefe() == null || trabajador.getJefe().getId() == null)return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		if(trabajador.getPuesto() == null || trabajador.getPuesto().getId() == null)return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		
-		if(trabajador.getUsuario() == null)return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		PersonaFisica persona = trabajador.getPersonaFisica();
 		if(persona == null ) return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		if(persona.getNombre() == null || persona.getNombre().isEmpty()) return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
@@ -168,22 +195,7 @@ public class TrabajadorController {
 		if(municipio == null)return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 		Trabajador jefe = trabajadorService.findById(trabajador.getJefe().getId());
 		if(jefe == null)return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
-		Usuario usuario = trabajador.getUsuario();
-		if(usuario != null && Auth.hash(auth, USUARIO_TRABAJADOR_CREAR)) {
-			
-			if(usuario.getCorreo() == null || usuario.getCorreo().isEmpty()) return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-			if(usuario.getNombre() == null || usuario.getNombre().isEmpty()) return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-			if(usuario.getPassword() == null || usuario.getPassword().isEmpty()) return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-			if(usuario.getNombre().length()<8) return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
-			if(usuarioService.findByNameRegardlessOfStatus(usuario.getNombre())!= null)return new ResponseEntity<Trabajador>(HttpStatus.CONFLICT);
-			BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-			usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
-			usuario.setFechaDeModificacion(LocalDateTime.now());
-			usuario.setIdUsuarioModificado(usr.getId());
-			usuario.setEstatus(CAT_PENDIENTE);
-			usuario = usuarioService.save(usuario);
-			trabajador.setUsuario(usuario);
-		}
+		
 		
 		direccion.setEstatus(CAT_PENDIENTE);
 		direccion.setMunicipio(municipio);
@@ -212,10 +224,19 @@ public class TrabajadorController {
 		trabajador.setJefe(jefe);
 		trabajador.setPersonaFisica(persona);
 		trabajadorService.save(trabajador);
-		trabajador.getUsuario().setPassword(null);
 		return new ResponseEntity<Trabajador>(trabajador, HttpStatus.OK);
 	}
 	
+	
+	@ApiOperation(value = "Activar trabajador dado de alta",
+			notes = "Activa el trabajador con sus corespondientes usuario y direccion")
+	@ApiResponses(value = {
+				@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
+				@ApiResponse(code = 400, message = "Faltan datos para poder procesar la petición o no son validos."),
+				@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso."),
+				@ApiResponse(code = 406, message = "Uno o varios datos ingresados no son validos para procesar la petición."),
+				@ApiResponse(code = 409, message = "La petición no pudo realizarse por que el usuario que se intenta guardar ya existe.")
+			})
 	@PutMapping("activar")
 	public ResponseEntity<Trabajador> activar(@RequestParam(value="id") Long id, @RequestParam(value="token") String token) {
 		
@@ -234,10 +255,7 @@ public class TrabajadorController {
 		Long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
 		if(trabajador == null)return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		if(trabajador.getIdEscuela().longValue() != idEscuela.longValue())return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
-		Usuario usuario = trabajador.getUsuario();
-		usuario.setEstatus(CAT_ACTIVO);
-		usuarioService.update(usuario);
-		trabajador.setUsuario(usuario);
+		
 		PersonaFisica personaFisica = trabajador.getPersonaFisica();
 		personaFisica.setEstatus(CAT_ACTIVO);
 		Persona persona = personaFisica.getPresona();
@@ -254,6 +272,7 @@ public class TrabajadorController {
 		return new ResponseEntity<Trabajador>(trabajador, HttpStatus.OK);
 	}
 	
+	@ApiOperation(value = "Eliminar trabajador y dependencias")
 	@DeleteMapping("eliminar")
 	public ResponseEntity<Trabajador> eliminar(@RequestParam(value="id") Long id, @RequestParam(value="token") String token) {
 		
@@ -273,10 +292,6 @@ public class TrabajadorController {
 		if(trabajador == null)return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		Long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
 		if(trabajador.getIdEscuela().longValue() != idEscuela.longValue())return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
-		Usuario usuario = trabajador.getUsuario();
-		usuario.setEstatus(CAT_ELIMINADO);
-		usuarioService.update(usuario);
-		trabajador.setUsuario(usuario);
 		PersonaFisica personaFisica = trabajador.getPersonaFisica();
 		personaFisica.setEstatus(CAT_ELIMINADO);
 		Persona persona = personaFisica.getPresona();

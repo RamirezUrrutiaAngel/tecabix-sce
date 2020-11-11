@@ -1,5 +1,7 @@
 package mx.tecabix.db.service.impl;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -44,5 +46,15 @@ public class UsuarioServiceImpl implements UsuarioService{
 		Pageable pageable = PageRequest.of(page, elements);
 		Page<Usuario> entitys = usuarioRepository.findByPerfil(idPerfil, pageable);
 		return entitys;
+	}
+
+	@Override
+	public Usuario findById(long id) {
+		Usuario usuario = null;
+		Optional<Usuario> o = usuarioRepository.findById(id);
+		if(o.isPresent()) {
+			usuario = o.get();
+		}
+		return usuario;
 	}
 }

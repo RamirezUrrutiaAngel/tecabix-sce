@@ -23,13 +23,15 @@ import mx.tecabix.service.response.AuthorityListResponse;
 public class AuthorityController {
 	
 	private static final String AUTHORITY = "AUTHORITY";
+	private static final String PERFIL = "PERFIL";
+	
 	@Autowired
 	private AuthorityService authorityService;
 	
 	@GetMapping("findAll")
 	public ResponseEntity<AuthorityListResponse> findAll(){
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, AUTHORITY)) {
+		if(!Auth.hash(auth, AUTHORITY,PERFIL)) {
 			return new ResponseEntity<AuthorityListResponse>(HttpStatus.UNAUTHORIZED);
 		}
 		
@@ -40,7 +42,6 @@ public class AuthorityController {
 				authority.setSubAuthority(null);
 			}
 		}
-		
 		List<GrantedAuthority> list = new ArrayList<GrantedAuthority>(auth.getAuthorities());
 		for (GrantedAuthority grantedAuthority : list) {
 			System.out.println(grantedAuthority.getAuthority());

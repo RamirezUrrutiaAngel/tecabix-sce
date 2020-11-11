@@ -46,8 +46,8 @@ public class Plantel implements Serializable{
 	private static final long serialVersionUID = -1144141703432606826L;
 	@Id
     @Column(name = "id_plantel", unique = true, nullable = false)
-	@SequenceGenerator(name = "sucursal_id_sucursal_gen", sequenceName = "tecabix_spv.sucursal_seq", allocationSize = 1)
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sucursal_id_sucursal_gen")
+	@SequenceGenerator(name = "plantel_id_plantel_gen", sequenceName = "tecabix_sce.plantel_seq", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "plantel_id_plantel_gen")
     private Long id;
     @Column(name = "nombre")
     private String nombre;

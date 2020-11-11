@@ -101,7 +101,7 @@ public class PerfilController {
 	}
 	
 	@PostMapping
-	public ResponseEntity<Perfil> post(@RequestParam(value="token") String token,@RequestBody Perfil perfil){
+	public ResponseEntity<Perfil> save(@RequestParam(value="token") String token,@RequestBody Perfil perfil){
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if(!Auth.hash(auth, PERFIL_CREAR)) return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
 		Sesion sesion = sesionService.findByToken(token);
@@ -135,7 +135,7 @@ public class PerfilController {
 	}
 	
 	@PutMapping
-	public ResponseEntity<Perfil> put(@RequestParam(value="token") String token,@RequestBody Perfil perfil){
+	public ResponseEntity<Perfil> update(@RequestParam(value="token") String token,@RequestBody Perfil perfil){
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if(!Auth.hash(auth, PERFIL_EDITAR)) return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
 		Sesion sesion = sesionService.findByToken(token);

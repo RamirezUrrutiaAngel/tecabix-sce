@@ -21,15 +21,21 @@ package mx.tecabix.db.entity;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 /**
  * 
@@ -50,6 +56,8 @@ public class Persona implements Serializable {
 	@ManyToOne
     @JoinColumn(name = "id_tipo")
     private Catalogo tipo;
+	@Column(name = "id_escuela")
+    private Long idEscuela;
 	@Column(name = "id_usuario_modificado")
     private Long idUsuarioModificado;
     @Column(name = "fecha_modificado")
@@ -57,6 +65,9 @@ public class Persona implements Serializable {
     @ManyToOne
     @JoinColumn(name = "id_estatus")
     private Catalogo estatus;
+    @JsonProperty(access = Access.WRITE_ONLY)
+	@OneToOne(fetch = FetchType.LAZY, mappedBy = "persona", cascade=CascadeType.REMOVE)
+	private UsuarioPersona usuarioPersona;
 	public Long getId() {
 		return id;
 	}
@@ -68,6 +79,12 @@ public class Persona implements Serializable {
 	}
 	public void setTipo(Catalogo tipo) {
 		this.tipo = tipo;
+	}
+	public Long getIdEscuela() {
+		return idEscuela;
+	}
+	public void setIdEscuela(Long idEscuela) {
+		this.idEscuela = idEscuela;
 	}
 	public Long getIdUsuarioModificado() {
 		return idUsuarioModificado;
@@ -87,6 +104,11 @@ public class Persona implements Serializable {
 	public void setEstatus(Catalogo estatus) {
 		this.estatus = estatus;
 	}
-    
+	public UsuarioPersona getUsuarioPersona() {
+		return usuarioPersona;
+	}
+	public void setUsuarioPersona(UsuarioPersona usuarioPersona) {
+		this.usuarioPersona = usuarioPersona;
+	}
     
 }

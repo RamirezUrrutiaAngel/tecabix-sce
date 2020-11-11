@@ -38,8 +38,8 @@ public class TecabixWebSecurityConfigurer extends WebSecurityConfigurerAdapter {
     protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
 		auth.jdbcAuthentication()
 		.dataSource(dataSource)
-		.usersByUsernameQuery("SELECT nombre, psw, true FROM tecabix_spv.usuario u WHERE u.id_estatus = 1 AND u.nombre = ?")
-		.authoritiesByUsernameQuery("SELECT u.nombre AS USUARIO, a.nombre AS ROL FROM tecabix_spv.authority a JOIN tecabix_spv.perfil_authority pa ON (a.id_authority = pa.id_authority) JOIN tecabix_spv.perfil p ON (pa.id_perfil = p.id_perfil) JOIN tecabix_spv.usuario u ON ( p.id_perfil = u.id_perfil) WHERE u.id_estatus = 1 AND  u.nombre = ?")
+		.usersByUsernameQuery("SELECT nombre, psw, true FROM tecabix_sce.usuario u WHERE u.id_estatus = 1 AND u.nombre = ?")
+		.authoritiesByUsernameQuery("SELECT u.nombre AS USUARIO, a.nombre AS ROL FROM tecabix_sce.authority a JOIN tecabix_sce.perfil_authority pa ON (a.id_authority = pa.id_authority) JOIN tecabix_sce.perfil p ON (pa.id_perfil = p.id_perfil) JOIN tecabix_sce.usuario u ON ( p.id_perfil = u.id_perfil) WHERE u.id_estatus = 1 AND  u.nombre = ?")
 		.passwordEncoder(passwordEncoder());
     }
 	

@@ -20,10 +20,8 @@ package mx.tecabix.db.entity;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -43,69 +41,52 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
  * @author Ramirez Urrutia Angel Abinad
  */
 @Entity
-@Table(name = "usuario")
+@Table(name = "usuario_persona")
 @NamedQueries({
-	@NamedQuery(name = "Usuario.findByPerfil",query = "SELECT u FROM Usuario u WHERE u.perfil.id = ?1"),
-    @NamedQuery(name = "Usuario.findByNombre",query = "SELECT u FROM Usuario u WHERE u.nombre = ?1 AND u.estatus.nombre = 'ACTIVO'"),
-    @NamedQuery(name = "Usuario.findByNameRegardlessOfStatus",query = "SELECT u FROM Usuario u WHERE upper(u.nombre) =  upper(?1)")
+	@NamedQuery(name = "UsuarioPersona.findByUsuario",query = "SELECT u FROM UsuarioPersona u WHERE u.usuario.nombre = ?1 AND u.usuario.estatus.nombre = 'ACTIVO' ")
 })
-public class Usuario implements Serializable{
-
-	private static final long serialVersionUID = 8367658930410205355L;
+public class UsuarioPersona  implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 9003283526926309837L;
 	@Id
-    @Column(name = "id_usuario", unique = true, nullable = false)
-	@SequenceGenerator(name = "usuario_id_usuario_gen", sequenceName = "tecabix_spv.usuario_seq", allocationSize = 1)
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "usuario_id_usuario_gen")
+    @Column(name = "id_usuario_persona", unique = true, nullable = false)
+	@SequenceGenerator(name = "usuario_persona_id_usuario_persona_gen", sequenceName = "tecabix_spv.usuario_persona_seq", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "usuario_persona_id_usuario_persona_gen")
     private Long id;
-    @Column(name = "nombre")
-    private String nombre;
-    @JsonProperty(access = Access.WRITE_ONLY)
-    @Column(name = "psw")
-    private String password;
-    @Column(name = "correo")
-    private String correo;
-    @ManyToOne
-    @JoinColumn(name = "id_perfil")
-    private Perfil perfil;
-    @Column(name = "id_usuario_modificado")
+	@JsonProperty(access = Access.WRITE_ONLY)
+	@OneToOne
+	@JoinColumn(name = "id_usuario")
+	private Usuario usuario;
+	@JsonProperty(access = Access.WRITE_ONLY)
+	@OneToOne
+	@JoinColumn(name = "id_persona")
+	private Persona persona;
+	@Column(name = "id_usuario_modificado")
     private Long idUsuarioModificado;
     @Column(name = "fecha_modificado")
     private LocalDateTime fechaDeModificacion;
     @ManyToOne
     @JoinColumn(name = "id_estatus")
     private Catalogo estatus;
-    @JsonProperty(access = Access.WRITE_ONLY)
-	@OneToOne(fetch = FetchType.LAZY, mappedBy = "usuario", cascade=CascadeType.REMOVE)
-	private UsuarioPersona usuarioPersona;
 	public Long getId() {
 		return id;
 	}
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getNombre() {
-		return nombre;
+	public Usuario getUsuario() {
+		return usuario;
 	}
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
 	}
-	public String getPassword() {
-		return password;
+	public Persona getPersona() {
+		return persona;
 	}
-	public void setPassword(String password) {
-		this.password = password;
-	}
-	public String getCorreo() {
-		return correo;
-	}
-	public void setCorreo(String correo) {
-		this.correo = correo;
-	}
-	public Perfil getPerfil() {
-		return perfil;
-	}
-	public void setPerfil(Perfil perfil) {
-		this.perfil = perfil;
+	public void setPersona(Persona persona) {
+		this.persona = persona;
 	}
 	public Long getIdUsuarioModificado() {
 		return idUsuarioModificado;
@@ -124,12 +105,6 @@ public class Usuario implements Serializable{
 	}
 	public void setEstatus(Catalogo estatus) {
 		this.estatus = estatus;
-	}
-	public UsuarioPersona getUsuarioPersona() {
-		return usuarioPersona;
-	}
-	public void setUsuarioPersona(UsuarioPersona usuarioPersona) {
-		this.usuarioPersona = usuarioPersona;
 	}
     
 }

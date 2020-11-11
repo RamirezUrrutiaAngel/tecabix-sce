@@ -47,7 +47,7 @@ import javax.persistence.Table;
 	@NamedQuery(name = "Trabajador.findAll",query = "SELECT t FROM Trabajador t WHERE t.idEscuela = ?1 AND t.estatus.nombre = 'ACTIVO' ORDER BY t.personaFisica.apellidoPaterno"),
 	@NamedQuery(name = "Trabajador.findAllByNombre",query = "SELECT t FROM Trabajador t WHERE t.idEscuela = ?1 AND t.estatus.nombre = 'ACTIVO' AND t.personaFisica.nombre LIKE ?2 ORDER BY t.personaFisica.nombre"),
 
-	@NamedQuery(name = "Trabajador.findByUsuario",query = "SELECT t FROM Trabajador t WHERE t.usuario.nombre = ?1 AND t.estatus.nombre = 'ACTIVO' ")
+	@NamedQuery(name = "Trabajador.findByUsuario",query = "SELECT t FROM Trabajador t WHERE t.personaFisica.presona.usuarioPersona.usuario.nombre = ?1 AND t.estatus.nombre = 'ACTIVO' ")
 
 })
 public class Trabajador implements Serializable{
@@ -65,9 +65,6 @@ public class Trabajador implements Serializable{
 	@ManyToOne
     @JoinColumn(name = "id_persona_fisica")
 	private PersonaFisica personaFisica;
-	@ManyToOne
-    @JoinColumn(name = "id_usuario")
-	private Usuario usuario;
 	@ManyToOne
     @JoinColumn(name = "id_puesto")
 	private Puesto puesto;
@@ -102,12 +99,6 @@ public class Trabajador implements Serializable{
 	}
 	public void setPersonaFisica(PersonaFisica personaFisica) {
 		this.personaFisica = personaFisica;
-	}
-	public Usuario getUsuario() {
-		return usuario;
-	}
-	public void setUsuario(Usuario usuario) {
-		this.usuario = usuario;
 	}
 	public Puesto getPuesto() {
 		return puesto;

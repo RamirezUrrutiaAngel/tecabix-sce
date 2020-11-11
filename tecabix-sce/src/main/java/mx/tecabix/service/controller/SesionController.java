@@ -52,6 +52,11 @@ public class SesionController {
 	
 	private final String TIPO_DE_LICENCIA = "TIPO_DE_LICENCIA";
 	private final String WEB = "WEB";
+	
+	@GetMapping("validateUsrPasw")
+	public ResponseEntity<Object> validateUsrPasw() {
+		return new ResponseEntity<Object>(HttpStatus.OK);
+	}
 
 	@PostMapping
 	public ResponseEntity<Sesion> post(@RequestParam(value="key") String key){

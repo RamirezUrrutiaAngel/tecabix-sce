@@ -1,5 +1,7 @@
 package mx.tecabix.db.service.impl;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,5 +25,15 @@ public class PersonaServiceImpl implements PersonaService{
 	public Persona update(Persona update) {
 		update = personaRepository.save(update);
 		return update;
+	}
+
+	@Override
+	public Persona findById(long id) {
+		Optional<Persona> o = personaRepository.findById(id);
+		Persona result = null;
+		if(o.isPresent()) {
+			result = o.get();
+		}
+		return result;
 	}
 }
