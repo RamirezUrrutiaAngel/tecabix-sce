@@ -1,3 +1,20 @@
+/*
+ *   This file is part of Foobar.
+ *
+ *   Foobar is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Foobar is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 package mx.tecabix.service.controller;
 
 import java.time.LocalDateTime;
@@ -27,7 +44,11 @@ import mx.tecabix.db.service.PersonaService;
 import mx.tecabix.db.service.SesionService;
 import mx.tecabix.db.service.UsuarioPersonaService;
 import mx.tecabix.db.service.UsuarioService;
-
+/**
+ * 
+ * @author Ramirez Urrutia Angel Abinadi
+ * 
+ */
 @RestController
 @RequestMapping("usuario")
 public class UsuarioController {
@@ -59,8 +80,12 @@ public class UsuarioController {
 		Sesion sesion = sesionService.findByToken(token);
 		String usuarioName = auth.getName();
 		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null)return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
-		if(usr == null)return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
+		if(sesion == null) {
+			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
+		}
+		if(usr == null) {
+			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
+		}
 		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
 			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
 		}
@@ -71,7 +96,9 @@ public class UsuarioController {
 	public ResponseEntity<Boolean> findByNameRegardlessOfStatus(@RequestParam(value="nombre") String nombre){
 		
 		Usuario usr = usuarioService.findByNameRegardlessOfStatus(nombre);
-		if(usr == null)return new ResponseEntity<Boolean>(false,HttpStatus.ACCEPTED);
+		if(usr == null) {
+			return new ResponseEntity<Boolean>(false,HttpStatus.ACCEPTED);
+		}
 		return new ResponseEntity<Boolean>(true, HttpStatus.OK);
 	}
 	
@@ -83,17 +110,29 @@ public class UsuarioController {
 		Sesion sesion = sesionService.findByToken(token);
 		String usuarioName = auth.getName();
 		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null)return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
-		if(usr == null)return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
+		if(sesion == null) {
+			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
+		}
+		if(usr == null) {
+			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
+		}
 		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
 			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
 		}
 		
 		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		if(usuario.getCorreo() == null || usuario.getCorreo().isEmpty()) return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
-		if(usuario.getNombre() == null || usuario.getNombre().isEmpty()) return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
-		if(usuario.getPassword() == null || usuario.getPassword().isEmpty()) return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
-		if(usuario.getNombre().length()>8) return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
+		if(usuario.getCorreo() == null || usuario.getCorreo().isEmpty()) {
+			return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
+		}
+		if(usuario.getNombre() == null || usuario.getNombre().isEmpty()) {
+			return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
+		}
+		if(usuario.getPassword() == null || usuario.getPassword().isEmpty()) {
+			return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
+		}
+		if(usuario.getNombre().length()>8) {
+			return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
+		}
 		if(usuario.getUsuarioPersona() == null || usuario.getUsuarioPersona().getPersona() == null || usuario.getUsuarioPersona().getPersona().getId() == null) {
 			return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
 		}
@@ -101,7 +140,9 @@ public class UsuarioController {
 		if(persona == null || !persona.getEstatus().getNombre().equals(ACTIVO) || persona.getUsuarioPersona()!=null) {
 			return new ResponseEntity<Usuario>(HttpStatus.NOT_ACCEPTABLE);
 		}
-		if(usuarioService.findByNameRegardlessOfStatus(usuario.getNombre())!= null)return new ResponseEntity<Usuario>(HttpStatus.CONFLICT);
+		if(usuarioService.findByNameRegardlessOfStatus(usuario.getNombre())!= null) {
+			return new ResponseEntity<Usuario>(HttpStatus.CONFLICT);
+		}
 		final Catalogo catalogoActivo = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO);
 		
 		usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
@@ -125,12 +166,18 @@ public class UsuarioController {
 		Sesion sesion = sesionService.findByToken(token);
 		String usuarioName = auth.getName();
 		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null)return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
-		if(usr == null)return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
+		if(sesion == null) {
+			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
+		}
+		if(usr == null) {
+			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
+		}
 		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
 			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
 		}
-		if(usuario.getCorreo() == null || usuario.getCorreo().isEmpty()) return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
+		if(usuario.getCorreo() == null || usuario.getCorreo().isEmpty()) {
+			return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
+		}
 		usr.setFechaDeModificacion(LocalDateTime.now());
 		usr.setCorreo(usuario.getCorreo());
 		if(usuario.getPassword() != null && !usuario.getPassword().isEmpty()) {
@@ -149,8 +196,12 @@ public class UsuarioController {
 		Sesion sesion = sesionService.findByToken(token);
 		String usuarioName = auth.getName();
 		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null)return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
-		if(usr == null)return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
+		if(sesion == null) {
+			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
+		}
+		if(usr == null) {
+			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
+		}
 		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
 			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
 		}
@@ -161,6 +212,9 @@ public class UsuarioController {
 		
 		Usuario usuarioUpdate= usuarioService.findById(usuario.getId());
 		if(usuarioUpdate == null || usuarioUpdate.getUsuarioPersona() == null) {
+			return new ResponseEntity<Usuario>(HttpStatus.NOT_FOUND);
+		}
+		if(usuarioUpdate.getUsuarioPersona() == null || usuarioUpdate.getUsuarioPersona().getPersona().getIdEscuela() == null) {
 			return new ResponseEntity<Usuario>(HttpStatus.NOT_FOUND);
 		}
 		if(!sesion.getLicencia().getPlantel().getIdEscuela().equals(usuarioUpdate.getUsuarioPersona().getPersona().getIdEscuela())) {

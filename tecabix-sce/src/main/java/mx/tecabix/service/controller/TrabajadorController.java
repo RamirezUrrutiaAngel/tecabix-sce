@@ -1,3 +1,20 @@
+/*
+ *   This file is part of Foobar.
+ *
+ *   Foobar is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Foobar is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 package mx.tecabix.service.controller;
 
 import java.time.LocalDateTime;
@@ -68,12 +85,10 @@ public class TrabajadorController {
 	private final String ACTIVO = "ACTIVO";
 	private final String ELIMINADO = "ELIMINADO";
 	
-	
 	private final String TIPO_DE_PERSONA = "TIPO_DE_PERSONA";
 	private final String FISICA = "FISICA";
 	
 	private final String SEXO = "SEXO";
-	
 	
 	private final String TRABAJADOR = "TRABAJADOR";
 	private final String TRABAJADOR_CREAR = "TRABAJADOR_CREAR";
@@ -88,13 +103,20 @@ public class TrabajadorController {
 				@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso.")
 		})
 	@GetMapping
-	public ResponseEntity<Trabajador> get(@RequestParam(value="token") String token) {
+	public ResponseEntity<Trabajador> findByUsuario(@RequestParam(value="token") String token) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if(!Auth.hash(auth, TRABAJADOR)) {
+			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
+		}
 		Sesion sesion = sesionService.findByToken(token);
 		String usuarioName = auth.getName();
 		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null)return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
-		if(usr == null)return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
+		if(sesion == null) {
+			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
+		}
+		if(usr == null) {
+			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
+		}
 		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
 			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
 		}
@@ -110,12 +132,18 @@ public class TrabajadorController {
 	@GetMapping("findAll")
 	public ResponseEntity<Page<Trabajador>> findAll(@RequestParam(value="token") String token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, TRABAJADOR)) return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
+		if(!Auth.hash(auth, TRABAJADOR)) {
+			return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
+		}
 		Sesion sesion = sesionService.findByToken(token);
 		String usuarioName = auth.getName();
 		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null)return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
-		if(usr == null)return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
+		if(sesion == null) {
+			return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
+		}
+		if(usr == null) {
+			return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
+		}
 		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
 			return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
 		}
@@ -131,12 +159,18 @@ public class TrabajadorController {
 	@GetMapping("findAllByNombre")
 	public ResponseEntity<Page<Trabajador>> findAllByNombre(@RequestParam(value="token") String token, @RequestParam(value="nombre") String nombre,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, TRABAJADOR)) return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
+		if(!Auth.hash(auth, TRABAJADOR)) {
+			return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
+		}
 		Sesion sesion = sesionService.findByToken(token);
 		String usuarioName = auth.getName();
 		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null)return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
-		if(usr == null)return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
+		if(sesion == null) {
+			return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
+		}
+		if(usr == null) {
+			return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
+		}
 		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
 			return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
 		}
@@ -158,44 +192,87 @@ public class TrabajadorController {
 	public ResponseEntity<Trabajador> save(@RequestBody Trabajador trabajador, @RequestParam(value="token") String token) {
 		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, TRABAJADOR_CREAR)) return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED); 
+		if(!Auth.hash(auth, TRABAJADOR_CREAR)) {
+			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED); 
+		}
 		Sesion sesion = sesionService.findByToken(token);
 		String usuarioName = auth.getName();
 		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null)return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
-		if(usr == null)return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
+		if(sesion == null) {
+			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
+		}
+		if(usr == null) {
+			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
+		}
 		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
 			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
 		}
-		if(trabajador == null)return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-		if(trabajador.getCURP() == null || trabajador.getCURP().isEmpty()) return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-		if(trabajador.getJefe() == null || trabajador.getJefe().getId() == null)return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-		if(trabajador.getPuesto() == null || trabajador.getPuesto().getId() == null)return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		if(trabajador == null) {
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(trabajador.getCURP() == null || trabajador.getCURP().isEmpty()) {
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(trabajador.getJefe() == null || trabajador.getJefe().getId() == null) {
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(trabajador.getPuesto() == null || trabajador.getPuesto().getId() == null) {
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
 		
 		PersonaFisica persona = trabajador.getPersonaFisica();
-		if(persona == null ) return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-		if(persona.getNombre() == null || persona.getNombre().isEmpty()) return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-		if(persona.getSexo() == null || persona.getSexo().getNombre() == null || persona.getSexo().getNombre().isEmpty()) return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-		if(persona.getFechaNacimiento() == null) return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-		if(persona.getApellidoMaterno() == null || persona.getApellidoMaterno().isEmpty()) return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-		if(persona.getApellidoPaterno() == null || persona.getApellidoPaterno().isEmpty()) return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		if(persona == null ) {
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(persona.getNombre() == null || persona.getNombre().isEmpty()) {
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(persona.getSexo() == null || persona.getSexo().getNombre() == null || persona.getSexo().getNombre().isEmpty()) {
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(persona.getFechaNacimiento() == null) {
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(persona.getApellidoMaterno() == null || persona.getApellidoMaterno().isEmpty()) {
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(persona.getApellidoPaterno() == null || persona.getApellidoPaterno().isEmpty()) {
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
 		Direccion direccion = persona.getDireccion();
-		if(direccion == null ) return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-		if(direccion.getCalle() == null || direccion.getCalle().isEmpty()) return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-		if(direccion.getCodigoPostal() == null || direccion.getCodigoPostal().isEmpty()) return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-		if(direccion.getAsentamiento() == null || direccion.getAsentamiento().isEmpty()) return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-		if(direccion.getNumExt() == null || direccion.getAsentamiento().isEmpty()) return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-		if(direccion.getMunicipio() == null || direccion.getMunicipio().getId() == null ) return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		if(direccion == null ) {
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(direccion.getCalle() == null || direccion.getCalle().isEmpty()) {
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(direccion.getCodigoPostal() == null || direccion.getCodigoPostal().isEmpty()) {
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(direccion.getAsentamiento() == null || direccion.getAsentamiento().isEmpty()) {
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(direccion.getNumExt() == null || direccion.getAsentamiento().isEmpty()) {
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(direccion.getMunicipio() == null || direccion.getMunicipio().getId() == null ) {
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
 		final Catalogo CAT_SEXO = catalogoService.findByTipoAndNombre(SEXO, persona.getSexo().getNombre());
 		
-		if(CAT_SEXO == null ) return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		if(CAT_SEXO == null ) {
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
 		final Catalogo CAT_PENDIENTE = catalogoService.findByTipoAndNombre(ESTATUS, PENDIENTE);
 		final Catalogo CAT_TIPO_PERSONA = catalogoService.findByTipoAndNombre(TIPO_DE_PERSONA, FISICA);
 		Municipio municipio = municipioService.findById(direccion.getMunicipio().getId());
-		if(municipio == null)return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
+		if(municipio == null) {
+			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
+		}
 		Trabajador jefe = trabajadorService.findById(trabajador.getJefe().getId());
-		if(jefe == null)return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
-		
+		if(jefe == null) {
+			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
+		}
 		
 		direccion.setEstatus(CAT_PENDIENTE);
 		direccion.setMunicipio(municipio);
@@ -241,21 +318,30 @@ public class TrabajadorController {
 	public ResponseEntity<Trabajador> activar(@RequestParam(value="id") Long id, @RequestParam(value="token") String token) {
 		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, TRABAJADOR_ACTIVAR)) return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED); 
+		if(!Auth.hash(auth, TRABAJADOR_ACTIVAR)) {
+			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED); 
+		}
 		Sesion sesion = sesionService.findByToken(token);
 		String usuarioName = auth.getName();
 		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null)return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
-		if(usr == null)return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
+		if(sesion == null) {
+			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
+		}
+		if(usr == null) {
+			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
+		}
 		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
 			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
 		}
 		final Catalogo CAT_ACTIVO = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO);
 		Trabajador trabajador = trabajadorService.findByIdAndPendiente(id);
 		Long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
-		if(trabajador == null)return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-		if(trabajador.getIdEscuela().longValue() != idEscuela.longValue())return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
-		
+		if(trabajador == null) {
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(trabajador.getIdEscuela().longValue() != idEscuela.longValue()) {
+			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
+		}
 		PersonaFisica personaFisica = trabajador.getPersonaFisica();
 		personaFisica.setEstatus(CAT_ACTIVO);
 		Persona persona = personaFisica.getPresona();
@@ -273,25 +359,35 @@ public class TrabajadorController {
 	}
 	
 	@ApiOperation(value = "Eliminar trabajador y dependencias")
-	@DeleteMapping("eliminar")
-	public ResponseEntity<Trabajador> eliminar(@RequestParam(value="id") Long id, @RequestParam(value="token") String token) {
+	@DeleteMapping("delete")
+	public ResponseEntity<Trabajador> delete(@RequestParam(value="id") Long id, @RequestParam(value="token") String token) {
 		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, TRABAJADOR_ELIMINAR)) return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED); 
+		if(!Auth.hash(auth, TRABAJADOR_ELIMINAR)) {
+			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED); 
+		}
 		Sesion sesion = sesionService.findByToken(token);
 		String usuarioName = auth.getName();
 		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null)return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
-		if(usr == null)return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
+		if(sesion == null) {
+			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
+		}
+		if(usr == null) {
+			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
+		}
 		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
 			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
 		}
 		final Catalogo CAT_ELIMINADO = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
 
 		Trabajador trabajador = trabajadorService.findById(id);
-		if(trabajador == null)return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		if(trabajador == null) {
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
 		Long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
-		if(trabajador.getIdEscuela().longValue() != idEscuela.longValue())return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
+		if(trabajador.getIdEscuela().longValue() != idEscuela.longValue()) {
+			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
+		}
 		PersonaFisica personaFisica = trabajador.getPersonaFisica();
 		personaFisica.setEstatus(CAT_ELIMINADO);
 		Persona persona = personaFisica.getPresona();
@@ -308,5 +404,4 @@ public class TrabajadorController {
 		return new ResponseEntity<Trabajador>(trabajador, HttpStatus.OK);
 	}
 	
-
 }

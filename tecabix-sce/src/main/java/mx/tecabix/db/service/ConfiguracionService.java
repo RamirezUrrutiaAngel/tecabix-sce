@@ -15,17 +15,19 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.db.repository;
+package mx.tecabix.db.service;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Page;
 
-import mx.tecabix.db.entity.Escuela;
+import mx.tecabix.db.entity.Configuracion;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface EmpresaRepository extends JpaRepository<Escuela, Long>{
-
+public interface ConfiguracionService {
 	
+	Configuracion save(Configuracion save);
+	Configuracion update(Configuracion update);
+	Page<Configuracion> findByIdEscuela(long id,int elements, int page);
 }

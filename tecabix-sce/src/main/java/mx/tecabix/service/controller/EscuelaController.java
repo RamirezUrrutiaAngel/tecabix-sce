@@ -15,17 +15,17 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.db.repository;
+package mx.tecabix.service.controller;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import mx.tecabix.db.entity.Escuela;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface EmpresaRepository extends JpaRepository<Escuela, Long>{
+@RestController
+@RequestMapping("escuela")
+public class EscuelaController {
 
-	
 }

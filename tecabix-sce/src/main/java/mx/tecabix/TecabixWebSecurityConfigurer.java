@@ -1,3 +1,20 @@
+/*
+ *   This file is part of Foobar.
+ *
+ *   Foobar is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Foobar is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 package mx.tecabix;
 
 import javax.sql.DataSource;
@@ -11,7 +28,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
+/**
+ * 
+ * @author Ramirez Urrutia Angel Abinadi
+ * 
+ */
 @Configuration
 @EnableWebSecurity
 public class TecabixWebSecurityConfigurer extends WebSecurityConfigurerAdapter {
@@ -27,7 +48,13 @@ public class TecabixWebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 		.authorizeRequests()
 		
 		// No requieren autentificacion
-		.antMatchers("/usuario/findIsExist").permitAll()
+		.antMatchers(
+				"/usuario/findIsExist",
+				"/catalogo/findByTipoNombre",
+				"/catalogo/findByTipoAndNombre",
+				"/estado/all",
+				"/estado/all-join-municipio"
+				).permitAll()
 		
 		// las peticiones tienen que estar autentificadas
 		.anyRequest().authenticated().and().httpBasic();
@@ -47,4 +74,5 @@ public class TecabixWebSecurityConfigurer extends WebSecurityConfigurerAdapter {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 }

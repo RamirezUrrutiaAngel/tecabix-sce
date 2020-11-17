@@ -1,3 +1,20 @@
+/*
+ *   This file is part of Foobar.
+ *
+ *   Foobar is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Foobar is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 package mx.tecabix.db.entity;
 
 import java.io.Serializable;
@@ -13,7 +30,10 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
+/**
+ * 
+ * @author Ramirez Urrutia Angel Abinad
+ */
 @Entity()
 @Table(name = "catalogo_tipo")
 public class CatalogoTipo implements Serializable{
@@ -21,7 +41,7 @@ public class CatalogoTipo implements Serializable{
 	private static final long serialVersionUID = -4174323806062618433L;
 	@Id
     @Column(name = "id_catalogo_tipo", unique = true, nullable = false)
-	@SequenceGenerator(name = "catalogo_tipo_id_catalogo_tipo_gen", sequenceName = "tecabix_spv.catalogo_tipo_seq", allocationSize = 1)
+	@SequenceGenerator(name = "catalogo_tipo_id_catalogo_tipo_gen", sequenceName = "tecabix_sce.catalogo_tipo_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "catalogo_tipo_id_catalogo_tipo_gen")
     private Integer id;
 	@Column(name = "nombre")

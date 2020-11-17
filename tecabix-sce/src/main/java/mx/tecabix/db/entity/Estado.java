@@ -15,7 +15,6 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 package mx.tecabix.db.entity;
 
 import java.io.Serializable;
@@ -31,7 +30,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
 /**
  * 
  * @author Ramirez Urrutia Angel Abinad
@@ -40,14 +38,11 @@ import javax.persistence.Table;
 @Table(name = "estado")
 public class Estado implements Serializable{
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 8735982161199720818L;
 	
 	@Id
     @Column(name = "id_estado", unique = true, nullable = false)
-	@SequenceGenerator(name = "estado_id_estado_gen", sequenceName = "tecabix_spv.estado_seq", allocationSize = 1)
+	@SequenceGenerator(name = "estado_id_estado_gen", sequenceName = "tecabix_sce.estado_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "estado_id_estado_gen")
     private Integer id;
     @Column(name = "nombre")

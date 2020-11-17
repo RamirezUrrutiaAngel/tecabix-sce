@@ -30,8 +30,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
-
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -41,14 +39,10 @@ import javax.persistence.Table;
 @Table(name = "suscripcion")
 public class Suscripcion implements Serializable{
 
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -6577049550950356830L;
 	@Id
     @Column(name = "id_suscripcion", unique = true, nullable = false)
-	@SequenceGenerator(name = "suscripcion_id_suscripcion_gen", sequenceName = "tecabix_spv.suscripcion_seq", allocationSize = 1)
+	@SequenceGenerator(name = "suscripcion_id_suscripcion_gen", sequenceName = "tecabix_sce.suscripcion_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "suscripcion_id_suscripcion_gen")
     private Long id;
 	@ManyToOne

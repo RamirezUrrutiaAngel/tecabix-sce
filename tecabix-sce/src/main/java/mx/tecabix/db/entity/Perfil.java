@@ -35,7 +35,6 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -52,13 +51,10 @@ import javax.persistence.Table;
 })
 public class Perfil implements Serializable{
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1945352087628007583L;
 	@Id
     @Column(name = "id_perfil", unique = true, nullable = false)
-	@SequenceGenerator(name = "perfil_id_perfil_gen", sequenceName = "tecabix_spv.tecabix.perfil_seq", allocationSize = 1)
+	@SequenceGenerator(name = "perfil_id_perfil_gen", sequenceName = "tecabix_sce.tecabix.perfil_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "perfil_id_perfil_gen")
     private Long id;
     @Column(name = "nombre")

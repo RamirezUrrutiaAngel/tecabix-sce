@@ -27,8 +27,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
-
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -38,14 +36,10 @@ import javax.persistence.Table;
 @Table(name = "plan_servicio")
 public class PlanServicio implements Serializable{
 
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -6577049550950356830L;
 	@Id
     @Column(name = "id_plan_servicio", unique = true, nullable = false)
-	@SequenceGenerator(name = "plan_servicio_id_plan_servicio_gen", sequenceName = "tecabix_spv.plan_servicio_seq", allocationSize = 1)
+	@SequenceGenerator(name = "plan_servicio_id_plan_servicio_gen", sequenceName = "tecabix_sce.plan_servicio_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "plan_servicio_id_plan_servicio_gen")
     private Integer id;
 	@ManyToOne

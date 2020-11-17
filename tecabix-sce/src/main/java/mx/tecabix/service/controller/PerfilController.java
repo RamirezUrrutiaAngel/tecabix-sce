@@ -1,3 +1,20 @@
+/*
+ *   This file is part of Foobar.
+ *
+ *   Foobar is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Foobar is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 package mx.tecabix.service.controller;
 
 import java.time.LocalDateTime;
@@ -27,7 +44,11 @@ import mx.tecabix.db.service.CatalogoService;
 import mx.tecabix.db.service.PerfilService;
 import mx.tecabix.db.service.SesionService;
 import mx.tecabix.db.service.UsuarioService;
-
+/**
+ * 
+ * @author Ramirez Urrutia Angel Abinadi
+ * 
+ */
 @RestController
 @RequestMapping("perfil")
 public class PerfilController {
@@ -58,13 +79,19 @@ public class PerfilController {
 		Sesion sesion = sesionService.findByToken(token);
 		String usuarioName = auth.getName();
 		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null)return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
-		if(usr == null)return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
+		if(sesion == null) {
+			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
+		}
+		if(usr == null) {
+			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
+		}
 		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
 			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
 		}
 		Perfil perfil = usr.getPerfil();
-		if(perfil == null) return new ResponseEntity<Perfil>(HttpStatus.NOT_FOUND);
+		if(perfil == null) {
+			return new ResponseEntity<Perfil>(HttpStatus.NOT_FOUND);
+		}
 		return new ResponseEntity<Perfil>(perfil,HttpStatus.OK);
 	}
 	
@@ -75,8 +102,12 @@ public class PerfilController {
 		Sesion sesion = sesionService.findByToken(token);
 		String usuarioName = auth.getName();
 		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null)return new ResponseEntity<Page<Perfil>>(HttpStatus.UNAUTHORIZED);
-		if(usr == null)return new ResponseEntity<Page<Perfil>>(HttpStatus.UNAUTHORIZED);
+		if(sesion == null) {
+			return new ResponseEntity<Page<Perfil>>(HttpStatus.UNAUTHORIZED);
+		}
+		if(usr == null) {
+			return new ResponseEntity<Page<Perfil>>(HttpStatus.UNAUTHORIZED);
+		}
 		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
 			return new ResponseEntity<Page<Perfil>>(HttpStatus.UNAUTHORIZED);
 		}
@@ -87,12 +118,18 @@ public class PerfilController {
 	@GetMapping("findAllByNombre")
 	public ResponseEntity<Page<Perfil>> findAllByNombre(@RequestParam(value="token") String token, @RequestParam(value="nombre") String nombre, byte elements, short page) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, PERFIL)) return new ResponseEntity<Page<Perfil>>(HttpStatus.UNAUTHORIZED);
+		if(!Auth.hash(auth, PERFIL)) {
+			return new ResponseEntity<Page<Perfil>>(HttpStatus.UNAUTHORIZED);
+		}
 		Sesion sesion = sesionService.findByToken(token);
 		String usuarioName = auth.getName();
 		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null)return new ResponseEntity<Page<Perfil>>(HttpStatus.UNAUTHORIZED);
-		if(usr == null)return new ResponseEntity<Page<Perfil>>(HttpStatus.UNAUTHORIZED);
+		if(sesion == null) {
+			return new ResponseEntity<Page<Perfil>>(HttpStatus.UNAUTHORIZED);
+		}
+		if(usr == null) {
+			return new ResponseEntity<Page<Perfil>>(HttpStatus.UNAUTHORIZED);
+		}
 		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
 			return new ResponseEntity<Page<Perfil>>(HttpStatus.UNAUTHORIZED);
 		}
@@ -107,13 +144,21 @@ public class PerfilController {
 		Sesion sesion = sesionService.findByToken(token);
 		String usuarioName = auth.getName();
 		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null)return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
-		if(usr == null)return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
+		if(sesion == null) {
+			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
+		}
+		if(usr == null) {
+			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
+		}
 		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
 			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
 		}
-		if(perfil.getDescripcion() == null || perfil.getDescripcion().isEmpty())return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
-		if(perfil.getNombre() == null || perfil.getNombre().isEmpty())return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
+		if(perfil.getDescripcion() == null || perfil.getDescripcion().isEmpty()) {
+			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
+		}
+		if(perfil.getNombre() == null || perfil.getNombre().isEmpty()) {
+			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
+		}
 		if((perfilService.findByNombre(sesion.getLicencia().getPlantel().getIdEscuela(), perfil.getNombre()))!=null) {
 			return new ResponseEntity<Perfil>(HttpStatus.NOT_ACCEPTABLE);
 		}
@@ -141,22 +186,36 @@ public class PerfilController {
 		Sesion sesion = sesionService.findByToken(token);
 		String usuarioName = auth.getName();
 		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null)return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
-		if(usr == null)return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
+		if(sesion == null) {
+			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
+		}
+		if(usr == null) {
+			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
+		}
 		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
 			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
 		}
-		if(perfil.getId() == null)return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
-		if(perfil.getDescripcion() == null || perfil.getDescripcion().isEmpty())return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
-		if(perfil.getNombre() == null || perfil.getNombre().isEmpty())return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
+		if(perfil.getId() == null) {
+			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
+		}
+		if(perfil.getDescripcion() == null || perfil.getDescripcion().isEmpty()) {
+			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
+		}
+		if(perfil.getNombre() == null || perfil.getNombre().isEmpty()) {
+			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
+		}
 		Perfil perfilAux = perfilService.findById(perfil.getId());
-		if(perfilAux == null )return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
+		if(perfilAux == null ) {
+			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
+		}
 		if(perfilAux.getIdEscuela().longValue() != sesion.getLicencia().getPlantel().getIdEscuela().longValue()) {
 			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 		}
 		
 		Perfil perfilExistente = perfilService.findByNombre(sesion.getLicencia().getPlantel().getIdEscuela(), perfil.getNombre());
-		if(perfilExistente != null && perfilExistente.getId().longValue() != perfil.getId())return new ResponseEntity<Perfil>(HttpStatus.NOT_ACCEPTABLE);
+		if(perfilExistente != null && perfilExistente.getId().longValue() != perfil.getId()) {
+			return new ResponseEntity<Perfil>(HttpStatus.NOT_ACCEPTABLE);
+		}
 		
 		List<Authority> list = perfil.getAuthorities();
 		if(list != null) {
@@ -175,17 +234,25 @@ public class PerfilController {
 	@DeleteMapping
 	public ResponseEntity<Boolean> delete(@RequestParam(value="token") String token,@RequestParam Long idPerfil){
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, PERFIL_ELIMINAR)) return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
+		if(!Auth.hash(auth, PERFIL_ELIMINAR)) {
+			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
+		}
 		Sesion sesion = sesionService.findByToken(token);
 		String usuarioName = auth.getName();
 		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null)return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
-		if(usr == null)return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
+		if(sesion == null) {
+			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
+		}
+		if(usr == null) {
+			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
+		}
 		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
 			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
 		}
 		Perfil perfil = perfilService.findById(idPerfil);
-		if(perfil == null )return new ResponseEntity<Boolean>(HttpStatus.NOT_FOUND);
+		if(perfil == null ) {
+			return new ResponseEntity<Boolean>(HttpStatus.NOT_FOUND);
+		}
 		if(perfil.getIdEscuela().longValue() != sesion.getLicencia().getPlantel().getIdEscuela().longValue()) {
 			return new ResponseEntity<Boolean>(HttpStatus.NOT_FOUND);
 		}

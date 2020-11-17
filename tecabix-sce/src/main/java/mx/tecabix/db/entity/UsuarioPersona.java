@@ -35,7 +35,6 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-
 /**
  * 
  * @author Ramirez Urrutia Angel Abinad
@@ -46,13 +45,11 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 	@NamedQuery(name = "UsuarioPersona.findByUsuario",query = "SELECT u FROM UsuarioPersona u WHERE u.usuario.nombre = ?1 AND u.usuario.estatus.nombre = 'ACTIVO' ")
 })
 public class UsuarioPersona  implements Serializable{
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 9003283526926309837L;
 	@Id
     @Column(name = "id_usuario_persona", unique = true, nullable = false)
-	@SequenceGenerator(name = "usuario_persona_id_usuario_persona_gen", sequenceName = "tecabix_spv.usuario_persona_seq", allocationSize = 1)
+	@SequenceGenerator(name = "usuario_persona_id_usuario_persona_gen", sequenceName = "tecabix_sce.usuario_persona_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "usuario_persona_id_usuario_persona_gen")
     private Long id;
 	@JsonProperty(access = Access.WRITE_ONLY)

@@ -31,8 +31,6 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
-
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -44,15 +42,11 @@ import javax.persistence.Table;
     @NamedQuery(name = "Licencia.findByToken",query = "SELECT l FROM Licencia l WHERE l.token = ?1 AND l.estatus.nombre = 'ACTIVO' ")
 })
 public class Licencia implements Serializable{
-	
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -7984126238616476436L;
 	@Id
     @Column(name = "id_licencia", unique = true, nullable = false)
-	@SequenceGenerator(name = "licencia_id_licencia_gen", sequenceName = "tecabix_spv.licencia_seq", allocationSize = 1)
+	@SequenceGenerator(name = "licencia_id_licencia_gen", sequenceName = "tecabix_sce.licencia_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "licencia_id_licencia_gen")
     private Long id;
     @Column(name = "nombre")

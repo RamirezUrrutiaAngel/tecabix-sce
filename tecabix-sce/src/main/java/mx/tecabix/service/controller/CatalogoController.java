@@ -18,7 +18,6 @@
 package mx.tecabix.service.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,9 +25,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import mx.tecabix.db.entity.Estado;
+import mx.tecabix.db.entity.Catalogo;
+import mx.tecabix.db.entity.CatalogoTipo;
 import mx.tecabix.db.entity.Sesion;
-import mx.tecabix.db.service.EstadoService;
+import mx.tecabix.db.service.CatalogoService;
+import mx.tecabix.db.service.CatalogoTipoService;
 import mx.tecabix.db.service.SesionService;
 /**
  * 
@@ -36,39 +37,42 @@ import mx.tecabix.db.service.SesionService;
  * 
  */
 @RestController
-@RequestMapping("estado")
-public class EstadoController {
-	
+@RequestMapping("catalogo")
+public class CatalogoController {
 	@Autowired
-	private EstadoService estadoService;
-
+	private CatalogoService catalogoService;
+	@Autowired
+	private CatalogoTipoService catalogoTipoService;
 	@Autowired
 	private SesionService sesionService;
 	
-	@GetMapping("all")
-	public ResponseEntity<Page<Estado>> all(@RequestParam(value="token") String token) {
+	@GetMapping("findByTipoNombre")
+	public ResponseEntity<CatalogoTipo> findByTipoNombre(
+			@RequestParam(value="catalogoTipoNombre") String catalogoTipoNombre,
+			@RequestParam(value="token") String token) {
+		
 		Sesion sesion = sesionService.findByToken(token);
 		if(sesion == null) {
-			return new ResponseEntity<Page<Estado>>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<CatalogoTipo>(HttpStatus.UNAUTHORIZED);
 		}
-		Page<Estado> estados = estadoService.findByAll();
-		for (Estado estado : estados) {
-			estado.setMunicipios(null);
-		}
-		return new ResponseEntity<Page<Estado>>(estados, HttpStatus.OK);
+		CatalogoTipo tipo = catalogoTipoService.findByNombre(catalogoTipoNombre);
+		if(tipo == null || tipo.getCatalogos() == null)new ResponseEntity<Catalogo>(HttpStatus.NOT_FOUND);
+		
+		return new ResponseEntity<CatalogoTipo>(tipo,HttpStatus.OK);
 	}
 	
-	// INICIO DE SERVICIO NO PROTEGIDO CON AUTENTIFICACION
-	@GetMapping("all-join-municipio")
-	public ResponseEntity<Page<Estado>> allJoinMunicipio(@RequestParam(value="token") String token) {
+	@GetMapping("findByTipoAndNombre")
+	public ResponseEntity<Catalogo> findByTipoAndNombre(
+			@RequestParam(value="catalogoTipoNombre") String catalogoTipoNombre,
+			@RequestParam(value="nombre") String nombre,
+			@RequestParam(value="token") String token) {
+		
 		Sesion sesion = sesionService.findByToken(token);
 		if(sesion == null) {
-			return new ResponseEntity<Page<Estado>>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<Catalogo>(HttpStatus.UNAUTHORIZED);
 		}
-		Page<Estado> estados = estadoService.findByAll();
-		return new ResponseEntity<Page<Estado>>(estados, HttpStatus.OK);
+		Catalogo result = catalogoService.findByTipoAndNombre(catalogoTipoNombre, nombre);
+		return new ResponseEntity<Catalogo>(result,HttpStatus.OK);
 	}
-	// FIN DE SERVICIO NO PROTEGIDO CON AUTENTIFICACION
-	
-	
+
 }

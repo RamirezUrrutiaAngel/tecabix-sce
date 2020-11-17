@@ -25,9 +25,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
-
-
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -37,13 +34,10 @@ import javax.persistence.Table;
 @Table(name = "plan")
 public class Plan  implements Serializable{
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 696128728517240384L;
 	@Id
     @Column(name = "id_plan", unique = true, nullable = false)
-	@SequenceGenerator(name = "plan_id_plan_gen", sequenceName = "tecabix_spv.plan_seq", allocationSize = 1)
+	@SequenceGenerator(name = "plan_id_plan_gen", sequenceName = "tecabix_sce.plan_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "plan_id_plan_gen")
     private Integer id;
     @Column(name = "nombre")

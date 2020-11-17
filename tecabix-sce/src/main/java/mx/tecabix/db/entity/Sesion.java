@@ -48,15 +48,11 @@ import javax.persistence.Table;
     @NamedQuery(name = "Sesion.findByUsuarioAndNow",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND s.idUsuarioModificado = ?2 AND DATE(s.vencimiento) = DATE(NOW()) ORDER BY s.peticionesRestantes")
 })
 public class Sesion implements Serializable{
-	
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -1073408998327677969L;
 	@Id
     @Column(name = "id_sesion", unique = true, nullable = false)
-	@SequenceGenerator(name = "sesion_id_sesion_gen", sequenceName = "tecabix_spv.sesion_seq", allocationSize = 1)
+	@SequenceGenerator(name = "sesion_id_sesion_gen", sequenceName = "tecabix_sce.sesion_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sesion_id_sesion_gen")
     private Long id;
     @Column(name = "key_token")

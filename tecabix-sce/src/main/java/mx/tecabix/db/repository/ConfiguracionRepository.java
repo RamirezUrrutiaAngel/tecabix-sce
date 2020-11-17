@@ -17,15 +17,17 @@
  */
 package mx.tecabix.db.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import mx.tecabix.db.entity.Escuela;
+import mx.tecabix.db.entity.Configuracion;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface EmpresaRepository extends JpaRepository<Escuela, Long>{
+public interface ConfiguracionRepository extends JpaRepository<Configuracion, Long>{
 
-	
+	Page<Configuracion> findByIdEscuela(long id,Pageable pegable);
 }

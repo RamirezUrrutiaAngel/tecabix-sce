@@ -39,7 +39,6 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -49,14 +48,11 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @Table(name = "authority")
 public class Authority implements Serializable{
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 4643106103106362573L;
 	
 	@Id
     @Column(name = "id_authority", unique = true, nullable = false)
-	@SequenceGenerator(name = "authority_id_authority_gen", sequenceName = "tecabix_spv.authority_seq", allocationSize = 1)
+	@SequenceGenerator(name = "authority_id_authority_gen", sequenceName = "tecabix_sce.authority_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "authority_id_authority_gen")
     private Integer id;
     @Column(name = "nombre")

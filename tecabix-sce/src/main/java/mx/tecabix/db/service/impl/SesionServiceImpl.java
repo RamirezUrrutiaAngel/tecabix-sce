@@ -1,9 +1,24 @@
+/*
+ *   This file is part of Foobar.
+ *
+ *   Foobar is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Foobar is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 package mx.tecabix.db.service.impl;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
-
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,7 +31,11 @@ import org.springframework.stereotype.Service;
 import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.repository.SesionRepository;
 import mx.tecabix.db.service.SesionService;
-
+/**
+ * 
+ * @author Ramirez Urrutia Angel Abinadi
+ * 
+ */
 @Service
 public class SesionServiceImpl implements SesionService{
 
@@ -35,17 +54,17 @@ public class SesionServiceImpl implements SesionService{
 	}
 
 	@Override
-	public List<Sesion> findByActive(Long idLicencia) {
-		List<Sesion> response = sesionRepository.findByActive(idLicencia);
+	public Page<Sesion> findByActive(Long idLicencia, int elements, int page) {
+		Pageable pageable = PageRequest.of(page, elements);
+		Page<Sesion> response = sesionRepository.findByActive(idLicencia,pageable);
 		return response;
 	}
 
 	@Override
-	public List<Sesion> findByNow(Long idLicencia, int elements, int page) {
+	public Page<Sesion> findByNow(Long idLicencia, int elements, int page) {
 		Pageable pageable = PageRequest.of(page, elements);
 		Page<Sesion> entitys = sesionRepository.findByNow(idLicencia, pageable);
-		List<Sesion> list = entitys.getContent();
-		return list;
+		return entitys;
 	}
 
 	@Override
@@ -77,17 +96,17 @@ public class SesionServiceImpl implements SesionService{
 	}
 
 	@Override
-	public List<Sesion> findByUsuarioAndActive(Long idLicencia, Long idUsuario) {
-		List<Sesion> response = sesionRepository.findByUsuarioAndActive(idLicencia,idUsuario);
+	public Page<Sesion> findByUsuarioAndActive(Long idLicencia, Long idUsuario, int elements, int page) {
+		Pageable pageable = PageRequest.of(page, elements);
+		Page<Sesion> response = sesionRepository.findByUsuarioAndActive(idLicencia,idUsuario,pageable);
 		return response;
 	}
 
 	@Override
-	public List<Sesion> findByUsuarioAndNow(Long idLicencia, Long idUsuario, int elements, int page) {
+	public Page<Sesion> findByUsuarioAndNow(Long idLicencia, Long idUsuario, int elements, int page) {
 		Pageable pageable = PageRequest.of(page, elements);
 		Page<Sesion> entitys = sesionRepository.findByUsuarioAndNow(idLicencia, idUsuario, pageable);
-		List<Sesion> list = entitys.getContent();
-		return list;
+		return entitys;
 	}
 
 	@Override

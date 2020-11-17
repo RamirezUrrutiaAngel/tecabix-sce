@@ -29,7 +29,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -39,13 +38,10 @@ import javax.persistence.Table;
 @Table(name = "departamento")
 public class Departamento implements Serializable{
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 7103884461465274188L;
 	@Id
     @Column(name = "id_departamento", unique = true, nullable = false)
-	@SequenceGenerator(name = "departamento_id_departamento_gen", sequenceName = "tecabix_spv.departamento_seq", allocationSize = 1)
+	@SequenceGenerator(name = "departamento_id_departamento_gen", sequenceName = "tecabix_sce.departamento_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "departamento_id_departamento_gen")
     private Long id;
 	@Column(name = "nombre")

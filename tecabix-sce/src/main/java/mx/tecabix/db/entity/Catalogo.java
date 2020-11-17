@@ -32,7 +32,6 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -49,7 +48,7 @@ public class Catalogo implements Serializable{
 	
 	@Id
     @Column(name = "id_catalogo", unique = true, nullable = false)
-	@SequenceGenerator(name = "catalogo_id_catalogo_gen", sequenceName = "tecabix_spv.catalogo_seq", allocationSize = 1)
+	@SequenceGenerator(name = "catalogo_id_catalogo_gen", sequenceName = "tecabix_sce.catalogo_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "catalogo_id_catalogo_gen")
 	private Integer id;
     @Column(name = "nombre")

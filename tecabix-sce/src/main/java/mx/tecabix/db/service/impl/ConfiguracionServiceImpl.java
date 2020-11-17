@@ -17,44 +17,38 @@
  */
 package mx.tecabix.db.service.impl;
 
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
-import mx.tecabix.db.entity.Persona;
-import mx.tecabix.db.repository.PersonaRepository;
-import mx.tecabix.db.service.PersonaService;
+import mx.tecabix.db.entity.Configuracion;
+import mx.tecabix.db.repository.ConfiguracionRepository;
+import mx.tecabix.db.service.ConfiguracionService;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-@Service
-public class PersonaServiceImpl implements PersonaService{
+public class ConfiguracionServiceImpl implements ConfiguracionService{
 
 	@Autowired
-	private PersonaRepository personaRepository;
-	
+	private ConfiguracionRepository configuracionRepository;
 	@Override
-	public Persona save(Persona save) {
-		save = personaRepository.save(save);
+	public Page<Configuracion> findByIdEscuela(long id, int elements, int page) {
+		Pageable pageable = PageRequest.of(page, elements);
+		Page<Configuracion> entitys = configuracionRepository.findByIdEscuela(id, pageable);
+		return entitys;
+	}
+	@Override
+	public Configuracion save(Configuracion save) {
+		save = configuracionRepository.save(save);
 		return save;
 	}
-
 	@Override
-	public Persona update(Persona update) {
-		update = personaRepository.save(update);
+	public Configuracion update(Configuracion update) {
+		update = configuracionRepository.save(update);
 		return update;
 	}
 
-	@Override
-	public Persona findById(long id) {
-		Optional<Persona> o = personaRepository.findById(id);
-		Persona result = null;
-		if(o.isPresent()) {
-			result = o.get();
-		}
-		return result;
-	}
 }

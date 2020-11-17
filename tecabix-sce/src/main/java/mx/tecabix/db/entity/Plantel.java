@@ -29,8 +29,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
-
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -40,9 +38,6 @@ import javax.persistence.Table;
 @Table(name = "plantel")
 public class Plantel implements Serializable{
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -1144141703432606826L;
 	@Id
     @Column(name = "id_plantel", unique = true, nullable = false)

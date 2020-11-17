@@ -28,8 +28,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
-
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -42,7 +40,7 @@ public class Contacto implements Serializable{
 	private static final long serialVersionUID = 7247338251404078667L;
 	@Id
     @Column(name = "id_contacto", unique = true, nullable = false)
-	@SequenceGenerator(name = "catalogo_tipo_id_contacto_gen", sequenceName = "tecabix_spv.contacto_seq", allocationSize = 1)
+	@SequenceGenerator(name = "catalogo_tipo_id_contacto_gen", sequenceName = "tecabix_sce.contacto_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "catalogo_tipo_id_contacto_gen")
     private Long id;
 	@ManyToOne

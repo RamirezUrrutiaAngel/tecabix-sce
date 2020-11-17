@@ -1,3 +1,20 @@
+/*
+ *   This file is part of Foobar.
+ *
+ *   Foobar is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Foobar is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 package mx.tecabix.service.controller;
 
 import org.slf4j.Logger;
@@ -29,7 +46,11 @@ import mx.tecabix.db.service.CatalogoService;
 import mx.tecabix.db.service.LicenciaService;
 import mx.tecabix.db.service.SesionService;
 import mx.tecabix.db.service.UsuarioService;
-
+/**
+ * 
+ * @author Ramirez Urrutia Angel Abinadi
+ * 
+ */
 @RestController
 @RequestMapping("sesion")
 public class SesionController {
@@ -62,12 +83,18 @@ public class SesionController {
 	public ResponseEntity<Sesion> post(@RequestParam(value="key") String key){
 		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, SESION)) return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED); 
+		if(!Auth.hash(auth, SESION)) {
+			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED); 
+		}
 		String usuarioName = auth.getName();
 		Licencia licencia = licenciaService.findByToken(key);
-		if(licencia == null)return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED); 
+		if(licencia == null) {
+			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED); 
+		}
 		Usuario usuario = usuarioService.findByNombre(usuarioName);
-		if(usuario == null)return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);
+		if(usuario == null) {
+			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);
+		}
 		final Catalogo catalogoTipoLicenciaWeb = catalogoService.findByTipoAndNombre(TIPO_DE_LICENCIA, WEB);
 		final Catalogo catalogoEliminado = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
 		Integer peticionesRestantes = 0;
@@ -75,7 +102,7 @@ public class SesionController {
 		if(licencia.getTipo().getId().intValue() == catalogoTipoLicenciaWeb.getId().intValue()) {
 			vencimiento = LocalDateTime.of(vencimiento.toLocalDate(),LocalTime.of(23, 59));
 			
-			List<Sesion> sesionesAviertas = sesionService.findByUsuarioAndActive(licencia.getId(), usuario.getId());
+			List<Sesion> sesionesAviertas = sesionService.findByUsuarioAndActive(licencia.getId(), usuario.getId(),Integer.MAX_VALUE,0).getContent();
 			if(sesionesAviertas != null) {
 				LOG.info("SE ENCONTRARON "+sesionesAviertas.size()+" PARA LA KEY: "+ key);
 				for (Sesion sesion : sesionesAviertas) {
@@ -83,7 +110,7 @@ public class SesionController {
 					sesionService.update(sesion);
 				}
 			}
-			List<Sesion> sesionesDeHoy = sesionService.findByUsuarioAndNow(licencia.getId(), usuario.getId(), Integer.MAX_VALUE, 0);
+			List<Sesion> sesionesDeHoy = sesionService.findByUsuarioAndNow(licencia.getId(), usuario.getId(), Integer.MAX_VALUE, 0).getContent();
 			if(sesionesDeHoy != null && !sesionesDeHoy.isEmpty()) {
 				LOG.info("SE ENCONTRARON "+sesionesAviertas.size()+" SESIONES DE HOY PARA LA ID_LICENCIA: "+ licencia.getId());
 				peticionesRestantes = sesionesDeHoy.get(0).getPeticionesRestantes();
@@ -96,7 +123,7 @@ public class SesionController {
 			}
 		}else {
 			vencimiento = vencimiento.plusHours(8);
-			List<Sesion> sesionesAviertas = sesionService.findByActive(licencia.getId());
+			List<Sesion> sesionesAviertas = sesionService.findByActive(licencia.getId(),Integer.MAX_VALUE,0).getContent();
 			if(sesionesAviertas != null) {
 				LOG.info("SE ENCONTRARON "+sesionesAviertas.size()+" PARA LA KEY: "+ key);
 				for (Sesion sesion : sesionesAviertas) {
@@ -104,7 +131,7 @@ public class SesionController {
 					sesionService.update(sesion);
 				}
 			}
-			List<Sesion> sesionesDeHoy = sesionService.findByNow(licencia.getId(), Integer.MAX_VALUE, 0);
+			List<Sesion> sesionesDeHoy = sesionService.findByNow(licencia.getId(), Integer.MAX_VALUE, 0).getContent();
 			if(sesionesDeHoy != null && !sesionesDeHoy.isEmpty()) {
 				LOG.info("SE ENCONTRARON "+sesionesAviertas.size()+" SESIONES DE HOY PARA LA ID_LICENCIA: "+ licencia.getId());
 				peticionesRestantes = sesionesDeHoy.get(0).getPeticionesRestantes();
@@ -136,12 +163,18 @@ public class SesionController {
 	public ResponseEntity<Sesion> get(@RequestParam(value="token") String token){
 		LOG.info("token: "+token);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, SESION)) return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED); 
+		if(!Auth.hash(auth, SESION)) {
+			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED); 
+		}
 		String usuarioName = auth.getName();
 		Usuario usuario = usuarioService.findByNombre(usuarioName);
-		if(usuario == null)return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);		
+		if(usuario == null) {
+			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);		
+		}
 		Sesion sesion = sesionService.findByToken(token);
-		if(sesion == null)return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
+		if(sesion == null) {
+			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
+		}
 		if(sesion.getIdUsuarioModificado().longValue() != usuario.getId().longValue()) {
 			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
 		}
@@ -153,12 +186,18 @@ public class SesionController {
 	public ResponseEntity<Sesion> delete(@RequestParam(value="token") String token){
 		LOG.info("token: "+token);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, SESION)) return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED); 
+		if(!Auth.hash(auth, SESION)) {
+			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED); 
+		}
 		String usuarioName = auth.getName();
 		Usuario usuario = usuarioService.findByNombre(usuarioName);
-		if(usuario == null)return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);		
+		if(usuario == null) {
+			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);		
+		}
 		Sesion sesion = sesionService.findByToken(token);
-		if(sesion == null)return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
+		if(sesion == null) {
+			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
+		}
 		if(sesion.getIdUsuarioModificado().longValue() != usuario.getId().longValue()) {
 			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
 		}

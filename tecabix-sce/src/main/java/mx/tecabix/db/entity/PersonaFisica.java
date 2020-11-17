@@ -1,3 +1,20 @@
+/*
+ *   This file is part of Foobar.
+ *
+ *   Foobar is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Foobar is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 package mx.tecabix.db.entity;
 
 import java.io.Serializable;
@@ -14,7 +31,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
+/**
+ * 
+ * @author Ramirez Urrutia Angel Abinad
+ */
 @Entity
 @Table(name = "persona_fisica")
 public class PersonaFisica implements Serializable{
@@ -25,7 +45,7 @@ public class PersonaFisica implements Serializable{
 	private static final long serialVersionUID = 701859570029260114L;
 	@Id
     @Column(name = "id_persona_fisica", unique = true, nullable = false)
-	@SequenceGenerator(name = "persona_fisica_id_persona_fisica_gen", sequenceName = "tecabix_spv.persona_fisica_seq", allocationSize = 1)
+	@SequenceGenerator(name = "persona_fisica_id_persona_fisica_gen", sequenceName = "tecabix_sce.persona_fisica_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "persona_fisica_id_persona_fisica_gen")
     private Long id;
 	@OneToOne

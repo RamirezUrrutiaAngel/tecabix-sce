@@ -31,7 +31,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -43,7 +42,7 @@ public class Escuela implements Serializable {
 	private static final long serialVersionUID = 4047413230691680424L;
 	@Id
     @Column(name = "id_persona_moral", unique = true, nullable = false)
-	@SequenceGenerator(name = "persona_moral_id_persona_moral_gen", sequenceName = "tecabix_spv.persona_moral_seq", allocationSize = 1)
+	@SequenceGenerator(name = "persona_moral_id_persona_moral_gen", sequenceName = "tecabix_sce.persona_moral_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "persona_moral_id_persona_moral_gen")
     private Long id;
 	@OneToOne
