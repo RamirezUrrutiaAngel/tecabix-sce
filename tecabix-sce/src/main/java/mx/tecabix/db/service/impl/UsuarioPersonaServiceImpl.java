@@ -17,11 +17,12 @@
  */
 package mx.tecabix.db.service.impl;
 
-import java.util.Optional;
+import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import mx.tecabix.db.entity.UsuarioPersona;
+import mx.tecabix.db.generic.GenericSeviceImpl;
 import mx.tecabix.db.repository.UsuarioPersonaRepository;
 import mx.tecabix.db.service.UsuarioPersonaService;
 /**
@@ -30,21 +31,19 @@ import mx.tecabix.db.service.UsuarioPersonaService;
  * 
  */
 @Service
-public class UsuarioPersonaServiceImpl implements UsuarioPersonaService{
+public class UsuarioPersonaServiceImpl extends GenericSeviceImpl<UsuarioPersona, Long> implements UsuarioPersonaService{
 
 	
 	@Autowired
 	private UsuarioPersonaRepository usuarioPersonaRepository;
 	
+	@PostConstruct
 	@Override
-	public UsuarioPersona findById(long id) {
-		UsuarioPersona usuarioPersona = null;
-		Optional<UsuarioPersona> o = usuarioPersonaRepository.findById(id);
-		if(o.isPresent()) {
-			usuarioPersona =  o.get();
-		}
-		return usuarioPersona;
+	protected void postConstruct() {
+		setJpaRepository(usuarioPersonaRepository);
+		
 	}
+	
 
 	@Override
 	public UsuarioPersona findByUsuario(String nombre) {
@@ -52,16 +51,7 @@ public class UsuarioPersonaServiceImpl implements UsuarioPersonaService{
 		return usuarioPersona;
 	}
 
-	@Override
-	public UsuarioPersona save(UsuarioPersona save) {
-		save = usuarioPersonaRepository.save(save);
-		return save;
-	}
 
-	@Override
-	public UsuarioPersona update(UsuarioPersona update) {
-		update = usuarioPersonaRepository.save(update);
-		return update;
-	}
+	
 
 }

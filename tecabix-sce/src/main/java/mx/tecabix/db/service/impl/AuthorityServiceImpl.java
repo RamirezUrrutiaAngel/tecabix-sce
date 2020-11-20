@@ -17,15 +17,13 @@
  */
 package mx.tecabix.db.service.impl;
 
-import java.util.Optional;
+import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.entity.Authority;
+import mx.tecabix.db.generic.GenericSeviceImpl;
 import mx.tecabix.db.repository.AuthorityRepository;
 import mx.tecabix.db.service.AuthorityService;
 /**
@@ -34,20 +32,14 @@ import mx.tecabix.db.service.AuthorityService;
  * 
  */
 @Service
-public class AuthorityServiceImpl implements AuthorityService{
+public class AuthorityServiceImpl extends GenericSeviceImpl<Authority, Integer> implements AuthorityService{
 
 	@Autowired
 	private AuthorityRepository authorityRepository;
-	
-	public Page<Authority> findAll(){
-		Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
-		Page<Authority> list = authorityRepository.findAll(pageable);
-		return list;
-	}
 
+	@PostConstruct
 	@Override
-	public Optional<Authority> findById(Integer id) {
-		Optional<Authority> response = authorityRepository.findById(id);
-		return response;
+	protected void postConstruct() {
+		setJpaRepository(authorityRepository);
 	}
 }

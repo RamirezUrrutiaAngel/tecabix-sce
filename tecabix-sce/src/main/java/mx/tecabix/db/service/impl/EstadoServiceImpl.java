@@ -17,13 +17,13 @@
  */
 package mx.tecabix.db.service.impl;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.entity.Estado;
+import mx.tecabix.db.generic.GenericSeviceImpl;
 import mx.tecabix.db.repository.EstadoRepository;
 import mx.tecabix.db.service.EstadoService;
 /**
@@ -32,17 +32,17 @@ import mx.tecabix.db.service.EstadoService;
  * 
  */
 @Service
-public class EstadoServiceImpl implements EstadoService{
+public class EstadoServiceImpl extends GenericSeviceImpl<Estado, Integer> implements EstadoService{
 
 	@Autowired
 	private EstadoRepository estadoRepository;
 
+	@PostConstruct
 	@Override
-	public Page<Estado> findByAll() {
-		Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
-		Page<Estado> estados = estadoRepository.findAll(pageable);
-		return estados;
+	protected void postConstruct() {
+		setJpaRepository(estadoRepository);
+		
 	}
-	
+
 	
 }

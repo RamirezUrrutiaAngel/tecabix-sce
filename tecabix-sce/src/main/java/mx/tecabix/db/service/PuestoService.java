@@ -17,13 +17,13 @@
  */
 package mx.tecabix.db.service;
 
-import mx.tecabix.db.entity.Escuela;
+import mx.tecabix.db.entity.Puesto;
+import mx.tecabix.db.generic.GenericSevice;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface EmpresaService {
+public interface PuestoService extends GenericSevice<Puesto, Long>{
 
-	public Escuela save(Escuela save);
 }

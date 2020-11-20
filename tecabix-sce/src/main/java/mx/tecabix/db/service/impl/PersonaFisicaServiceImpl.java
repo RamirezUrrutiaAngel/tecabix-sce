@@ -17,10 +17,13 @@
  */
 package mx.tecabix.db.service.impl;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.entity.PersonaFisica;
+import mx.tecabix.db.generic.GenericSeviceImpl;
 import mx.tecabix.db.repository.PersonaFisicaRepository;
 import mx.tecabix.db.service.PersonaFisicaService;
 /**
@@ -29,21 +32,17 @@ import mx.tecabix.db.service.PersonaFisicaService;
  * 
  */
 @Service
-public class PersonaFisicaServiceImpl implements PersonaFisicaService {
+public class PersonaFisicaServiceImpl extends GenericSeviceImpl<PersonaFisica, Long> implements PersonaFisicaService {
 
 	@Autowired
 	private PersonaFisicaRepository personaFisicaRepository;
 
+	@PostConstruct
 	@Override
-	public PersonaFisica save(PersonaFisica save) {
-		save = personaFisicaRepository.save(save);
-		return save;
+	protected void postConstruct() {
+		setJpaRepository(personaFisicaRepository);
+		
 	}
 
-	@Override
-	public PersonaFisica update(PersonaFisica update) {
-		update = personaFisicaRepository.save(update);
-		return update;
-	}
 	
 }

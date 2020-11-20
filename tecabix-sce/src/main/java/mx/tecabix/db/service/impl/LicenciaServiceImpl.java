@@ -17,10 +17,13 @@
  */
 package mx.tecabix.db.service.impl;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.entity.Licencia;
+import mx.tecabix.db.generic.GenericSeviceImpl;
 import mx.tecabix.db.repository.LicenciaRepository;
 import mx.tecabix.db.service.LicenciaService;
 /**
@@ -29,16 +32,23 @@ import mx.tecabix.db.service.LicenciaService;
  * 
  */
 @Service
-public class LicenciaServiceImpl implements LicenciaService {
+public class LicenciaServiceImpl extends GenericSeviceImpl<Licencia, Long> implements LicenciaService {
 
 	@Autowired
 	private LicenciaRepository licenciaRepository;
-
+	
+	@PostConstruct
+	@Override
+	protected void postConstruct() {
+		setJpaRepository(licenciaRepository);
+		
+	}
+	
 	@Override
 	public Licencia findByToken(String key) {
 		Licencia response = licenciaRepository.findByToken(key);
 		return response;
 	}
-	
+
 	
 }

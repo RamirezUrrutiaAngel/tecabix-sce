@@ -17,18 +17,14 @@
  */
 package mx.tecabix.db.service;
 
-import java.util.Optional;
-
-import org.springframework.data.domain.Page;
-
 import mx.tecabix.db.entity.Authority;
+import mx.tecabix.db.generic.GenericSevice;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface AuthorityService {
+public interface AuthorityService extends GenericSevice<Authority, Integer>{
 
-	Page<Authority> findAll();
-	Optional<Authority>  findById(Integer id);
+
 }

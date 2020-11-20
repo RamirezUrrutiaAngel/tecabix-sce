@@ -17,8 +17,9 @@
  */
 package mx.tecabix.service.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,27 +47,27 @@ public class EstadoController {
 	private SesionService sesionService;
 	
 	@GetMapping("all")
-	public ResponseEntity<Page<Estado>> all(@RequestParam(value="token") String token) {
+	public ResponseEntity<List<Estado>> all(@RequestParam(value="token") String token) {
 		Sesion sesion = sesionService.findByToken(token);
 		if(sesion == null) {
-			return new ResponseEntity<Page<Estado>>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<List<Estado>>(HttpStatus.UNAUTHORIZED);
 		}
-		Page<Estado> estados = estadoService.findByAll();
+		List<Estado> estados = estadoService.findAll();
 		for (Estado estado : estados) {
 			estado.setMunicipios(null);
 		}
-		return new ResponseEntity<Page<Estado>>(estados, HttpStatus.OK);
+		return new ResponseEntity<List<Estado>>(estados, HttpStatus.OK);
 	}
 	
 	// INICIO DE SERVICIO NO PROTEGIDO CON AUTENTIFICACION
 	@GetMapping("all-join-municipio")
-	public ResponseEntity<Page<Estado>> allJoinMunicipio(@RequestParam(value="token") String token) {
+	public ResponseEntity<List<Estado>> allJoinMunicipio(@RequestParam(value="token") String token) {
 		Sesion sesion = sesionService.findByToken(token);
 		if(sesion == null) {
-			return new ResponseEntity<Page<Estado>>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<List<Estado>>(HttpStatus.UNAUTHORIZED);
 		}
-		Page<Estado> estados = estadoService.findByAll();
-		return new ResponseEntity<Page<Estado>>(estados, HttpStatus.OK);
+		List<Estado> estados = estadoService.findAll();
+		return new ResponseEntity<List<Estado>>(estados, HttpStatus.OK);
 	}
 	// FIN DE SERVICIO NO PROTEGIDO CON AUTENTIFICACION
 	

@@ -18,14 +18,13 @@
 package mx.tecabix.db.service;
 
 import mx.tecabix.db.entity.Persona;
+import mx.tecabix.db.generic.GenericSevice;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface PersonaService {
+public interface PersonaService extends GenericSevice<Persona, Long> {
+
 	
-	Persona findById(long id);
-	Persona save(Persona save);
-	Persona update(Persona update);
 }

@@ -17,13 +17,14 @@
  */
 package mx.tecabix.db.service;
 
-import org.springframework.data.domain.Page;
 import mx.tecabix.db.entity.Estado;
+import mx.tecabix.db.generic.GenericSevice;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface EstadoService {
-	Page<Estado> findByAll();
+public interface EstadoService extends GenericSevice<Estado, Integer>{
+
+	
 }

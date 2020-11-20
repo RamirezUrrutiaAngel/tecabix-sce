@@ -18,6 +18,7 @@
 package mx.tecabix.service.controller;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -136,10 +137,15 @@ public class UsuarioController {
 		if(usuario.getUsuarioPersona() == null || usuario.getUsuarioPersona().getPersona() == null || usuario.getUsuarioPersona().getPersona().getId() == null) {
 			return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
 		}
-		Persona persona = personaService.findById(usuario.getUsuarioPersona().getPersona().getId());
-		if(persona == null || !persona.getEstatus().getNombre().equals(ACTIVO) || persona.getUsuarioPersona()!=null) {
+		Optional<Persona> personaOptional = personaService.findById(usuario.getUsuarioPersona().getPersona().getId());
+		if(!personaOptional.isPresent()) {
 			return new ResponseEntity<Usuario>(HttpStatus.NOT_ACCEPTABLE);
 		}
+		Persona persona = personaOptional.get();
+		if( !persona.getEstatus().getNombre().equals(ACTIVO) || persona.getUsuarioPersona()!=null) {
+			return new ResponseEntity<Usuario>(HttpStatus.NOT_ACCEPTABLE);
+		}
+		
 		if(usuarioService.findByNameRegardlessOfStatus(usuario.getNombre())!= null) {
 			return new ResponseEntity<Usuario>(HttpStatus.CONFLICT);
 		}
@@ -210,10 +216,16 @@ public class UsuarioController {
 		}
 		
 		
-		Usuario usuarioUpdate= usuarioService.findById(usuario.getId());
+		Optional<Usuario> usuarioUpdateOptional = usuarioService.findById(usuario.getId());
+		
+		if(!usuarioUpdateOptional.isPresent()) {
+			return new ResponseEntity<Usuario>(HttpStatus.NOT_FOUND);
+		}
+		Usuario usuarioUpdate= usuarioUpdateOptional.get();
 		if(usuarioUpdate == null || usuarioUpdate.getUsuarioPersona() == null) {
 			return new ResponseEntity<Usuario>(HttpStatus.NOT_FOUND);
 		}
+		
 		if(usuarioUpdate.getUsuarioPersona() == null || usuarioUpdate.getUsuarioPersona().getPersona().getIdEscuela() == null) {
 			return new ResponseEntity<Usuario>(HttpStatus.NOT_FOUND);
 		}

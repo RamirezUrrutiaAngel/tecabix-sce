@@ -20,14 +20,12 @@ package mx.tecabix.db.service;
 import org.springframework.data.domain.Page;
 
 import mx.tecabix.db.entity.Configuracion;
+import mx.tecabix.db.generic.GenericSevice;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface ConfiguracionService {
-	
-	Configuracion save(Configuracion save);
-	Configuracion update(Configuracion update);
+public interface ConfiguracionService extends GenericSevice<Configuracion, Long> {
 	Page<Configuracion> findByIdEscuela(long id,int elements, int page);
 }

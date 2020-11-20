@@ -105,7 +105,7 @@ public class ConfiguracionController {
 		return null;
 	}
 	
-	@PutMapping
+	@PutMapping("updateRoot")
 	public ResponseEntity<Configuracion> updateRoot(@RequestBody Configuracion configuracion, @RequestParam(value="token") String token ){
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if(!Auth.hash(auth, ROOT_CONFIGURACION_EDITAR)) {

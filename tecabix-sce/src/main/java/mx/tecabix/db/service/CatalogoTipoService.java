@@ -18,12 +18,13 @@
 package mx.tecabix.db.service;
 
 import mx.tecabix.db.entity.CatalogoTipo;
+import mx.tecabix.db.generic.GenericSevice;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface CatalogoTipoService {
+public interface CatalogoTipoService extends GenericSevice<CatalogoTipo, Integer>{
 
 	CatalogoTipo findByNombre(String String);
 }

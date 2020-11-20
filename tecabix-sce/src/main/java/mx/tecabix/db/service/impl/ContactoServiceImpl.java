@@ -17,26 +17,31 @@
  */
 package mx.tecabix.db.service.impl;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import mx.tecabix.db.entity.Escuela;
-import mx.tecabix.db.repository.EmpresaRepository;
-import mx.tecabix.db.service.EmpresaService;
+import mx.tecabix.db.entity.Contacto;
+import mx.tecabix.db.generic.GenericSeviceImpl;
+import mx.tecabix.db.repository.ContactoRepository;
+import mx.tecabix.db.service.ContactoService;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
 @Service
-public class EmpresaServiceImpl implements EmpresaService{
+public class ContactoServiceImpl extends GenericSeviceImpl<Contacto, Long> implements ContactoService{
 
 	@Autowired
-	private EmpresaRepository empresaRespository;
-
+	private ContactoRepository contactoRepository;
+	
+	@PostConstruct
 	@Override
-	public Escuela save(Escuela save) {
-		save = empresaRespository.save(save);
-		return save;
+	protected void postConstruct() {
+		setJpaRepository(contactoRepository);
+		
 	}
+
 }

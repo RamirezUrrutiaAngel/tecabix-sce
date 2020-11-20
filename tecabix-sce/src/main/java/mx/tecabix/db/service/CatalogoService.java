@@ -17,17 +17,15 @@
  */
 package mx.tecabix.db.service;
 
-import org.springframework.data.domain.Page;
-
 import mx.tecabix.db.entity.Catalogo;
+import mx.tecabix.db.generic.GenericSevice;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface CatalogoService {
+public interface CatalogoService extends GenericSevice<Catalogo, Integer>{
 
-	public Page<Catalogo>findAll();
 	
 	public Catalogo findByTipoAndNombre(String tipo,String nombre);
 }

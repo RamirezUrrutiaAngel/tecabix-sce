@@ -18,12 +18,13 @@
 package mx.tecabix.db.service;
 
 import mx.tecabix.db.entity.Licencia;
+import mx.tecabix.db.generic.GenericSevice;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface LicenciaService {
+public interface LicenciaService extends GenericSevice<Licencia, Long>{
 	
 	Licencia findByToken(String key);
 

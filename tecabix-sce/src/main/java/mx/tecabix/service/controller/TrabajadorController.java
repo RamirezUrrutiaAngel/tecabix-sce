@@ -18,6 +18,7 @@
 package mx.tecabix.service.controller;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -265,11 +266,12 @@ public class TrabajadorController {
 		}
 		final Catalogo CAT_PENDIENTE = catalogoService.findByTipoAndNombre(ESTATUS, PENDIENTE);
 		final Catalogo CAT_TIPO_PERSONA = catalogoService.findByTipoAndNombre(TIPO_DE_PERSONA, FISICA);
-		Municipio municipio = municipioService.findById(direccion.getMunicipio().getId());
-		if(municipio == null) {
+		Optional<Municipio> municipioOptional = municipioService.findById(direccion.getMunicipio().getId());
+		if(!municipioOptional.isPresent()) {
 			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 		}
-		Trabajador jefe = trabajadorService.findById(trabajador.getJefe().getId());
+		Municipio municipio = municipioOptional.get();
+		Trabajador jefe = trabajadorService.findByKey(trabajador.getJefe().getId());
 		if(jefe == null) {
 			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 		}
@@ -380,7 +382,7 @@ public class TrabajadorController {
 		}
 		final Catalogo CAT_ELIMINADO = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
 
-		Trabajador trabajador = trabajadorService.findById(id);
+		Trabajador trabajador = trabajadorService.findByKey(id);
 		if(trabajador == null) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}

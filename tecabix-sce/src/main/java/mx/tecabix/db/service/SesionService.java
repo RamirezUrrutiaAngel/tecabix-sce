@@ -20,16 +20,13 @@ package mx.tecabix.db.service;
 import org.springframework.data.domain.Page;
 
 import mx.tecabix.db.entity.Sesion;
+import mx.tecabix.db.generic.GenericSevice;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface SesionService {
-
-	Sesion save(Sesion save);
-	
-	Sesion update(Sesion update);
+public interface SesionService extends GenericSevice<Sesion, Long>{
 	
 	Page<Sesion> findByActive(Long idLicencia, int elements, int page);
 	

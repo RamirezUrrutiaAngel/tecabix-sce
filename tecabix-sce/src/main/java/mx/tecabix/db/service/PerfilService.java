@@ -19,17 +19,14 @@ package mx.tecabix.db.service;
 
 import org.springframework.data.domain.Page;
 import mx.tecabix.db.entity.Perfil;
+import mx.tecabix.db.generic.GenericSevice;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface PerfilService {
+public interface PerfilService extends GenericSevice<Perfil, Long>{
 
-	Perfil save(Perfil save);
-	Perfil update(Perfil update);
-	void delete(Long idPerfil);
-	Perfil findById(Long id);
 	Perfil findByNombre(Long idEscuela, String nombre);
 	Page<Perfil> findAll(Long idEscuela, int elements, int page);
 	Page<Perfil> findAllbyNombre(Long idEscuela, String nombre, int elements, int page);

@@ -17,7 +17,7 @@
  */
 package mx.tecabix.db.service.impl;
 
-import java.util.Optional;
+import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -26,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.entity.Usuario;
+import mx.tecabix.db.generic.GenericSeviceImpl;
 import mx.tecabix.db.repository.UsuarioRepository;
 import mx.tecabix.db.service.UsuarioService;
 /**
@@ -34,27 +35,21 @@ import mx.tecabix.db.service.UsuarioService;
  * 
  */
 @Service
-public class UsuarioServiceImpl implements UsuarioService{
+public class UsuarioServiceImpl extends GenericSeviceImpl<Usuario, Long> implements UsuarioService{
 
 	@Autowired
 	private UsuarioRepository usuarioRepository;
+	
+	@PostConstruct
+	@Override
+	protected void postConstruct() {
+		setJpaRepository(usuarioRepository);
+	}
 	
 	@Override
 	public Usuario findByNombre(String nombre) {
 		Usuario usr = usuarioRepository.findByNombre(nombre);
 		return usr;
-	}
-
-	@Override
-	public Usuario save(Usuario save) {
-		save = usuarioRepository.save(save);
-		return save;
-	}
-
-	@Override
-	public Usuario update(Usuario update) {
-		update = usuarioRepository.save(update);
-		return update;
 	}
 
 	@Override
@@ -68,15 +63,5 @@ public class UsuarioServiceImpl implements UsuarioService{
 		Pageable pageable = PageRequest.of(page, elements);
 		Page<Usuario> entitys = usuarioRepository.findByPerfil(idPerfil, pageable);
 		return entitys;
-	}
-
-	@Override
-	public Usuario findById(long id) {
-		Usuario usuario = null;
-		Optional<Usuario> o = usuarioRepository.findById(id);
-		if(o.isPresent()) {
-			usuario = o.get();
-		}
-		return usuario;
 	}
 }

@@ -17,9 +17,12 @@
  */
 package mx.tecabix.db.service.impl;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import mx.tecabix.db.entity.CatalogoTipo;
+import mx.tecabix.db.generic.GenericSeviceImpl;
 import mx.tecabix.db.repository.CatalogoTipoRepository;
 import mx.tecabix.db.service.CatalogoTipoService;
 /**
@@ -28,14 +31,19 @@ import mx.tecabix.db.service.CatalogoTipoService;
  * 
  */
 @Service
-public class CatalogoTipoServiceImpl implements CatalogoTipoService{
+public class CatalogoTipoServiceImpl extends GenericSeviceImpl<CatalogoTipo, Integer> implements CatalogoTipoService{
 
 	@Autowired
-	private CatalogoTipoRepository cataGrupoRepository;;
+	private CatalogoTipoRepository cataGrupoRepository;
+	
+	@PostConstruct
+	@Override
+	protected void postConstruct() {
+		setJpaRepository(cataGrupoRepository);
+	}
 	
 	@Override
 	public CatalogoTipo findByNombre(String String) {
 		return cataGrupoRepository.findByNombre(String);
 	}
-
 }

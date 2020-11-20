@@ -18,13 +18,12 @@
 package mx.tecabix.db.service;
 
 import mx.tecabix.db.entity.Direccion;
+import mx.tecabix.db.generic.GenericSevice;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface DireccionService {
+public interface DireccionService extends GenericSevice<Direccion, Long> {
 
-	public Direccion save(Direccion save);
-	public Direccion update(Direccion update);
 }

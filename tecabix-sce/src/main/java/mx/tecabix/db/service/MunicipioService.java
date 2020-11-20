@@ -18,12 +18,12 @@
 package mx.tecabix.db.service;
 
 import mx.tecabix.db.entity.Municipio;
+import mx.tecabix.db.generic.GenericSevice;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface MunicipioService {
+public interface MunicipioService extends GenericSevice<Municipio, Integer>{
 
-	Municipio findById(Integer id);
 }

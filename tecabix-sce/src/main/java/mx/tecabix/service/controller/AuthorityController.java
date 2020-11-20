@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -59,25 +58,25 @@ public class AuthorityController {
 	private SesionService sesionService;
 	
 	@GetMapping("findAll")
-	public ResponseEntity<Page<Authority>> findAll(@RequestParam(value="token") String token) {
+	public ResponseEntity<List<Authority>> findAll(@RequestParam(value="token") String token) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if(!Auth.hash(auth, AUTHORITY,PERFIL)) {
-			return new ResponseEntity<Page<Authority>>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<List<Authority>>(HttpStatus.UNAUTHORIZED);
 		}
 		Sesion sesion = sesionService.findByToken(token);
 		String usuarioName = auth.getName();
 		Usuario usr = usuarioService.findByNombre(usuarioName);
 		if(sesion == null) {
-			return new ResponseEntity<Page<Authority>>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<List<Authority>>(HttpStatus.UNAUTHORIZED);
 		}
 		if(usr == null) {
-			return new ResponseEntity<Page<Authority>>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<List<Authority>>(HttpStatus.UNAUTHORIZED);
 		}
 		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
-			return new ResponseEntity<Page<Authority>>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<List<Authority>>(HttpStatus.UNAUTHORIZED);
 		}
 		
-		Page<Authority> authorities = authorityService.findAll();
+		List<Authority> authorities = authorityService.findAll();
 		if(authorities != null) {
 			for (Authority authority : authorities) {
 				authority.setPerfiles(null);
@@ -88,7 +87,7 @@ public class AuthorityController {
 		for (GrantedAuthority grantedAuthority : list) {
 			System.out.println(grantedAuthority.getAuthority());
 		}
-		ResponseEntity<Page<Authority>> response = new ResponseEntity<Page<Authority>>(authorities, HttpStatus.OK);
+		ResponseEntity<List<Authority>> response = new ResponseEntity<List<Authority>>(authorities, HttpStatus.OK);
 		return response;
 	}
 }

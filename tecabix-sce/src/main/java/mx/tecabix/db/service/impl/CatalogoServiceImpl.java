@@ -17,13 +17,13 @@
  */
 package mx.tecabix.db.service.impl;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.entity.Catalogo;
+import mx.tecabix.db.generic.GenericSeviceImpl;
 import mx.tecabix.db.repository.CatalogoRepository;
 import mx.tecabix.db.service.CatalogoService;
 /**
@@ -32,22 +32,20 @@ import mx.tecabix.db.service.CatalogoService;
  * 
  */
 @Service
-public class CatalogoServiceImpl implements CatalogoService {
+public class CatalogoServiceImpl extends GenericSeviceImpl<Catalogo, Integer> implements CatalogoService {
 
 	@Autowired
 	private CatalogoRepository cataRepository;
 	
-	public Page<Catalogo> findAll() {
-		Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
-		Page<Catalogo> request = cataRepository.findAll(pageable);
-		
-		return request;
+	@PostConstruct
+	@Override
+	protected void postConstruct() {
+		setJpaRepository(cataRepository);
 	}
 
 	@Override
 	public Catalogo findByTipoAndNombre(String tipo, String nombre) {
 		try {
-		
 			Catalogo entity = cataRepository.findByTipoAndNombre(tipo, nombre);
 			return entity;
 		} catch (Exception e) {

@@ -39,7 +39,7 @@ import javax.persistence.Table;
 @Entity()
 @Table(name = "configuracion")
 @NamedQueries({
-    @NamedQuery(name = "Configuracion.findByIdEscuela",query = "SELECT c FROM Configuracion c WHERE l.estatus.nombre = 'ACTIVO' AND c.idEscuela = ?2 ")
+    @NamedQuery(name = "Configuracion.findByIdEscuela",query = "SELECT c FROM Configuracion c WHERE c.estatus.nombre = 'ACTIVO' AND c.idEscuela = ?2 ")
 })
 public class Configuracion implements Serializable{
 

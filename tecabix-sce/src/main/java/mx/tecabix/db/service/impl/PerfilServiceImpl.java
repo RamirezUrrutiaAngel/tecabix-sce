@@ -17,6 +17,8 @@
  */
 package mx.tecabix.db.service.impl;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.entity.Perfil;
+import mx.tecabix.db.generic.GenericSeviceImpl;
 import mx.tecabix.db.repository.PerfilRepository;
 import mx.tecabix.db.service.PerfilService;
 /**
@@ -32,15 +35,15 @@ import mx.tecabix.db.service.PerfilService;
  * 
  */
 @Service
-public class PerfilServiceImpl implements PerfilService{
+public class PerfilServiceImpl extends GenericSeviceImpl<Perfil, Long> implements PerfilService{
 
 	@Autowired
 	private PerfilRepository perfilRepository;
-
+	
 	@Override
-	public Perfil findById(Long id) {
-		Perfil perfil = perfilRepository.findByKey(id);
-		return perfil;
+	@PostConstruct
+	protected void postConstruct() {
+		setJpaRepository(perfilRepository);
 	}
 
 	@Override
@@ -58,26 +61,8 @@ public class PerfilServiceImpl implements PerfilService{
 	}
 
 	@Override
-	public Perfil save(Perfil save) {
-		save = perfilRepository.save(save);
-		return save;
-	}
-
-	@Override
-	public Perfil update(Perfil update) {
-		update = perfilRepository.save(update);
-		return update;
-	}
-
-	@Override
 	public Perfil findByNombre(Long idEscuela, String nombre) {
 		Perfil perfil = perfilRepository.findByNombre(idEscuela, nombre);
 		return perfil;
-	}
-
-	@Override
-	public void delete(Long idPerfil) {
-		perfilRepository.deleteById(idPerfil);
-	}
-	
+	}	
 }

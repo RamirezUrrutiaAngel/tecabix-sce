@@ -20,17 +20,15 @@ package mx.tecabix.db.service;
 import org.springframework.data.domain.Page;
 
 import mx.tecabix.db.entity.Usuario;
+import mx.tecabix.db.generic.GenericSevice;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface UsuarioService {
+public interface UsuarioService extends GenericSevice<Usuario, Long>{
 	Usuario findByNameRegardlessOfStatus(String nombre);
 	Usuario findByNombre(String nombre);
-	Usuario findById(long id);
-	Usuario save(Usuario save);
-	Usuario update(Usuario update);
 	Page<Usuario> findByPerfil(Long idPerfil,int elements, int page);
 	
 }

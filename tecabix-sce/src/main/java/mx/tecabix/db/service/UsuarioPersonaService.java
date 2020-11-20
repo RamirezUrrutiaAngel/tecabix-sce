@@ -18,18 +18,13 @@
 package mx.tecabix.db.service;
 
 import mx.tecabix.db.entity.UsuarioPersona;
+import mx.tecabix.db.generic.GenericSevice;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface UsuarioPersonaService {
+public interface UsuarioPersonaService extends GenericSevice<UsuarioPersona, Long>{
 	
-	UsuarioPersona save(UsuarioPersona save);
-	UsuarioPersona update(UsuarioPersona update);
-	
-	UsuarioPersona findById(long id);
 	UsuarioPersona findByUsuario(String nombre);
-	
-
 }

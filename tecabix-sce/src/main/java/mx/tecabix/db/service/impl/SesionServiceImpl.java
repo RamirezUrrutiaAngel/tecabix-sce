@@ -20,6 +20,8 @@ package mx.tecabix.db.service.impl;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.entity.Sesion;
+import mx.tecabix.db.generic.GenericSeviceImpl;
 import mx.tecabix.db.repository.SesionRepository;
 import mx.tecabix.db.service.SesionService;
 /**
@@ -37,12 +40,19 @@ import mx.tecabix.db.service.SesionService;
  * 
  */
 @Service
-public class SesionServiceImpl implements SesionService{
+public class SesionServiceImpl extends GenericSeviceImpl<Sesion, Long> implements SesionService{
 
 	private static final Logger LOG = LoggerFactory.getLogger(SesionService.class);
 	
 	@Autowired
 	private SesionRepository sesionRepository;
+
+	@PostConstruct
+	@Override
+	protected void postConstruct() {
+		setJpaRepository(sesionRepository);
+		
+	}
 
 	@Override
 	public Sesion save(Sesion save) {
@@ -109,11 +119,4 @@ public class SesionServiceImpl implements SesionService{
 		return entitys;
 	}
 
-	@Override
-	public Sesion update(Sesion update) {
-		update = sesionRepository.save(update);
-		return update;
-	}
-	
-	
 }

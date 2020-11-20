@@ -18,7 +18,10 @@
 package mx.tecabix.service.controller;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -164,10 +167,17 @@ public class PerfilController {
 		}
 		perfil.setIdEscuela(sesion.getLicencia().getPlantel().getIdEscuela());
 		List<Authority> list = perfil.getAuthorities();
+		List<Authority> listAux = new ArrayList<Authority>();
 		if(list != null) {
 			for (Authority authority : list) {
-				if(!authorityService.findById(authority.getId()).isPresent())return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
+				Optional<Authority> authOptional = authorityService.findById(authority.getId());
+				if(!authOptional.isPresent()) {
+					return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
+				}else {
+					listAux.add(authOptional.get());
+				}
 			}
+			perfil.setAuthorities(listAux);
 		}
 		final Catalogo CAT_ACTIVO = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO);
 		
@@ -204,10 +214,11 @@ public class PerfilController {
 		if(perfil.getNombre() == null || perfil.getNombre().isEmpty()) {
 			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 		}
-		Perfil perfilAux = perfilService.findById(perfil.getId());
-		if(perfilAux == null ) {
+		Optional<Perfil> perfilAuxOptional = perfilService.findById(perfil.getId());
+		if(!perfilAuxOptional.isPresent()) {
 			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 		}
+		Perfil perfilAux = perfilAuxOptional.get();
 		if(perfilAux.getIdEscuela().longValue() != sesion.getLicencia().getPlantel().getIdEscuela().longValue()) {
 			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 		}
@@ -249,10 +260,12 @@ public class PerfilController {
 		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
 			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
 		}
-		Perfil perfil = perfilService.findById(idPerfil);
-		if(perfil == null ) {
+		Optional<Perfil> perfilOptional = perfilService.findById(idPerfil);
+		
+		if(!perfilOptional.isPresent() ) {
 			return new ResponseEntity<Boolean>(HttpStatus.NOT_FOUND);
 		}
+		Perfil perfil = perfilOptional.get();
 		if(perfil.getIdEscuela().longValue() != sesion.getLicencia().getPlantel().getIdEscuela().longValue()) {
 			return new ResponseEntity<Boolean>(HttpStatus.NOT_FOUND);
 		}
@@ -262,7 +275,7 @@ public class PerfilController {
 		perfil.setIdUsuarioModificado(usr.getId());
 		perfil.setFechaDeModificacion(LocalDateTime.now());
 		perfil = perfilService.update(perfil);
-		perfilService.delete(perfil.getId());
+		perfilService.deleteById(perfil.getId());
 		return new ResponseEntity<Boolean>(true,HttpStatus.OK);
 	}
 	

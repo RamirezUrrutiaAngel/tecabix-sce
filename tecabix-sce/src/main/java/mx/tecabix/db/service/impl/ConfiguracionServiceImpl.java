@@ -17,12 +17,16 @@
  */
 package mx.tecabix.db.service.impl;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.entity.Configuracion;
+import mx.tecabix.db.generic.GenericSeviceImpl;
 import mx.tecabix.db.repository.ConfiguracionRepository;
 import mx.tecabix.db.service.ConfiguracionService;
 /**
@@ -30,25 +34,25 @@ import mx.tecabix.db.service.ConfiguracionService;
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public class ConfiguracionServiceImpl implements ConfiguracionService{
+@Service
+public class ConfiguracionServiceImpl extends GenericSeviceImpl<Configuracion, Long> implements ConfiguracionService{
 
 	@Autowired
 	private ConfiguracionRepository configuracionRepository;
+	
+	@PostConstruct
+	@Override
+	protected void postConstruct() {
+		setJpaRepository(configuracionRepository);
+		
+	}
+	
 	@Override
 	public Page<Configuracion> findByIdEscuela(long id, int elements, int page) {
 		Pageable pageable = PageRequest.of(page, elements);
 		Page<Configuracion> entitys = configuracionRepository.findByIdEscuela(id, pageable);
 		return entitys;
 	}
-	@Override
-	public Configuracion save(Configuracion save) {
-		save = configuracionRepository.save(save);
-		return save;
-	}
-	@Override
-	public Configuracion update(Configuracion update) {
-		update = configuracionRepository.save(update);
-		return update;
-	}
+	
 
 }
