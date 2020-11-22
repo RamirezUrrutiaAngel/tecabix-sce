@@ -17,15 +17,12 @@
  */
 package mx.tecabix.service.controller;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,11 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import mx.tecabix.Auth;
 import mx.tecabix.db.entity.Authority;
-import mx.tecabix.db.entity.Sesion;
-import mx.tecabix.db.entity.Usuario;
 import mx.tecabix.db.service.AuthorityService;
-import mx.tecabix.db.service.SesionService;
-import mx.tecabix.db.service.UsuarioService;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -45,49 +38,42 @@ import mx.tecabix.db.service.UsuarioService;
  */
 @RestController
 @RequestMapping("authority")
-public class AuthorityController {
+public class AuthorityController extends Auth{
 	
 	private static final String AUTHORITY = "AUTHORITY";
 	private static final String PERFIL = "PERFIL";
 	
 	@Autowired
 	private AuthorityService authorityService;
-	@Autowired 
-	private UsuarioService usuarioService;
-	@Autowired
-	private SesionService sesionService;
 	
 	@GetMapping("findAll")
-	public ResponseEntity<List<Authority>> findAll(@RequestParam(value="token") String token) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, AUTHORITY,PERFIL)) {
-			return new ResponseEntity<List<Authority>>(HttpStatus.UNAUTHORIZED);
-		}
-		Sesion sesion = sesionService.findByToken(token);
-		String usuarioName = auth.getName();
-		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null) {
-			return new ResponseEntity<List<Authority>>(HttpStatus.UNAUTHORIZED);
-		}
-		if(usr == null) {
-			return new ResponseEntity<List<Authority>>(HttpStatus.UNAUTHORIZED);
-		}
-		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
-			return new ResponseEntity<List<Authority>>(HttpStatus.UNAUTHORIZED);
+	public ResponseEntity<Page<Authority>> findAll(@RequestParam(value="token") String token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
+		if(isNotAuthorized(token, AUTHORITY, PERFIL)) {
+			return new ResponseEntity<Page<Authority>>(HttpStatus.UNAUTHORIZED);
 		}
 		
-		List<Authority> authorities = authorityService.findAll();
+		Page<Authority> authorities = authorityService.findAll(elements, page);
 		if(authorities != null) {
 			for (Authority authority : authorities) {
 				authority.setPerfiles(null);
 				authority.setSubAuthority(null);
 			}
 		}
-		List<GrantedAuthority> list = new ArrayList<GrantedAuthority>(auth.getAuthorities());
-		for (GrantedAuthority grantedAuthority : list) {
-			System.out.println(grantedAuthority.getAuthority());
-		}
-		ResponseEntity<List<Authority>> response = new ResponseEntity<List<Authority>>(authorities, HttpStatus.OK);
+		ResponseEntity<Page<Authority>> response = new ResponseEntity<Page<Authority>>(authorities, HttpStatus.OK);
 		return response;
+	}
+	
+	@GetMapping("findById")
+	public ResponseEntity<Authority> findById(@RequestParam(value="token") String token, @RequestParam(value = "id") Integer id){
+		
+		if(isNotAuthorized(token, AUTHORITY, PERFIL)) {
+			return new ResponseEntity<Authority>(HttpStatus.UNAUTHORIZED);
+		}
+		Optional<Authority> result = authorityService.findById(id);
+		if(!result.isPresent()) {
+			return new ResponseEntity<Authority>(HttpStatus.NOT_FOUND);
+		}
+		Authority body = result.get();
+		return new ResponseEntity<Authority>(body, HttpStatus.OK);
 	}
 }

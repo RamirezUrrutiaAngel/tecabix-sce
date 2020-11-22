@@ -24,8 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,15 +44,12 @@ import mx.tecabix.db.entity.Persona;
 import mx.tecabix.db.entity.PersonaFisica;
 import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.entity.Trabajador;
-import mx.tecabix.db.entity.Usuario;
 import mx.tecabix.db.service.CatalogoService;
 import mx.tecabix.db.service.DireccionService;
 import mx.tecabix.db.service.MunicipioService;
 import mx.tecabix.db.service.PersonaFisicaService;
 import mx.tecabix.db.service.PersonaService;
-import mx.tecabix.db.service.SesionService;
 import mx.tecabix.db.service.TrabajadorService;
-import mx.tecabix.db.service.UsuarioService;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -62,14 +57,10 @@ import mx.tecabix.db.service.UsuarioService;
  */
 @RestController
 @RequestMapping("trabajador")
-public class TrabajadorController {
+public class TrabajadorController extends Auth{
 
 	@Autowired
 	private CatalogoService catalogoService;
-	@Autowired 
-	private UsuarioService usuarioService;
-	@Autowired
-	private SesionService sesionService;
 	@Autowired
 	private TrabajadorService trabajadorService;
 	@Autowired
@@ -105,23 +96,11 @@ public class TrabajadorController {
 		})
 	@GetMapping
 	public ResponseEntity<Trabajador> findByUsuario(@RequestParam(value="token") String token) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, TRABAJADOR)) {
-			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
-		}
-		Sesion sesion = sesionService.findByToken(token);
-		String usuarioName = auth.getName();
-		Usuario usr = usuarioService.findByNombre(usuarioName);
+		Sesion sesion = getSessionIfIsAuthorized(token);
 		if(sesion == null) {
 			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
 		}
-		if(usr == null) {
-			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
-		}
-		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
-			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
-		}
-		Trabajador trabajador =  trabajadorService.findByUsuario(usr.getNombre());
+		Trabajador trabajador =  trabajadorService.findByUsuario(sesion.getUsuario().getNombre());
 		return new ResponseEntity<Trabajador>(trabajador,HttpStatus.OK);
 	}
 	
@@ -132,22 +111,12 @@ public class TrabajadorController {
 			})
 	@GetMapping("findAll")
 	public ResponseEntity<Page<Trabajador>> findAll(@RequestParam(value="token") String token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, TRABAJADOR)) {
-			return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
-		}
-		Sesion sesion = sesionService.findByToken(token);
-		String usuarioName = auth.getName();
-		Usuario usr = usuarioService.findByNombre(usuarioName);
+
+		Sesion sesion = getSessionIfIsAuthorized(token, TRABAJADOR);
 		if(sesion == null) {
 			return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
 		}
-		if(usr == null) {
-			return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
-		}
-		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
-			return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
-		}
+		
 		Page<Trabajador> trabajador =  trabajadorService.findAll(sesion.getLicencia().getPlantel().getIdEscuela(),elements, page);
 		return new ResponseEntity<Page<Trabajador>>(trabajador,HttpStatus.OK);
 	}
@@ -159,20 +128,8 @@ public class TrabajadorController {
 			})
 	@GetMapping("findAllByNombre")
 	public ResponseEntity<Page<Trabajador>> findAllByNombre(@RequestParam(value="token") String token, @RequestParam(value="nombre") String nombre,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, TRABAJADOR)) {
-			return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
-		}
-		Sesion sesion = sesionService.findByToken(token);
-		String usuarioName = auth.getName();
-		Usuario usr = usuarioService.findByNombre(usuarioName);
+		Sesion sesion = getSessionIfIsAuthorized(token, TRABAJADOR);
 		if(sesion == null) {
-			return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
-		}
-		if(usr == null) {
-			return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
-		}
-		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
 			return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
 		}
 		Page<Trabajador> trabajador =  trabajadorService.findAllByNombre(sesion.getLicencia().getPlantel().getIdEscuela(),nombre,elements, page);
@@ -192,21 +149,9 @@ public class TrabajadorController {
 	@PostMapping
 	public ResponseEntity<Trabajador> save(@RequestBody Trabajador trabajador, @RequestParam(value="token") String token) {
 		
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, TRABAJADOR_CREAR)) {
-			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED); 
-		}
-		Sesion sesion = sesionService.findByToken(token);
-		String usuarioName = auth.getName();
-		Usuario usr = usuarioService.findByNombre(usuarioName);
+		Sesion sesion = getSessionIfIsAuthorized(token, TRABAJADOR_CREAR);
 		if(sesion == null) {
-			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
-		}
-		if(usr == null) {
-			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
-		}
-		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
-			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED); 
 		}
 		if(trabajador == null) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
@@ -279,12 +224,12 @@ public class TrabajadorController {
 		direccion.setEstatus(CAT_PENDIENTE);
 		direccion.setMunicipio(municipio);
 		direccion.setFechaDeModificacion(LocalDateTime.now());
-		direccion.setIdUsuarioModificado(usr.getId());
+		direccion.setIdUsuarioModificado(sesion.getUsuario().getId());
 		direccion = direccionService.save(direccion);
 		
 		Persona prs=new Persona();
 		prs.setTipo(CAT_TIPO_PERSONA);
-		prs.setIdUsuarioModificado(usr.getId());
+		prs.setIdUsuarioModificado(sesion.getUsuario().getId());
 		prs.setFechaDeModificacion(LocalDateTime.now());
 		prs.setEstatus(CAT_PENDIENTE);
 		prs = personaService.save(prs);
@@ -292,13 +237,13 @@ public class TrabajadorController {
 		persona.setDireccion(direccion);
 		persona.setSexo(CAT_SEXO);
 		persona.setFechaDeModificacion(LocalDateTime.now());
-		persona.setIdUsuarioModificado(usr.getId());
+		persona.setIdUsuarioModificado(sesion.getUsuario().getId());
 		persona.setEstatus(CAT_PENDIENTE);
 		
 		persona = personaFisicaService.save(persona);
 		trabajador.setEstatus(CAT_PENDIENTE);
 		trabajador.setFechaDeModificacion(LocalDateTime.now());
-		trabajador.setIdUsuarioModificado(usr.getId());
+		trabajador.setIdUsuarioModificado(sesion.getUsuario().getId());
 		trabajador.setIdEscuela(sesion.getLicencia().getPlantel().getIdEscuela());
 		trabajador.setJefe(jefe);
 		trabajador.setPersonaFisica(persona);
@@ -319,21 +264,9 @@ public class TrabajadorController {
 	@PutMapping("activar")
 	public ResponseEntity<Trabajador> activar(@RequestParam(value="id") Long id, @RequestParam(value="token") String token) {
 		
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, TRABAJADOR_ACTIVAR)) {
-			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED); 
-		}
-		Sesion sesion = sesionService.findByToken(token);
-		String usuarioName = auth.getName();
-		Usuario usr = usuarioService.findByNombre(usuarioName);
+		Sesion sesion = getSessionIfIsAuthorized(token, TRABAJADOR_ACTIVAR);
 		if(sesion == null) {
-			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
-		}
-		if(usr == null) {
-			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
-		}
-		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
-			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED); 
 		}
 		final Catalogo CAT_ACTIVO = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO);
 		Trabajador trabajador = trabajadorService.findByIdAndPendiente(id);
@@ -364,21 +297,9 @@ public class TrabajadorController {
 	@DeleteMapping("delete")
 	public ResponseEntity<Trabajador> delete(@RequestParam(value="id") Long id, @RequestParam(value="token") String token) {
 		
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, TRABAJADOR_ELIMINAR)) {
-			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED); 
-		}
-		Sesion sesion = sesionService.findByToken(token);
-		String usuarioName = auth.getName();
-		Usuario usr = usuarioService.findByNombre(usuarioName);
+		Sesion sesion = getSessionIfIsAuthorized(token, TRABAJADOR_ELIMINAR);
 		if(sesion == null) {
-			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
-		}
-		if(usr == null) {
-			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
-		}
-		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
-			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED); 
 		}
 		final Catalogo CAT_ELIMINADO = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
 

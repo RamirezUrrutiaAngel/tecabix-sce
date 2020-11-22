@@ -42,10 +42,10 @@ import javax.persistence.Table;
 @Table(name = "sesion")
 @NamedQueries({
     @NamedQuery(name = "Sesion.findByActive",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND vencimiento > NOW() AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' "),
-    @NamedQuery(name = "Sesion.findByUsuarioAndActive",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND s.idUsuarioModificado = ?2 AND vencimiento > NOW() AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' "),
+    @NamedQuery(name = "Sesion.findByUsuarioAndActive",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND s.usuario.id = ?2 AND vencimiento > NOW() AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' "),
     @NamedQuery(name = "Sesion.findByToken",query = "SELECT s FROM Sesion s WHERE s.token = ?1 AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' AND ( s.licencia.tipo.nombre = 'WEB' OR s.vencimiento > NOW() )"),
     @NamedQuery(name = "Sesion.findByNow",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND DATE(s.vencimiento) = DATE(NOW()) ORDER BY s.peticionesRestantes"),
-    @NamedQuery(name = "Sesion.findByUsuarioAndNow",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND s.idUsuarioModificado = ?2 AND DATE(s.vencimiento) = DATE(NOW()) ORDER BY s.peticionesRestantes")
+    @NamedQuery(name = "Sesion.findByUsuarioAndNow",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND s.usuario.id = ?2 AND DATE(s.vencimiento) = DATE(NOW()) ORDER BY s.peticionesRestantes")
 })
 public class Sesion implements Serializable{
 
@@ -55,6 +55,9 @@ public class Sesion implements Serializable{
 	@SequenceGenerator(name = "sesion_id_sesion_gen", sequenceName = "tecabix_sce.sesion_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sesion_id_sesion_gen")
     private Long id;
+	@ManyToOne
+    @JoinColumn(name = "id_usuario")
+	private Usuario usuario;
     @Column(name = "key_token")
     private String token;
     @Column(name = "vencimiento")
@@ -71,11 +74,18 @@ public class Sesion implements Serializable{
     @ManyToOne
     @JoinColumn(name = "id_estatus")
     private Catalogo estatus;
+    
 	public Long getId() {
 		return id;
 	}
 	public void setId(Long id) {
 		this.id = id;
+	}
+	public Usuario getUsuario() {
+		return usuario;
+	}
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
 	}
 	public String getToken() {
 		return token;
@@ -119,5 +129,4 @@ public class Sesion implements Serializable{
 	public void setEstatus(Catalogo estatus) {
 		this.estatus = estatus;
 	}
-    
 }

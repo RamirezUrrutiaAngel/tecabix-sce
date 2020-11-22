@@ -97,6 +97,14 @@ public interface GenericSevice<T, ID> {
 	 * @return a page of entities
 	 */
 	Page<T> findAll(Pageable pageable);
+	
+	/**
+	 * Returns a {@link Page} of entities meeting the paging restriction provided in the {@code Pageable} object.
+	 *
+	 * @param pageable
+	 * @return a page of entities
+	 */
+	Page<T> findAll(int elements, int page);
 
 	/**
 	 * Returns the number of entities available.

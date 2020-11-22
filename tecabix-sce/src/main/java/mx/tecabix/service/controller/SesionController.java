@@ -23,8 +23,10 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -53,7 +55,7 @@ import mx.tecabix.db.service.UsuarioService;
  */
 @RestController
 @RequestMapping("sesion")
-public class SesionController {
+public class SesionController extends Auth {
 	private static final Logger LOG = LoggerFactory.getLogger(SesionController.class);
 
 	
@@ -69,8 +71,11 @@ public class SesionController {
 	private final String ACTIVO = "ACTIVO";
 	private final String ELIMINADO = "ELIMINADO";
 	private final String ESTATUS = "ESTATUS";
-	private final String SESION = "SESION";
+	private final String ROOT_SESION = "ROOT_SESION";
+	private final String ROOT_SESION_ELIMINAR = "ROOT_SESION_ELIMINAR";
 	
+	private final String SESION_ELIMINAR = "SESION_ELIMINAR";
+
 	private final String TIPO_DE_LICENCIA = "TIPO_DE_LICENCIA";
 	private final String WEB = "WEB";
 	
@@ -83,9 +88,6 @@ public class SesionController {
 	public ResponseEntity<Sesion> post(@RequestParam(value="key") String key){
 		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, SESION)) {
-			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED); 
-		}
 		String usuarioName = auth.getName();
 		Licencia licencia = licenciaService.findByToken(key);
 		if(licencia == null) {
@@ -106,6 +108,8 @@ public class SesionController {
 			if(sesionesAviertas != null) {
 				LOG.info("SE ENCONTRARON "+sesionesAviertas.size()+" PARA LA KEY: "+ key);
 				for (Sesion sesion : sesionesAviertas) {
+					sesion.setFechaDeModificacion(LocalDateTime.now());
+					sesion.setIdUsuarioModificado(sesion.getUsuario().getId());
 					sesion.setEstatus(catalogoEliminado);
 					sesionService.update(sesion);
 				}
@@ -127,6 +131,8 @@ public class SesionController {
 			if(sesionesAviertas != null) {
 				LOG.info("SE ENCONTRARON "+sesionesAviertas.size()+" PARA LA KEY: "+ key);
 				for (Sesion sesion : sesionesAviertas) {
+					sesion.setFechaDeModificacion(LocalDateTime.now());
+					sesion.setIdUsuarioModificado(sesion.getUsuario().getId());
 					sesion.setEstatus(catalogoEliminado);
 					sesionService.update(sesion);
 				}
@@ -147,6 +153,7 @@ public class SesionController {
 		final Catalogo catalogoActivo = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO);
 		
 		Sesion sesion = new Sesion();
+		sesion.setUsuario(usuario);
 		sesion.setEstatus(catalogoActivo);
 		sesion.setFechaDeModificacion(LocalDateTime.now());
 		sesion.setIdUsuarioModificado(usuario.getId());
@@ -161,21 +168,9 @@ public class SesionController {
 	
 	@GetMapping
 	public ResponseEntity<Sesion> get(@RequestParam(value="token") String token){
-		LOG.info("token: "+token);
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, SESION)) {
-			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED); 
-		}
-		String usuarioName = auth.getName();
-		Usuario usuario = usuarioService.findByNombre(usuarioName);
-		if(usuario == null) {
-			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);		
-		}
-		Sesion sesion = sesionService.findByToken(token);
+
+		Sesion sesion = getSessionIfIsAuthorized(token);
 		if(sesion == null) {
-			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
-		}
-		if(sesion.getIdUsuarioModificado().longValue() != usuario.getId().longValue()) {
 			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
 		}
 		sesion.setLicencia(null);
@@ -184,27 +179,81 @@ public class SesionController {
 	
 	@DeleteMapping
 	public ResponseEntity<Sesion> delete(@RequestParam(value="token") String token){
-		LOG.info("token: "+token);
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, SESION)) {
-			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED); 
-		}
-		String usuarioName = auth.getName();
-		Usuario usuario = usuarioService.findByNombre(usuarioName);
-		if(usuario == null) {
-			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);		
-		}
-		Sesion sesion = sesionService.findByToken(token);
+		Sesion sesion = getSessionIfIsAuthorized(token);
 		if(sesion == null) {
 			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
 		}
-		if(sesion.getIdUsuarioModificado().longValue() != usuario.getId().longValue()) {
-			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
-		}
 		Catalogo catalogoEliminado = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
+		sesion.setFechaDeModificacion(LocalDateTime.now());
+		sesion.setIdUsuarioModificado(sesion.getUsuario().getId());
 		sesion.setEstatus(catalogoEliminado);
-		sesion = sesionService.save(sesion);
+		sesion = sesionService.update(sesion);
 		sesion.setLicencia(null);
 		return new ResponseEntity<Sesion>(sesion,HttpStatus.NOT_FOUND);
+	}
+	
+	@DeleteMapping("deleteById")
+	public ResponseEntity<Sesion> deleteById(@RequestParam(value="token") String token, @RequestParam(value="id") Long id){
+		Sesion sesion = getSessionIfIsAuthorized(token,SESION_ELIMINAR);
+		if(sesion == null) {
+			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);
+		}
+		Catalogo catalogoEliminado = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
+		Optional<Sesion> sesionOptional = sesionService.findById(id);
+		if(!sesionOptional.isPresent()) {
+			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
+		}
+		Sesion sesionAux = sesionOptional.get();
+		if(!sesionAux.getLicencia().getPlantel().getIdEscuela().equals(sesion.getLicencia().getPlantel().getIdEscuela())) {
+			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
+		}
+		sesionAux.setFechaDeModificacion(LocalDateTime.now());
+		sesionAux.setIdUsuarioModificado(sesion.getUsuario().getId());
+		sesionAux.setEstatus(catalogoEliminado);
+		sesionAux = sesionService.update(sesion);
+		return new ResponseEntity<Sesion>(sesion,HttpStatus.NOT_FOUND);
+	}
+	
+	@DeleteMapping("deleteRoot")
+	public ResponseEntity<Sesion> deleteRoot(@RequestParam(value="token") String token, @RequestParam(value="id") Long id){
+		Sesion sesion = getSessionIfIsAuthorized(token,ROOT_SESION_ELIMINAR);
+		if(sesion == null) {
+			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);
+		}
+		Catalogo catalogoEliminado = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
+		Optional<Sesion> sesionOptional = sesionService.findById(id);
+		if(!sesionOptional.isPresent()) {
+			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
+		}
+		Sesion sesionAux = sesionOptional.get();
+		
+		sesionAux.setFechaDeModificacion(LocalDateTime.now());
+		sesionAux.setIdUsuarioModificado(sesion.getUsuario().getId());
+		sesionAux.setEstatus(catalogoEliminado);
+		sesionAux = sesionService.update(sesion);
+		return new ResponseEntity<Sesion>(sesion,HttpStatus.NOT_FOUND);
+	}
+	
+	
+	@GetMapping("findAll")
+	public ResponseEntity<Page<Sesion>> findAll(@RequestParam(value="token") String token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
+
+		Sesion sesion = getSessionIfIsAuthorized(token,ROOT_SESION);
+		if(sesion == null) {
+			return new ResponseEntity<Page<Sesion>>(HttpStatus.NOT_FOUND);
+		}
+		Page<Sesion> body = sesionService.findAll(elements, page);
+		return new ResponseEntity<Page<Sesion>>(body,HttpStatus.OK);
+	}
+	
+	@GetMapping("findByActive")
+	public ResponseEntity<Page<Sesion>> findByActive(@RequestParam(value="token") String token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
+
+		Sesion sesion = getSessionIfIsAuthorized(token,ROOT_SESION);
+		if(sesion == null) {
+			return new ResponseEntity<Page<Sesion>>(HttpStatus.NOT_FOUND);
+		}
+		Page<Sesion> body = sesionService.findByActive(sesion.getLicencia().getPlantel().getIdEscuela(), elements, page);
+		return new ResponseEntity<Page<Sesion>>(body,HttpStatus.OK);
 	}
 }

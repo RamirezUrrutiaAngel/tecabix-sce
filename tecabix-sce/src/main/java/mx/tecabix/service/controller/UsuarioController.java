@@ -23,8 +23,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,7 +40,6 @@ import mx.tecabix.db.entity.Usuario;
 import mx.tecabix.db.entity.UsuarioPersona;
 import mx.tecabix.db.service.CatalogoService;
 import mx.tecabix.db.service.PersonaService;
-import mx.tecabix.db.service.SesionService;
 import mx.tecabix.db.service.UsuarioPersonaService;
 import mx.tecabix.db.service.UsuarioService;
 /**
@@ -52,16 +49,13 @@ import mx.tecabix.db.service.UsuarioService;
  */
 @RestController
 @RequestMapping("usuario")
-public class UsuarioController {
+public class UsuarioController extends Auth {
 	
 	@Autowired
 	private UsuarioService usuarioService;
 	
 	@Autowired
 	private CatalogoService catalogoService;
-	
-	@Autowired
-	private SesionService sesionService;
 	
 	@Autowired 
 	private PersonaService personaService;
@@ -77,20 +71,13 @@ public class UsuarioController {
 		
 	@GetMapping
 	public ResponseEntity<Usuario> get(@RequestParam(value="key") String token) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		Sesion sesion = sesionService.findByToken(token);
-		String usuarioName = auth.getName();
-		Usuario usr = usuarioService.findByNombre(usuarioName);
+		
+		Sesion sesion = getSessionIfIsAuthorized(token);
 		if(sesion == null) {
 			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
 		}
-		if(usr == null) {
-			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
-		}
-		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
-			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
-		}
-		return new ResponseEntity<Usuario>(usr, HttpStatus.OK);
+		
+		return new ResponseEntity<Usuario>(sesion.getUsuario(), HttpStatus.OK);
 	}
 	
 	@GetMapping("findIsExist")
@@ -105,19 +92,8 @@ public class UsuarioController {
 	
 	@PostMapping()
 	public ResponseEntity<Usuario> save(@RequestBody Usuario usuario, @RequestParam(value="token") String token) {
-		
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, USUARIO_CREAR)) return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED); 
-		Sesion sesion = sesionService.findByToken(token);
-		String usuarioName = auth.getName();
-		Usuario usr = usuarioService.findByNombre(usuarioName);
+		Sesion sesion = getSessionIfIsAuthorized(token,USUARIO_CREAR);
 		if(sesion == null) {
-			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
-		}
-		if(usr == null) {
-			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
-		}
-		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
 			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
 		}
 		
@@ -153,14 +129,14 @@ public class UsuarioController {
 		
 		usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
 		usuario.setFechaDeModificacion(LocalDateTime.now());
-		usuario.setIdUsuarioModificado(usr.getId());
+		usuario.setIdUsuarioModificado(sesion.getUsuario().getId());
 		usuario.setEstatus(catalogoActivo);
 		usuario = usuarioService.save(usuario);
 		UsuarioPersona usuarioPersona = new UsuarioPersona();
 		usuarioPersona.setUsuario(usuario);
 		usuarioPersona.setPersona(persona);
 		usuarioPersona.setFechaDeModificacion(LocalDateTime.now());
-		usuarioPersona.setIdUsuarioModificado(usr.getId());
+		usuarioPersona.setIdUsuarioModificado(sesion.getUsuario().getId());
 		usuarioPersona.setEstatus(catalogoActivo);
 		usuarioPersona = usuarioPersonaService.save(usuarioPersona);
 		return new ResponseEntity<Usuario>(usuario,HttpStatus.OK);
@@ -168,22 +144,11 @@ public class UsuarioController {
 	
 	@PutMapping
 	public ResponseEntity<Usuario> update(@RequestBody Usuario usuario, @RequestParam(value="token") String token) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		Sesion sesion = sesionService.findByToken(token);
-		String usuarioName = auth.getName();
-		Usuario usr = usuarioService.findByNombre(usuarioName);
+		Sesion sesion = getSessionIfIsAuthorized(token,USUARIO_CREAR);
 		if(sesion == null) {
 			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
 		}
-		if(usr == null) {
-			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
-		}
-		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
-			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
-		}
-		if(usuario.getCorreo() == null || usuario.getCorreo().isEmpty()) {
-			return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
-		}
+		Usuario usr = sesion.getUsuario();
 		usr.setFechaDeModificacion(LocalDateTime.now());
 		usr.setCorreo(usuario.getCorreo());
 		if(usuario.getPassword() != null && !usuario.getPassword().isEmpty()) {
@@ -197,25 +162,13 @@ public class UsuarioController {
 	
 	@PutMapping("update-usuario")
 	public ResponseEntity<Usuario> updateUsuario(@RequestBody Usuario usuario, @RequestParam(value="token") String token) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, USUARIO_EDITAR)) return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED); 
-		Sesion sesion = sesionService.findByToken(token);
-		String usuarioName = auth.getName();
-		Usuario usr = usuarioService.findByNombre(usuarioName);
+		Sesion sesion = getSessionIfIsAuthorized(token,USUARIO_EDITAR);
 		if(sesion == null) {
-			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
-		}
-		if(usr == null) {
-			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
-		}
-		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
 			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
 		}
 		if(usuario.getId() == null || usuario.getCorreo() == null || usuario.getCorreo().isEmpty()) {
 			return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
 		}
-		
-		
 		Optional<Usuario> usuarioUpdateOptional = usuarioService.findById(usuario.getId());
 		
 		if(!usuarioUpdateOptional.isPresent()) {
@@ -236,10 +189,10 @@ public class UsuarioController {
 		usuarioUpdate.setCorreo(usuario.getCorreo());
 		if(usuario.getPassword() != null && !usuario.getPassword().isEmpty()) {
 			BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-			usr.setPassword(passwordEncoder.encode(usuario.getPassword()));
+			usuarioUpdate.setPassword(passwordEncoder.encode(usuario.getPassword()));
 		}
 		
-		usr = usuarioService.save(usr);
-		return new ResponseEntity<Usuario>(usr,HttpStatus.OK);
+		usuarioUpdate = usuarioService.save(usuarioUpdate);
+		return new ResponseEntity<Usuario>(usuarioUpdate,HttpStatus.OK);
 	}
 }

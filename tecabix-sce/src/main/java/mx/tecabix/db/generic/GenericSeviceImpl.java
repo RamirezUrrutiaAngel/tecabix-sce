@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 /**
@@ -81,6 +82,13 @@ public abstract class GenericSeviceImpl<Entity,Key> implements GenericSevice<Ent
 	public Page<Entity> findAll(Pageable pageable) {
 		Page<Entity> result = jpaRepository.findAll(pageable);
 		return result;
+	}
+	
+	@Override
+	public Page<Entity> findAll(int elements, int page) {
+		Pageable pageable = PageRequest.of(page, elements);
+		Page<Entity> entitys = this.findAll(pageable);
+		return entitys;
 	}
 
 	@Override

@@ -21,16 +21,28 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import mx.tecabix.db.entity.Sesion;
+import mx.tecabix.db.entity.Usuario;
+import mx.tecabix.db.service.SesionService;
+import mx.tecabix.db.service.UsuarioService;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
 public class Auth {
-
-	public static boolean hash(Authentication authentication, String... authorities) {
+	
+	@Autowired 
+	private UsuarioService usuarioService;
+	@Autowired
+	private SesionService sesionService;
+	
+	protected boolean hash(Authentication authentication, String... authorities) {
 		Collection<? extends GrantedAuthority> collectionAuthorities = authentication.getAuthorities();
 		List<String> authoritiesList = Arrays.asList(authorities);
 		for (GrantedAuthority grantedAuthority : collectionAuthorities) {
@@ -39,5 +51,53 @@ public class Auth {
 			}
 		}
 		return false;
+	}
+	
+	protected boolean isAuthorized(String token, String... authorities) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if(authorities != null && authorities.length > 0) {
+			if(!hash(auth, authorities)) {
+				return false;
+			}
+		}
+		Sesion sesion = sesionService.findByToken(token);
+		String usuarioName = auth.getName();
+		Usuario usr = usuarioService.findByNombre(usuarioName);
+		if(sesion == null) {
+			return false;
+		}
+		if(usr == null) {
+			return false;
+		}
+		if(sesion.getUsuario().getId().longValue() != usr.getId().longValue()) {
+			return false;
+		}
+		return true;
+	}
+	
+	protected boolean isNotAuthorized(String token, String... authorities) {
+		return !isAuthorized(token, authorities);
+	}
+	
+	protected Sesion getSessionIfIsAuthorized(String token, String... authorities) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if(authorities != null && authorities.length > 0) {
+			if(!hash(auth, authorities)) {
+				return null;
+			}
+		}
+		Sesion sesion = sesionService.findByToken(token);
+		String usuarioName = auth.getName();
+		Usuario usr = usuarioService.findByNombre(usuarioName);
+		if(sesion == null) {
+			return null;
+		}
+		if(usr == null) {
+			return null;
+		}
+		if(sesion.getUsuario().getId().longValue() != usr.getId().longValue()) {
+			return null;
+		}
+		return sesion;
 	}
 }

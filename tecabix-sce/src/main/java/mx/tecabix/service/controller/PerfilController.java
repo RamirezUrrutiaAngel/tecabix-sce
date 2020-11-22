@@ -26,8 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,8 +43,6 @@ import mx.tecabix.db.entity.Usuario;
 import mx.tecabix.db.service.AuthorityService;
 import mx.tecabix.db.service.CatalogoService;
 import mx.tecabix.db.service.PerfilService;
-import mx.tecabix.db.service.SesionService;
-import mx.tecabix.db.service.UsuarioService;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -54,14 +50,10 @@ import mx.tecabix.db.service.UsuarioService;
  */
 @RestController
 @RequestMapping("perfil")
-public class PerfilController {
+public class PerfilController extends Auth{
 
 	@Autowired
 	private PerfilService perfilService;
-	@Autowired 
-	private UsuarioService usuarioService;
-	@Autowired
-	private SesionService sesionService;
 	@Autowired 
 	private AuthorityService authorityService;
 	@Autowired
@@ -78,20 +70,15 @@ public class PerfilController {
 	
 	@GetMapping
 	public ResponseEntity<Perfil> get(@RequestParam(value="token") String token) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		Sesion sesion = sesionService.findByToken(token);
-		String usuarioName = auth.getName();
-		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null) {
+		Sesion sesion = getSessionIfIsAuthorized(token);
+		if(sesion == null){
 			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
 		}
-		if(usr == null) {
-			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
+		Usuario usuario = sesion.getUsuario();
+		if(usuario == null) {
+			return new ResponseEntity<Perfil>(HttpStatus.NOT_FOUND);
 		}
-		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
-			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
-		}
-		Perfil perfil = usr.getPerfil();
+		Perfil perfil = usuario.getPerfil();
 		if(perfil == null) {
 			return new ResponseEntity<Perfil>(HttpStatus.NOT_FOUND);
 		}
@@ -100,62 +87,36 @@ public class PerfilController {
 	
 	@GetMapping("findAll")
 	public ResponseEntity<Page<Perfil>> findAll(@RequestParam(value="token") String token, byte elements, short page) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, PERFIL)) return new ResponseEntity<Page<Perfil>>(HttpStatus.UNAUTHORIZED);
-		Sesion sesion = sesionService.findByToken(token);
-		String usuarioName = auth.getName();
-		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null) {
+		
+		Sesion sesion = getSessionIfIsAuthorized(token, PERFIL);
+		if(sesion == null){
 			return new ResponseEntity<Page<Perfil>>(HttpStatus.UNAUTHORIZED);
 		}
-		if(usr == null) {
-			return new ResponseEntity<Page<Perfil>>(HttpStatus.UNAUTHORIZED);
-		}
-		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
-			return new ResponseEntity<Page<Perfil>>(HttpStatus.UNAUTHORIZED);
-		}
+		
 		Page<Perfil> response = perfilService.findAll(sesion.getLicencia().getPlantel().getIdEscuela(), elements, page);
 		return new ResponseEntity<Page<Perfil>>(response, HttpStatus.OK);
 	}
 	
 	@GetMapping("findAllByNombre")
 	public ResponseEntity<Page<Perfil>> findAllByNombre(@RequestParam(value="token") String token, @RequestParam(value="nombre") String nombre, byte elements, short page) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, PERFIL)) {
+		
+		Sesion sesion = getSessionIfIsAuthorized(token, PERFIL);
+		if(sesion == null){
 			return new ResponseEntity<Page<Perfil>>(HttpStatus.UNAUTHORIZED);
 		}
-		Sesion sesion = sesionService.findByToken(token);
-		String usuarioName = auth.getName();
-		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null) {
-			return new ResponseEntity<Page<Perfil>>(HttpStatus.UNAUTHORIZED);
-		}
-		if(usr == null) {
-			return new ResponseEntity<Page<Perfil>>(HttpStatus.UNAUTHORIZED);
-		}
-		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
-			return new ResponseEntity<Page<Perfil>>(HttpStatus.UNAUTHORIZED);
-		}
+		
 		Page<Perfil> response = perfilService.findAllbyNombre(sesion.getLicencia().getPlantel().getIdEscuela(), nombre, elements, page);
 		return new ResponseEntity<Page<Perfil>>(response, HttpStatus.OK);
 	}
 	
 	@PostMapping
 	public ResponseEntity<Perfil> save(@RequestParam(value="token") String token,@RequestBody Perfil perfil){
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, PERFIL_CREAR)) return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
-		Sesion sesion = sesionService.findByToken(token);
-		String usuarioName = auth.getName();
-		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null) {
+		
+		Sesion sesion = getSessionIfIsAuthorized(token, PERFIL_CREAR);
+		if(sesion == null){
 			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
 		}
-		if(usr == null) {
-			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
-		}
-		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
-			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
-		}
+		
 		if(perfil.getDescripcion() == null || perfil.getDescripcion().isEmpty()) {
 			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 		}
@@ -183,7 +144,7 @@ public class PerfilController {
 		
 		perfil.setIdEscuela(sesion.getLicencia().getPlantel().getIdEscuela());
 		perfil.setEstatus(CAT_ACTIVO);
-		perfil.setIdUsuarioModificado(usr.getId());
+		perfil.setIdUsuarioModificado(sesion.getUsuario().getId());
 		perfil.setFechaDeModificacion(LocalDateTime.now());
 		perfilService.save(perfil);
 		return new ResponseEntity<Perfil>(perfil,HttpStatus.OK);
@@ -191,20 +152,12 @@ public class PerfilController {
 	
 	@PutMapping
 	public ResponseEntity<Perfil> update(@RequestParam(value="token") String token,@RequestBody Perfil perfil){
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, PERFIL_EDITAR)) return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
-		Sesion sesion = sesionService.findByToken(token);
-		String usuarioName = auth.getName();
-		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null) {
+		
+		Sesion sesion = getSessionIfIsAuthorized(token, PERFIL_EDITAR);
+		if(sesion == null){
 			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
 		}
-		if(usr == null) {
-			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
-		}
-		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
-			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
-		}
+		
 		if(perfil.getId() == null) {
 			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 		}
@@ -237,29 +190,19 @@ public class PerfilController {
 		perfilAux.setNombre(perfil.getNombre());
 		perfilAux.setDescripcion(perfil.getDescripcion());
 		perfilAux.setAuthorities(list);
-		perfilAux.setIdUsuarioModificado(usr.getId());
+		perfilAux.setIdUsuarioModificado(sesion.getUsuario().getId());
 		perfilAux.setFechaDeModificacion(LocalDateTime.now());
 		perfilService.update(perfilAux);
 		return new ResponseEntity<Perfil>(perfilAux,HttpStatus.OK);
 	}
 	@DeleteMapping
 	public ResponseEntity<Boolean> delete(@RequestParam(value="token") String token,@RequestParam Long idPerfil){
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if(!Auth.hash(auth, PERFIL_ELIMINAR)) {
+		
+		Sesion sesion = getSessionIfIsAuthorized(token, PERFIL_ELIMINAR);
+		if(sesion == null){
 			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
 		}
-		Sesion sesion = sesionService.findByToken(token);
-		String usuarioName = auth.getName();
-		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null) {
-			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
-		}
-		if(usr == null) {
-			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
-		}
-		if(sesion.getIdUsuarioModificado().longValue() != usr.getId().longValue()) {
-			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
-		}
+
 		Optional<Perfil> perfilOptional = perfilService.findById(idPerfil);
 		
 		if(!perfilOptional.isPresent() ) {
@@ -272,7 +215,7 @@ public class PerfilController {
 		final Catalogo CAT_ELIMINADO = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
 		
 		perfil.setEstatus(CAT_ELIMINADO);
-		perfil.setIdUsuarioModificado(usr.getId());
+		perfil.setIdUsuarioModificado(sesion.getUsuario().getId());
 		perfil.setFechaDeModificacion(LocalDateTime.now());
 		perfil = perfilService.update(perfil);
 		perfilService.deleteById(perfil.getId());
