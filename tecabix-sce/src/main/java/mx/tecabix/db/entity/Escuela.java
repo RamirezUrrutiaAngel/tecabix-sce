@@ -28,6 +28,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -37,6 +39,9 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "persona_moral")
+@NamedQueries({
+    @NamedQuery(name = "Escuela.findByNameRegardlessOfStatus",query = "SELECT e FROM Escuela e WHERE upper(e.nombre) =  upper(?1)")
+})
 public class Escuela implements Serializable {
 
 	private static final long serialVersionUID = 4047413230691680424L;
@@ -60,7 +65,7 @@ public class Escuela implements Serializable {
 	@Column(name="id_usuario_modificado")
 	private Long idUsuarioModificado;
 	@Column(name="fecha_modificado")
-	private LocalDateTime fechaModificado;
+	private LocalDateTime fechaDeModificacion;
 	@ManyToOne
     @JoinColumn(name = "id_estatus")
     private Catalogo estatus;
@@ -106,11 +111,11 @@ public class Escuela implements Serializable {
 	public void setIdUsuarioModificado(Long idUsuarioModificado) {
 		this.idUsuarioModificado = idUsuarioModificado;
 	}
-	public LocalDateTime getFechaModificado() {
-		return fechaModificado;
+	public LocalDateTime getFechaDeModificacion() {
+		return fechaDeModificacion;
 	}
-	public void setFechaModificado(LocalDateTime fechaModificado) {
-		this.fechaModificado = fechaModificado;
+	public void setFechaDeModificacion(LocalDateTime fechaDeModificacion) {
+		this.fechaDeModificacion = fechaDeModificacion;
 	}
 	public Catalogo getEstatus() {
 		return estatus;

@@ -17,6 +17,10 @@
  */
 package mx.tecabix.db.service;
 
+import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+
 import mx.tecabix.db.entity.Authority;
 import mx.tecabix.db.generic.GenericSevice;
 /**
@@ -26,5 +30,7 @@ import mx.tecabix.db.generic.GenericSevice;
  */
 public interface AuthorityService extends GenericSevice<Authority, Integer>{
 
-
+	Page<Authority> findByLikeNombre(String nombre,  int elements, int page);
+	
+	Optional<Authority> findByNombre(String nombre);
 }

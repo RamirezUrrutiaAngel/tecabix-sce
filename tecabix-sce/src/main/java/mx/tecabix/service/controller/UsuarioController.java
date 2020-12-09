@@ -80,7 +80,7 @@ public class UsuarioController extends Auth {
 		return new ResponseEntity<Usuario>(sesion.getUsuario(), HttpStatus.OK);
 	}
 	
-	@GetMapping("findIsExist")
+	@GetMapping("findIfIsExist")
 	public ResponseEntity<Boolean> findByNameRegardlessOfStatus(@RequestParam(value="nombre") String nombre){
 		
 		Usuario usr = usuarioService.findByNameRegardlessOfStatus(nombre);

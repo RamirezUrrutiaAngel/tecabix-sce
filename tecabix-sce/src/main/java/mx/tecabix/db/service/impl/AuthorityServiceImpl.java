@@ -17,9 +17,14 @@
  */
 package mx.tecabix.db.service.impl;
 
+import java.util.Optional;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.entity.Authority;
@@ -41,5 +46,18 @@ public class AuthorityServiceImpl extends GenericSeviceImpl<Authority, Integer> 
 	@Override
 	protected void postConstruct() {
 		setJpaRepository(authorityRepository);
+	}
+
+	@Override
+	public Page<Authority> findByLikeNombre(String nombre, int elements, int page) {
+		Pageable pageable = PageRequest.of(page, elements);
+		Page<Authority> result = authorityRepository.findByLikeNombre(nombre, pageable);
+		return result;
+	}
+
+	@Override
+	public Optional<Authority> findByNombre(String nombre) {
+		Optional<Authority> optional = authorityRepository.findByNombre(nombre);
+		return optional;
 	}
 }

@@ -251,7 +251,7 @@ public class SesionController extends Auth {
 
 		Sesion sesion = getSessionIfIsAuthorized(token,ROOT_SESION);
 		if(sesion == null) {
-			return new ResponseEntity<Page<Sesion>>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<Page<Sesion>>(HttpStatus.UNAUTHORIZED);
 		}
 		Page<Sesion> body = sesionService.findByActive(sesion.getLicencia().getPlantel().getIdEscuela(), elements, page);
 		return new ResponseEntity<Page<Sesion>>(body,HttpStatus.OK);

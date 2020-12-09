@@ -15,22 +15,21 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.db.repository;
+package mx.tecabix.service.controller;
 
-import java.util.Optional;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
+import mx.tecabix.Auth;
 
-import mx.tecabix.db.entity.Authority;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface AuthorityRepository extends JpaRepository<Authority, Integer>{
+@RestController
+@RequestMapping("configuracion")
+public class ContactoController extends Auth{
+	
 
-	Page<Authority> findByLikeNombre(String nombre,  Pageable pageable);
-	Optional<Authority> findByNombre(String nombre);
 }
