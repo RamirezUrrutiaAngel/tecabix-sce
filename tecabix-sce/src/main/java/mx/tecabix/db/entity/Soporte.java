@@ -24,15 +24,13 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinTable;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 /**
@@ -41,28 +39,24 @@ import javax.persistence.Table;
  * 
  */
 @Entity()
-@Table(name = "perfil")
-@NamedQueries({
-	@NamedQuery(name = "Perfil.findByKey",query = "SELECT p FROM Perfil p WHERE p.id = ?1 AND p.estatus.nombre = 'ACTIVO' "),
-	@NamedQuery(name = "Perfil.findAll",query = "SELECT p FROM Perfil p WHERE p.idEscuela = ?1 AND p.estatus.nombre = 'ACTIVO' ORDER BY p.nombre"),
-	@NamedQuery(name = "Perfil.findAllByNombre",query = "SELECT p FROM Perfil p WHERE p.estatus.nombre = 'ACTIVO' AND p.idEscuela = ?1 AND p.nombre LIKE ?2 ORDER BY p.nombre"),
-	@NamedQuery(name = "Perfil.findByNombre",query = "SELECT p FROM Perfil p WHERE p.estatus.nombre = 'ACTIVO' AND p.idEscuela = ?1 AND p.nombre = ?2 ")
+@Table(name = "soporte")
+public class Soporte implements Serializable{
 
-})
-public class Perfil implements Serializable{
-
-	private static final long serialVersionUID = 1945352087628007583L;
+	private static final long serialVersionUID = -7012345416547676841L;
 	@Id
-    @Column(name = "id_perfil", unique = true, nullable = false)
-	@SequenceGenerator(name = "perfil_id_perfil_gen", sequenceName = "tecabix_sce.perfil_seq", allocationSize = 1)
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "perfil_id_perfil_gen")
+    @Column(name = "id_soporte", unique = true, nullable = false)
+	@SequenceGenerator(name = "soporte_id_soporte_gen", sequenceName = "tecabix_sce.soporte_seq", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "soporte_id_soporte_gen")
     private Long id;
-    @Column(name = "nombre")
-    private String nombre;
-    @Column(name = "descripcion")
-    private String descripcion;
     @Column(name = "id_escuela")
     private Long idEscuela;
+    @ManyToOne
+    @JoinColumn(name = "id_tipo")
+    private Catalogo tipo;
+    @Column(name = "asunto")
+    private String asunto;
+    @Column(name = "descripcion")
+    private String descripcion;
     @Column(name = "id_usuario_modificado")
     private Long idUsuarioModificado;
     @Column(name = "fecha_modificado")
@@ -70,36 +64,37 @@ public class Perfil implements Serializable{
     @ManyToOne
     @JoinColumn(name = "id_estatus")
     private Catalogo estatus;
-	@ManyToMany(cascade = { CascadeType.REMOVE})
-    @JoinTable(
-        name = "perfil_authority", 
-        joinColumns = { @JoinColumn(name = "id_perfil") }, 
-        inverseJoinColumns = { @JoinColumn(name = "id_authority") }
-    )
-    private List<Authority> authorities;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="soporte", cascade=CascadeType.REMOVE)
+	private List<SoporteMsj> soporteMsjs;
 	public Long getId() {
 		return id;
 	}
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getNombre() {
-		return nombre;
+	public Long getIdEscuela() {
+		return idEscuela;
 	}
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
+	public void setIdEscuela(Long idEscuela) {
+		this.idEscuela = idEscuela;
+	}
+	public Catalogo getTipo() {
+		return tipo;
+	}
+	public void setTipo(Catalogo tipo) {
+		this.tipo = tipo;
+	}
+	public String getAsunto() {
+		return asunto;
+	}
+	public void setAsunto(String asunto) {
+		this.asunto = asunto;
 	}
 	public String getDescripcion() {
 		return descripcion;
 	}
 	public void setDescripcion(String descripcion) {
 		this.descripcion = descripcion;
-	}
-	public Long getIdEscuela() {
-		return idEscuela;
-	}
-	public void setIdEscuela(Long idEscuela) {
-		this.idEscuela = idEscuela;
 	}
 	public Long getIdUsuarioModificado() {
 		return idUsuarioModificado;
@@ -119,12 +114,11 @@ public class Perfil implements Serializable{
 	public void setEstatus(Catalogo estatus) {
 		this.estatus = estatus;
 	}
-	public List<Authority> getAuthorities() {
-		return authorities;
+	public List<SoporteMsj> getSoporteMsjs() {
+		return soporteMsjs;
 	}
-	public void setAuthorities(List<Authority> authorities) {
-		this.authorities = authorities;
+	public void setSoporteMsjs(List<SoporteMsj> soporteMsjs) {
+		this.soporteMsjs = soporteMsjs;
 	}
-	
-	
+    
 }

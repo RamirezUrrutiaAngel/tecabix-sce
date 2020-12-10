@@ -36,9 +36,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 /**
@@ -72,8 +69,7 @@ public class Authority implements Serializable{
     @OneToMany(fetch = FetchType.LAZY, mappedBy="preAuthority", cascade=CascadeType.REMOVE)
     private List<Authority> subAuthority;
     @JsonProperty(access = Access.WRITE_ONLY)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @ManyToMany(mappedBy = "authorities")
+    @ManyToMany(mappedBy = "authorities", cascade = CascadeType.REMOVE)
 	private List<Perfil> perfiles;
     
 	public Integer getId() {

@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -36,7 +37,9 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.ApiOperation;
 import mx.tecabix.Auth;
 import mx.tecabix.db.entity.Authority;
+import mx.tecabix.db.entity.PerfilAuthority;
 import mx.tecabix.db.service.AuthorityService;
+import mx.tecabix.db.service.PerfilAuthorityService;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -52,6 +55,8 @@ public class AuthorityController extends Auth{
 	
 	@Autowired
 	private AuthorityService authorityService;
+	@Autowired
+	private PerfilAuthorityService perfilAuthorityService;
 	
 	@ApiOperation(value = "Persiste la entidad del Authority con sus correspondientes sub Authority. ")
 	@PostMapping
@@ -194,6 +199,11 @@ public class AuthorityController extends Auth{
 		return new ResponseEntity<Authority>(body, HttpStatus.OK);
 	}
 	
+	@ApiOperation(value = "Actualiza la entidad del Authority con sus correspondientes sub Authority" ,
+			notes  = "El Id del Authority principal es obligatorio, en el sub Authority al proporcionar"
+			+ " el id se indica que se va actualizar dicho Authority, "
+			+ "si no se le proporciona se le considera un nuevo sub Authority.\n"
+			+ "Los Authority ya guardado que no se especifiquen en la petición serán eliminados.")
 	@PutMapping
 	public ResponseEntity<Authority> update(@RequestParam(value="token") String token, @RequestBody Authority authority){
 		if(isNotAuthorized(token, AUTHORITY)) {
@@ -310,5 +320,46 @@ public class AuthorityController extends Auth{
 		authority.setSubAuthority(listaDeSubAuthorityValidado);
 		authorityService.update(authority);
 		return new ResponseEntity<Authority>(authority,HttpStatus.OK);
+	}
+	
+	@ApiOperation(value = "Elimina la entity con sus correspondientes sub Authority.")
+	@DeleteMapping
+	public ResponseEntity<Boolean> delete(@RequestParam(value="token") String token, @RequestParam(value="id") Integer id){
+		if(isNotAuthorized(token, AUTHORITY)) {
+			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
+		}
+		Optional<Authority> optionalAuthorityViejo =  authorityService.findById(id);
+		if(!optionalAuthorityViejo.isPresent()) {
+			return new ResponseEntity<Boolean>(HttpStatus.NOT_FOUND);
+		}
+		Authority authorityViejo = optionalAuthorityViejo.get();
+		Optional<Authority> authorityPadreOptional = authorityService.findByNombre(AUTENTIFICADOS);
+		if(!authorityPadreOptional.isPresent()) {
+			return new ResponseEntity<Boolean>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		Authority authorityPadre = authorityPadreOptional.get(); 
+		if(!authorityPadre.equals(authorityViejo.getPreAuthority())) {
+			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
+		}
+		List<Authority> listaDeAuthoritiesPorBorrar = authorityViejo.getSubAuthority();
+		for (Authority authorityItem : listaDeAuthoritiesPorBorrar) {
+			
+			authorityItem.setPreAuthority(null);
+			authorityItem = authorityService.update(authorityItem);
+			Page<PerfilAuthority> pagePerfilAuthority = perfilAuthorityService.findByAuthority(authorityItem.getId());
+			for (PerfilAuthority perfilAuthority : pagePerfilAuthority) {
+				perfilAuthorityService.delete(perfilAuthority);
+			}
+			authorityService.deleteById(authorityItem.getId());
+		}
+		authorityViejo.setSubAuthority(null);
+		authorityViejo.setPreAuthority(null);
+		authorityService.update(authorityViejo);
+		Page<PerfilAuthority> pagePerfilAuthority = perfilAuthorityService.findByAuthority(authorityViejo.getId());
+		for (PerfilAuthority perfilAuthority : pagePerfilAuthority) {
+			perfilAuthorityService.deleteById(perfilAuthority.getId());
+		}
+		authorityService.deleteById(authorityViejo.getId());
+		return new ResponseEntity<Boolean>(true,HttpStatus.OK);
 	}
 }
