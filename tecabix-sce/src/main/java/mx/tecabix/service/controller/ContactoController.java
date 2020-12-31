@@ -28,7 +28,7 @@ import mx.tecabix.Auth;
  * 
  */
 @RestController
-@RequestMapping("configuracion")
+@RequestMapping("contacto")
 public class ContactoController extends Auth{
 	
 

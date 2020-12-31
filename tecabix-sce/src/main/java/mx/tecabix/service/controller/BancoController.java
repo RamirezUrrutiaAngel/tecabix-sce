@@ -23,11 +23,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.ApiOperation;
 import mx.tecabix.Auth;
 import mx.tecabix.db.entity.Banco;
 import mx.tecabix.db.service.BancoService;
@@ -43,10 +48,14 @@ public class BancoController extends Auth{
 	
 	private String BANCO ="BANCO";
 	private String ROOT_BANCO = "ROOT_BANCO";
+	private String ROOT_BANCO_CREAR = "ROOT_BANCO_CREAR";
+	private String ROOT_BANCO_EDITAR = "ROOT_BANCO_EDITAR";
+	private String ROOT_BANCO_ELIMINAR = "ROOT_BANCO_ELIMINAR";
 	
 	@Autowired
 	private BancoService bancoService;
 	
+	@ApiOperation(value = "Obtiene todo los bancos paginado.")
 	@GetMapping("findAll")
 	public ResponseEntity<Page<Banco>> findAll(@RequestParam(value="token") String token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
 		if(isNotAuthorized(token, BANCO, ROOT_BANCO)) {
@@ -56,6 +65,7 @@ public class BancoController extends Auth{
 		return new ResponseEntity<Page<Banco>>(result, HttpStatus.OK);
 	}
 	
+	@ApiOperation(value = "Obtiene el bancos por ID.")
 	@GetMapping("findById")
 	public ResponseEntity<Banco> findById(@RequestParam(value="token") String token,@RequestParam(value="id") Integer id) {
 		if(isNotAuthorized(token, BANCO, ROOT_BANCO)) {
@@ -67,5 +77,60 @@ public class BancoController extends Auth{
 		}
 		Banco body = result.get();
 		return new ResponseEntity<Banco>(body, HttpStatus.OK);
+	}
+	
+	@ApiOperation(value = "Persiste la entidad del Banco. ")
+	@PostMapping
+	public ResponseEntity<Banco> save(@RequestParam(value="token") String token, @RequestBody Banco banco){
+		if(isNotAuthorized(token, ROOT_BANCO_CREAR)) {
+			return new ResponseEntity<Banco>(HttpStatus.UNAUTHORIZED);
+		}
+		if(banco.getClave() == null || banco.getClave().isEmpty()) {
+			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
+		}
+		if(banco.getNombre() == null || banco.getNombre().isEmpty()) {
+			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
+		}
+		if(banco.getRazonSocial() == null || banco.getRazonSocial().isEmpty()) {
+			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
+		}
+		banco = bancoService.save(banco);
+		return new ResponseEntity<Banco>(banco,HttpStatus.OK);
+	}
+	
+	@ApiOperation(value = "Actualiza la entidad del Banco. ")
+	@PutMapping
+	public ResponseEntity<Banco> update(@RequestParam(value="token") String token, @RequestBody Banco banco){
+		if(isNotAuthorized(token, ROOT_BANCO_EDITAR)) {
+			return new ResponseEntity<Banco>(HttpStatus.UNAUTHORIZED);
+		}
+		if(banco.getId() == null) {
+			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
+		}
+		if(banco.getClave() == null || banco.getClave().isEmpty()) {
+			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
+		}
+		if(banco.getNombre() == null || banco.getNombre().isEmpty()) {
+			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
+		}
+		if(banco.getRazonSocial() == null || banco.getRazonSocial().isEmpty()) {
+			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
+		}
+		Optional<Banco> bancoAux =  bancoService.findById(banco.getId());
+		if(!bancoAux.isPresent()) {
+			return new ResponseEntity<Banco>(HttpStatus.NOT_FOUND);
+		}
+		banco = bancoService.save(banco);
+		return new ResponseEntity<Banco>(banco,HttpStatus.OK);
+	}
+	
+	@ApiOperation(value = "Elimina la entidad del Banco por ID. ")
+	@DeleteMapping
+	public ResponseEntity<Boolean> delete(@RequestParam(value="token") String token,@RequestParam(value="id") Integer id) {
+		if(isNotAuthorized(token,ROOT_BANCO_ELIMINAR)) {
+			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
+		}
+		bancoService.deleteById(id);
+		return new ResponseEntity<Boolean>(true,HttpStatus.OK);
 	}
 }

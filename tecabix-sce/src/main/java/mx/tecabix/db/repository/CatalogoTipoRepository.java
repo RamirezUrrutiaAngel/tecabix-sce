@@ -17,6 +17,8 @@
  */
 package mx.tecabix.db.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import mx.tecabix.db.entity.CatalogoTipo;
 /**
@@ -26,6 +28,6 @@ import mx.tecabix.db.entity.CatalogoTipo;
  */
 public interface CatalogoTipoRepository extends JpaRepository<CatalogoTipo, Integer>{
 	
-	CatalogoTipo findByNombre(String String);
+	Optional<CatalogoTipo> findByNombre(String String);
 	
 }

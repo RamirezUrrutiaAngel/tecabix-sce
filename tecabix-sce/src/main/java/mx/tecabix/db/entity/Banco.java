@@ -45,8 +45,7 @@ public class Banco implements Serializable{
     @Column(name = "nombre")
     private String nombre;
     @Column(name = "razon_social")
-    private String razon_social;
-    
+    private String razonSocial;
 	public Integer getId() {
 		return id;
 	}
@@ -65,12 +64,10 @@ public class Banco implements Serializable{
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
 	}
-	public String getRazon_social() {
-		return razon_social;
+	public String getRazonSocial() {
+		return razonSocial;
 	}
-	public void setRazon_social(String razon_social) {
-		this.razon_social = razon_social;
+	public void setRazonSocial(String razonSocial) {
+		this.razonSocial = razonSocial;
 	}
-    
-    
 }
