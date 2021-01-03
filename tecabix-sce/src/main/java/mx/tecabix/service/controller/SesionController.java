@@ -97,8 +97,17 @@ public class SesionController extends Auth {
 		if(usuario == null) {
 			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);
 		}
-		final Catalogo catalogoTipoLicenciaWeb = catalogoService.findByTipoAndNombre(TIPO_DE_LICENCIA, WEB);
-		final Catalogo catalogoEliminado = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
+		Optional<Catalogo> optionalCatalogoTipoLicencia = catalogoService.findByTipoAndNombre(TIPO_DE_LICENCIA, WEB);
+		if(!optionalCatalogoTipoLicencia.isPresent()) {
+			return new ResponseEntity<Sesion>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		final Catalogo catalogoTipoLicenciaWeb = optionalCatalogoTipoLicencia.get();
+		
+		Optional<Catalogo> optionalCatalogoEliminado = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
+		if(!optionalCatalogoEliminado.isPresent()) {
+			return new ResponseEntity<Sesion>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		final Catalogo catalogoEliminado = optionalCatalogoEliminado.get();
 		Integer peticionesRestantes = 0;
 		LocalDateTime vencimiento = LocalDateTime.now();
 		if(licencia.getTipo().getId().intValue() == catalogoTipoLicenciaWeb.getId().intValue()) {
@@ -150,7 +159,11 @@ public class SesionController extends Auth {
 			}
 			
 		}
-		final Catalogo catalogoActivo = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO);
+		Optional<Catalogo> optionalCatalogoActivo = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO);
+		if(!optionalCatalogoActivo.isPresent()) {
+			return new ResponseEntity<Sesion>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		final Catalogo catalogoActivo = optionalCatalogoActivo.get();
 		
 		Sesion sesion = new Sesion();
 		sesion.setUsuario(usuario);
@@ -183,7 +196,11 @@ public class SesionController extends Auth {
 		if(sesion == null) {
 			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
 		}
-		Catalogo catalogoEliminado = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
+		Optional<Catalogo> optionalCatalogoEliminado = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
+		if(!optionalCatalogoEliminado.isPresent()) {
+			return new ResponseEntity<Sesion>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		Catalogo catalogoEliminado = optionalCatalogoEliminado.get();
 		sesion.setFechaDeModificacion(LocalDateTime.now());
 		sesion.setIdUsuarioModificado(sesion.getUsuario().getId());
 		sesion.setEstatus(catalogoEliminado);
@@ -198,7 +215,11 @@ public class SesionController extends Auth {
 		if(sesion == null) {
 			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);
 		}
-		Catalogo catalogoEliminado = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
+		Optional<Catalogo> optionalCatalogoEliminado = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
+		if(!optionalCatalogoEliminado.isPresent()) {
+			return new ResponseEntity<Sesion>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		Catalogo catalogoEliminado = optionalCatalogoEliminado.get();
 		Optional<Sesion> sesionOptional = sesionService.findById(id);
 		if(!sesionOptional.isPresent()) {
 			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
@@ -220,7 +241,12 @@ public class SesionController extends Auth {
 		if(sesion == null) {
 			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);
 		}
-		Catalogo catalogoEliminado = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
+		Optional<Catalogo> optionalCatalogoEliminado = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
+		if(!optionalCatalogoEliminado.isPresent()) {
+			return new ResponseEntity<Sesion>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		Catalogo catalogoEliminado = optionalCatalogoEliminado.get();
+		
 		Optional<Sesion> sesionOptional = sesionService.findById(id);
 		if(!sesionOptional.isPresent()) {
 			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);

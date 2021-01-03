@@ -125,7 +125,11 @@ public class UsuarioController extends Auth {
 		if(usuarioService.findByNameRegardlessOfStatus(usuario.getNombre())!= null) {
 			return new ResponseEntity<Usuario>(HttpStatus.CONFLICT);
 		}
-		final Catalogo catalogoActivo = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO);
+		Optional<Catalogo> optionalCatalogoActivo = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO);
+		if(!optionalCatalogoActivo.isPresent()) {
+			return new ResponseEntity<Usuario>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		final Catalogo catalogoActivo = optionalCatalogoActivo.get();
 		
 		usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
 		usuario.setFechaDeModificacion(LocalDateTime.now());

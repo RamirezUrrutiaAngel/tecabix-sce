@@ -204,13 +204,25 @@ public class TrabajadorController extends Auth{
 		if(direccion.getMunicipio() == null || direccion.getMunicipio().getId() == null ) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
-		final Catalogo CAT_SEXO = catalogoService.findByTipoAndNombre(SEXO, persona.getSexo().getNombre());
 		
-		if(CAT_SEXO == null ) {
+		
+		Optional<Catalogo> optionalCatalogoSexo = catalogoService.findByTipoAndNombre(SEXO, persona.getSexo().getNombre());
+		Optional<Catalogo> optionalCatalogoPendinte = catalogoService.findByTipoAndNombre(ESTATUS, PENDIENTE);
+		Optional<Catalogo> optionalCatalogoTipoPersona = catalogoService.findByTipoAndNombre(TIPO_DE_PERSONA, FISICA);
+		
+		if(!optionalCatalogoSexo.isPresent()) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
-		final Catalogo CAT_PENDIENTE = catalogoService.findByTipoAndNombre(ESTATUS, PENDIENTE);
-		final Catalogo CAT_TIPO_PERSONA = catalogoService.findByTipoAndNombre(TIPO_DE_PERSONA, FISICA);
+		if(!optionalCatalogoPendinte.isPresent()) {
+			return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		if(!optionalCatalogoTipoPersona.isPresent()) {
+			return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		final Catalogo CAT_SEXO = optionalCatalogoSexo.get();
+		final Catalogo CAT_PENDIENTE = optionalCatalogoPendinte.get();
+		final Catalogo CAT_TIPO_PERSONA = optionalCatalogoTipoPersona.get();
+		
 		Optional<Municipio> municipioOptional = municipioService.findById(direccion.getMunicipio().getId());
 		if(!municipioOptional.isPresent()) {
 			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
@@ -268,7 +280,12 @@ public class TrabajadorController extends Auth{
 		if(sesion == null) {
 			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED); 
 		}
-		final Catalogo CAT_ACTIVO = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO);
+		Optional<Catalogo> optionalCatalogoActivo = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO);
+		if(!optionalCatalogoActivo.isPresent()) {
+			return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		final Catalogo CAT_ACTIVO = optionalCatalogoActivo.get();
+		
 		Trabajador trabajador = trabajadorService.findByIdAndPendiente(id);
 		Long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
 		if(trabajador == null) {
@@ -301,7 +318,13 @@ public class TrabajadorController extends Auth{
 		if(sesion == null) {
 			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED); 
 		}
-		final Catalogo CAT_ELIMINADO = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
+		
+		Optional<Catalogo> optionalCatalogoEliminado = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
+		if(!optionalCatalogoEliminado.isPresent()) {
+			return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		final Catalogo CAT_ELIMINADO = optionalCatalogoEliminado.get();
+		
 
 		Trabajador trabajador = trabajadorService.findByKey(id);
 		if(trabajador == null) {

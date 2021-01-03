@@ -229,13 +229,23 @@ public class EscuelaController extends Auth{
 			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
 		}
 		
-		final Catalogo CAT_SEXO = catalogoService.findByTipoAndNombre(SEXO, personaFisicaCEO.getSexo().getNombre());
+		Optional<Catalogo> optionalCataloPendiente = catalogoService.findByTipoAndNombre(ESTATUS, PENDIENTE);
+		Optional<Catalogo> optionalCatalogoTipoPersona = catalogoService.findByTipoAndNombre(TIPO_DE_PERSONA, MORAL);
+		Optional<Catalogo> optiolanCatalogoSexo = catalogoService.findByTipoAndNombre(SEXO, personaFisicaCEO.getSexo().getNombre());
 		
-		if(CAT_SEXO == null ) {
+		if(!optiolanCatalogoSexo.isPresent()) {
 			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
 		}
-		final Catalogo CAT_PENDIENTE = catalogoService.findByTipoAndNombre(ESTATUS, PENDIENTE);
-		final Catalogo CAT_TIPO_PERSONA = catalogoService.findByTipoAndNombre(TIPO_DE_PERSONA, MORAL);
+		if(!optionalCatalogoTipoPersona.isPresent()){
+			return new ResponseEntity<Escuela>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		if(!optionalCataloPendiente.isPresent()){
+			return new ResponseEntity<Escuela>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		final Catalogo CAT_SEXO = optiolanCatalogoSexo.get();
+		final Catalogo CAT_PENDIENTE = optionalCataloPendiente.get();
+		final Catalogo CAT_TIPO_PERSONA = optionalCatalogoTipoPersona.get();
+		
 		Optional<Municipio> municipioOptional = municipioService.findById(direccionCEO.getMunicipio().getId());
 		if(!municipioOptional.isPresent()) {
 			return new ResponseEntity<Escuela>(HttpStatus.NOT_ACCEPTABLE);
@@ -271,7 +281,11 @@ public class EscuelaController extends Auth{
 		if(escuelaService.findByNameRegardlessOfStatus(escuela.getNombre()).isPresent()) {
 			return new ResponseEntity<Escuela>(HttpStatus.CONFLICT);
 		}
-		final Catalogo catalogoActivo = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO);
+		Optional<Catalogo> optionalCatalogoActivo = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO);
+		if(!optionalCatalogoActivo.isPresent()) {
+			return new ResponseEntity<Escuela>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		final Catalogo catalogoActivo = optionalCatalogoActivo.get();
 		
 		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));

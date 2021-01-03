@@ -17,6 +17,8 @@
  */
 package mx.tecabix.db.service.impl;
 
+import java.util.Optional;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,9 +46,9 @@ public class CatalogoServiceImpl extends GenericSeviceImpl<Catalogo, Integer> im
 	}
 
 	@Override
-	public Catalogo findByTipoAndNombre(String tipo, String nombre) {
+	public Optional<Catalogo> findByTipoAndNombre(String tipo, String nombre) {
 		try {
-			Catalogo entity = cataRepository.findByTipoAndNombre(tipo, nombre);
+			Optional<Catalogo> entity = cataRepository.findByTipoAndNombre(tipo, nombre);
 			return entity;
 		} catch (Exception e) {
 			e.printStackTrace();

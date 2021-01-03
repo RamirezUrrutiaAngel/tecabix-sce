@@ -140,7 +140,11 @@ public class PerfilController extends Auth{
 			}
 			perfil.setAuthorities(listAux);
 		}
-		final Catalogo CAT_ACTIVO = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO);
+		Optional<Catalogo> optionalCatalogoActivo = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO);
+		if(!optionalCatalogoActivo.isPresent()) {
+			return new ResponseEntity<Perfil>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		final Catalogo CAT_ACTIVO = optionalCatalogoActivo.get();
 		
 		perfil.setIdEscuela(sesion.getLicencia().getPlantel().getIdEscuela());
 		perfil.setEstatus(CAT_ACTIVO);
@@ -212,7 +216,11 @@ public class PerfilController extends Auth{
 		if(perfil.getIdEscuela().longValue() != sesion.getLicencia().getPlantel().getIdEscuela().longValue()) {
 			return new ResponseEntity<Boolean>(HttpStatus.NOT_FOUND);
 		}
-		final Catalogo CAT_ELIMINADO = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
+		Optional<Catalogo> optionalCatalogoEliminado = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
+		if(!optionalCatalogoEliminado.isPresent()) {
+			return new ResponseEntity<Boolean>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		final Catalogo CAT_ELIMINADO = optionalCatalogoEliminado.get();
 		
 		perfil.setEstatus(CAT_ELIMINADO);
 		perfil.setIdUsuarioModificado(sesion.getUsuario().getId());

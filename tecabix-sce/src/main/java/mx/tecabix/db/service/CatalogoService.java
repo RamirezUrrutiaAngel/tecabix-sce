@@ -17,6 +17,8 @@
  */
 package mx.tecabix.db.service;
 
+import java.util.Optional;
+
 import mx.tecabix.db.entity.Catalogo;
 import mx.tecabix.db.generic.GenericSevice;
 /**
@@ -27,5 +29,5 @@ import mx.tecabix.db.generic.GenericSevice;
 public interface CatalogoService extends GenericSevice<Catalogo, Integer>{
 
 	
-	public Catalogo findByTipoAndNombre(String tipo,String nombre);
+	public Optional<Catalogo> findByTipoAndNombre(String tipo,String nombre);
 }
