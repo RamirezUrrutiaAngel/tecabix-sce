@@ -17,6 +17,7 @@
  */
 package mx.tecabix.db.service;
 
+import org.springframework.data.domain.Page;
 import mx.tecabix.db.entity.Departamento;
 import mx.tecabix.db.generic.GenericSevice;
 /**
@@ -26,4 +27,5 @@ import mx.tecabix.db.generic.GenericSevice;
  */
 public interface DepartamentoService extends GenericSevice<Departamento, Long>{
 
+	Page<Departamento> findByIdEscuela(Long idEscuela, int elements, int page);
 }
