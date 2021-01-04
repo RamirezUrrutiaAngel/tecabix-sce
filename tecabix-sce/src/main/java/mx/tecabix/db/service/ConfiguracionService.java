@@ -17,6 +17,8 @@
  */
 package mx.tecabix.db.service;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 
 import mx.tecabix.db.entity.Configuracion;
@@ -28,4 +30,6 @@ import mx.tecabix.db.generic.GenericSevice;
  */
 public interface ConfiguracionService extends GenericSevice<Configuracion, Long> {
 	Page<Configuracion> findByIdEscuela(long id,int elements, int page);
+	Page<Configuracion> findByNombre(String nombre,int elements, int page);
+	Optional<Configuracion> findByIdEscuelaAndNombre(long idEscuela, String nombre);
 }

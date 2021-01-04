@@ -17,6 +17,8 @@
  */
 package mx.tecabix.db.service.impl;
 
+import java.util.Optional;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +54,19 @@ public class ConfiguracionServiceImpl extends GenericSeviceImpl<Configuracion, L
 		Pageable pageable = PageRequest.of(page, elements);
 		Page<Configuracion> entitys = configuracionRepository.findByIdEscuela(id, pageable);
 		return entitys;
+	}
+
+	@Override
+	public Page<Configuracion> findByNombre(String nombre, int elements, int page) {
+		Pageable pageable = PageRequest.of(page, elements);
+		Page<Configuracion> entitys = configuracionRepository.findByNombre(nombre, pageable);
+		return entitys;
+	}
+
+	@Override
+	public Optional<Configuracion> findByIdEscuelaAndNombre(long idEscuela, String nombre) {
+		Optional<Configuracion> result = configuracionRepository.findByIdEscuelaAndNombre(idEscuela, nombre);
+		return result;
 	}
 	
 
