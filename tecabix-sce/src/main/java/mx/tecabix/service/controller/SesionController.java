@@ -43,10 +43,12 @@ import mx.tecabix.db.entity.Catalogo;
 import mx.tecabix.db.entity.Licencia;
 import mx.tecabix.db.entity.Servicio;
 import mx.tecabix.db.entity.Sesion;
+import mx.tecabix.db.entity.Suscripcion;
 import mx.tecabix.db.entity.Usuario;
 import mx.tecabix.db.service.CatalogoService;
 import mx.tecabix.db.service.LicenciaService;
 import mx.tecabix.db.service.SesionService;
+import mx.tecabix.db.service.SuscripcionService;
 import mx.tecabix.db.service.UsuarioService;
 /**
  * 
@@ -67,6 +69,8 @@ public class SesionController extends Auth {
 	private UsuarioService usuarioService;
 	@Autowired
 	private SesionService sesionService;
+	@Autowired
+	private SuscripcionService suscripcionService;
 	
 	private final String ACTIVO = "ACTIVO";
 	private final String ELIMINADO = "ELIMINADO";
@@ -97,6 +101,11 @@ public class SesionController extends Auth {
 		if(usuario == null) {
 			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);
 		}
+		Optional<Suscripcion> optionalSuscripcion = suscripcionService.findByIdEscuelaAndValid(licencia.getPlantel().getIdEscuela());
+		if(!optionalSuscripcion.isPresent()) {
+			return new ResponseEntity<Sesion>(HttpStatus.LOCKED);
+		}
+		
 		Optional<Catalogo> optionalCatalogoTipoLicencia = catalogoService.findByTipoAndNombre(TIPO_DE_LICENCIA, WEB);
 		if(!optionalCatalogoTipoLicencia.isPresent()) {
 			return new ResponseEntity<Sesion>(HttpStatus.INTERNAL_SERVER_ERROR);

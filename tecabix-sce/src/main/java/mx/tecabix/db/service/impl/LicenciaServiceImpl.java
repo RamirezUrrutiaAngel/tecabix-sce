@@ -20,6 +20,9 @@ package mx.tecabix.db.service.impl;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.entity.Licencia;
@@ -50,5 +53,35 @@ public class LicenciaServiceImpl extends GenericSeviceImpl<Licencia, Long> imple
 		return response;
 	}
 
+	@Override
+	public Page<Licencia> findAll(int elements, int page) {
+		Pageable pageable = PageRequest.of(page, elements);
+		Page<Licencia> result = licenciaRepository.findAll(pageable);
+		return result;
+	}
+
+	@Override
+	public Page<Licencia> findByIdEscuela(Long idEscuela, int elements, int page) {
+		Pageable pageable = PageRequest.of(page, elements);
+		Page<Licencia> result = licenciaRepository.findByIdEscuela(idEscuela, pageable);
+		return result;
+	}
+
+	@Override
+	public Licencia save(Licencia entity) {
+		String key = licenciaRepository.getMD5(String.valueOf(System.currentTimeMillis()));
+		entity.setToken(key);
+		return super.save(entity);
+	}
+
+	@Override
+	public Page<Licencia> findByIdEscuelaAndServicio(Long idEscuela, Integer idServicio, int elements, int page) {
+		Pageable pageable = PageRequest.of(page, elements);
+		Page<Licencia> result = licenciaRepository.findByIdEscuelaAndServicio(idEscuela, idServicio, pageable);
+		return result;
+	}
+
+	
+	
 	
 }

@@ -17,6 +17,8 @@
  */
 package mx.tecabix.db.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import mx.tecabix.db.entity.Servicio;
@@ -27,4 +29,5 @@ import mx.tecabix.db.entity.Servicio;
  */
 public interface ServicioRepository extends JpaRepository<Servicio, Integer>{
 
+	Optional<Servicio> findByNombre(String nombre);
 }

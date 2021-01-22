@@ -23,6 +23,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 /**
@@ -32,6 +34,9 @@ import javax.persistence.Table;
  */
 @Entity()
 @Table(name = "servicio")
+@NamedQueries({
+	@NamedQuery(name = "Servicio.findByNombre", query = "SELECT s FROM Servicio s WHERE s.nombre = ?1 ")
+})
 public class Servicio  implements Serializable{
 	
 	private static final long serialVersionUID = -34582993453527056L;

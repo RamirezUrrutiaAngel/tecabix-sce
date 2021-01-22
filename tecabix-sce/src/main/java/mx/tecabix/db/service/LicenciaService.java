@@ -17,6 +17,8 @@
  */
 package mx.tecabix.db.service;
 
+import org.springframework.data.domain.Page;
+
 import mx.tecabix.db.entity.Licencia;
 import mx.tecabix.db.generic.GenericSevice;
 /**
@@ -27,5 +29,8 @@ import mx.tecabix.db.generic.GenericSevice;
 public interface LicenciaService extends GenericSevice<Licencia, Long>{
 	
 	Licencia findByToken(String key);
-
+	Page<Licencia> findAll(int elements, int page);
+	Page<Licencia> findByIdEscuela(Long idEscuela, int elements, int page);
+	Page<Licencia> findByIdEscuelaAndServicio(Long idEscuela, Integer idServicio, int elements, int page);
+	
 }

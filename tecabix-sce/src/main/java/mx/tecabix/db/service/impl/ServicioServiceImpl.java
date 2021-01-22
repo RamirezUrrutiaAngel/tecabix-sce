@@ -17,6 +17,8 @@
  */
 package mx.tecabix.db.service.impl;
 
+import java.util.Optional;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,12 @@ public class ServicioServiceImpl extends GenericSeviceImpl<Servicio, Integer> im
 	protected void postConstruct() {
 		setJpaRepository(servicioRepository);
 		
+	}
+
+	@Override
+	public Optional<Servicio> findByNombre(String nombre) {
+		Optional<Servicio> result = servicioRepository.findByNombre(nombre);
+		return result;
 	}
 
 }

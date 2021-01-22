@@ -57,18 +57,24 @@ import mx.tecabix.db.service.TrabajadorService;
 import mx.tecabix.db.service.UsuarioPersonaService;
 import mx.tecabix.db.service.UsuarioService;
 import mx.tecabix.service.request.EmpresaRequest;
+/**
+ * 
+ * @author Ramirez Urrutia Angel Abinadi
+ * 
+ */
 @RestController
 @RequestMapping("escuela")
 public class EscuelaController extends Auth{
 	
+	private String ROOT_ESCUELA = "ROOT_ESCUELA";
 	private String ROOT_ESCUELA_CREAR = "ROOT_ESCUELA_CREAR";
 	
+	private final String ACTIVO = "ACTIVO";
 	private final String ESTATUS = "ESTATUS";
 	private final String PENDIENTE = "PENDIENTE";
-	private final String ACTIVO = "ACTIVO";
 	
-	private final String TIPO_DE_PERSONA = "TIPO_DE_PERSONA";
 	private final String MORAL = "MORAL";
+	private final String TIPO_DE_PERSONA = "TIPO_DE_PERSONA";
 	
 	private final String SEXO = "SEXO";
 
@@ -109,7 +115,7 @@ public class EscuelaController extends Auth{
 	
 	@GetMapping("findByNameRegardlessOfStatus")
 	public ResponseEntity<Escuela> findByNameRegardlessOfStatus(@RequestParam(value="token") String token, String nombre){
-		Sesion sesion = getSessionIfIsAuthorized(token);
+		Sesion sesion = getSessionIfIsAuthorized(token, ROOT_ESCUELA);
 		if(sesion == null){
 			return new ResponseEntity<Escuela>(HttpStatus.UNAUTHORIZED);
 		}

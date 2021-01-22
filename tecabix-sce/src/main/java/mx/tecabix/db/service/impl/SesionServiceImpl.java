@@ -19,6 +19,7 @@ package mx.tecabix.db.service.impl;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 
@@ -31,9 +32,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.entity.Sesion;
+import mx.tecabix.db.entity.Suscripcion;
 import mx.tecabix.db.generic.GenericSeviceImpl;
 import mx.tecabix.db.repository.SesionRepository;
 import mx.tecabix.db.service.SesionService;
+import mx.tecabix.db.service.SuscripcionService;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -46,6 +49,7 @@ public class SesionServiceImpl extends GenericSeviceImpl<Sesion, Long> implement
 	
 	@Autowired
 	private SesionRepository sesionRepository;
+	@Autowired SuscripcionService suscripcionService;
 
 	@PostConstruct
 	@Override
@@ -86,6 +90,12 @@ public class SesionServiceImpl extends GenericSeviceImpl<Sesion, Long> implement
 					LocalDateTime hoy = LocalDateTime.now();
 					if(response.getLicencia().getTipo().getNombre().equals("WEB")) {
 						if(response.getVencimiento().isBefore(hoy)) {
+							Long idEscuela = response.getLicencia().getPlantel().getIdEscuela();
+							Optional<Suscripcion> optionalSuscripsion = suscripcionService.findByIdEscuelaAndValid(idEscuela);
+							if(!optionalSuscripsion.isPresent()) {
+								LOG.warn("SUSCRIPCION CADUCADA PARA EL ID "+idEscuela);
+								return null;
+							}
 							LocalDateTime vencimiento = LocalDateTime.of(hoy.toLocalDate(),LocalTime.of(23, 59));
 							response.setVencimiento(vencimiento);
 							response.setPeticionesRestantes(response.getLicencia().getServicio().getPeticiones());

@@ -45,6 +45,11 @@ import mx.tecabix.db.entity.Departamento;
 import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.service.CatalogoService;
 import mx.tecabix.db.service.DepartamentoService;
+/**
+ * 
+ * @author Ramirez Urrutia Angel Abinadi
+ * 
+ */
 @RestController
 @RequestMapping("departamento")
 public class DepartamentoController extends Auth{

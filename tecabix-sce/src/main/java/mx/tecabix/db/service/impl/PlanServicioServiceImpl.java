@@ -17,6 +17,8 @@
  */
 package mx.tecabix.db.service.impl;
 
+import java.util.Optional;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,12 @@ public class PlanServicioServiceImpl extends GenericSeviceImpl<PlanServicio, Int
 	protected void postConstruct() {
 		setJpaRepository(planServicioRespository);
 		
+	}
+
+	@Override
+	public Optional<PlanServicio> fromByIdPlanAndIdService(Integer idPlan, Integer idservice) {
+		Optional<PlanServicio> response = planServicioRespository.fromByIdPlanAndIdService(idPlan, idservice);		
+		return response;
 	}
 
 }

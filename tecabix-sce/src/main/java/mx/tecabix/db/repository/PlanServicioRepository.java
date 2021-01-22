@@ -17,6 +17,8 @@
  */
 package mx.tecabix.db.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import mx.tecabix.db.entity.PlanServicio;
@@ -27,4 +29,5 @@ import mx.tecabix.db.entity.PlanServicio;
  */
 public interface PlanServicioRepository extends JpaRepository<PlanServicio, Integer>{
 
+	Optional<PlanServicio> fromByIdPlanAndIdService(Integer idPlan, Integer idservice);
 }
