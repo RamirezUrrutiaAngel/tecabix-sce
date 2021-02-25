@@ -18,8 +18,9 @@
 package mx.tecabix.db.service;
 
 import org.springframework.data.domain.Page;
+
+import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.Departamento;
-import mx.tecabix.db.generic.GenericSevice;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi

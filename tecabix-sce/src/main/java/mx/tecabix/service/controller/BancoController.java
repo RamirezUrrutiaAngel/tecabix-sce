@@ -33,9 +33,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.ApiOperation;
-import mx.tecabix.Auth;
 import mx.tecabix.db.entity.Banco;
 import mx.tecabix.db.service.BancoService;
+import mx.tecabix.service.Auth;
 
 /**
  * 

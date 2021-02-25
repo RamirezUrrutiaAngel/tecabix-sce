@@ -17,9 +17,12 @@
  */
 package mx.tecabix.db.service;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
+
+import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.Trabajador;
-import mx.tecabix.db.generic.GenericSevice;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -27,9 +30,9 @@ import mx.tecabix.db.generic.GenericSevice;
  */
 public interface TrabajadorService  extends GenericSevice<Trabajador, Long>{
 	
-	Trabajador findByKey(Long id);
-	Trabajador findByIdAndPendiente(Long id);
-	Trabajador findByUsuario(String usuario);
+	Optional<Trabajador> findByKey(Long id);
+	Optional<Trabajador> findByIdAndPendiente(Long id);
+	Optional<Trabajador> findByUsuario(String usuario);
 	Page<Trabajador> findAll(Long idEscuelam, int elements, int page);
 	Page<Trabajador> findAllByNombre(Long idEscuela,String nombre, int elements, int page);
 }
