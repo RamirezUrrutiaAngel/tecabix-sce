@@ -17,10 +17,12 @@
  */
 package mx.tecabix.service.controller;
 
+import java.io.FileReader;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
+import javax.annotation.PostConstruct;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -29,6 +31,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -55,6 +58,9 @@ public class LogController extends Auth{
 	@Autowired
 	private EscuelaService escuelaService;
 	
+	@Value("${configuracion.email}")
+	private String configuracionEmailFile;
+	
 	private final String SMTP						= "smtp";
 	private final String TRUE						= "true";
 	private final String MAIL_SMTP_HOST				= "mail.smtp.host";
@@ -64,10 +70,33 @@ public class LogController extends Auth{
 	private final String MAIL_SMTP_CLAVE			= "mail.smtp.clave";
 	private final String MAIL_SMTP_STARTTLS_ENABLE	= "mail.smtp.starttls.enable";
 	
-	private final String REMITENTE 					= "joyeria.el.diamate.azul@gmail.com";
-	private final String PASSWORD					= "becVyb-secke9-sucnar";
-	private final String SMTP_SERVIDOR				= "smtp.gmail.com";
-	private final String SMTP_PORT					= "587";
+	private String REMITENTE 		= null;
+	private String PASSWORD			= null;
+	private String SMTP_SERVIDOR	= null;
+	private String SMTP_PORT		= null;
+	
+	@PostConstruct
+	private void postConstruct() {
+		if(configuracionEmailFile != null) {
+			if(!configuracionEmailFile.isEmpty()) {
+				String REMITENTE 		= "REMITENTE";
+				String PASSWORD			= "PASSWORD";
+				String SMTP_SERVIDOR	= "SMTP_SERVIDOR";
+				String SMTP_PORT		= "SMTP_PORT";
+				try {
+					Properties properties = new Properties();
+					FileReader fileReader = new FileReader(configuracionEmailFile);
+					properties.load(fileReader);
+					this.REMITENTE		= properties.getProperty(REMITENTE);
+					this.PASSWORD		= properties.getProperty(PASSWORD);
+					this.SMTP_SERVIDOR	= properties.getProperty(SMTP_SERVIDOR);
+					this.SMTP_PORT		= properties.getProperty(SMTP_PORT);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 	
 	@PostMapping
 	public ResponseEntity<?> post(@RequestParam(value="token") String token, @RequestParam(value="cuerpo") String cuerpo) {
