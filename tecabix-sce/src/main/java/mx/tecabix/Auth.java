@@ -15,7 +15,7 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.service;
+package mx.tecabix;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -99,19 +99,5 @@ public class Auth {
 			return null;
 		}
 		return sesion;
-	}
-	
-	protected boolean validateArg(Object... args) {
-		for (Object arg : args) {
-			if(arg == null) {
-				return false;
-			}
-			if(arg.getClass().equals(String.class)) {
-				if(arg.toString().isEmpty()) {
-					return false;
-				}
-			}
-		}
-		return true;
 	}
 }

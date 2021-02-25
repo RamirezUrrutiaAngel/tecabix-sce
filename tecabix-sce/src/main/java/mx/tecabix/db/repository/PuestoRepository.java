@@ -17,8 +17,6 @@
  */
 package mx.tecabix.db.repository;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import mx.tecabix.db.entity.Puesto;
@@ -29,5 +27,4 @@ import mx.tecabix.db.entity.Puesto;
  */
 public interface PuestoRepository extends JpaRepository<Puesto, Long>{
 
-	Page<Puesto> findByIdEscuela(Long idEscuela, Pageable pageable);
 }

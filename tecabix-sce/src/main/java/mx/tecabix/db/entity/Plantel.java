@@ -19,25 +19,16 @@ package mx.tecabix.db.entity;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -45,10 +36,6 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
  */
 @Entity()
 @Table(name = "plantel")
-@NamedQueries({
-	@NamedQuery(name = "Plantel.findByIdEscuela",query = "SELECT p FROM Plantel p WHERE p.idEscuela = ?1 AND p.estatus.nombre = 'ACTIVO' "),
-	@NamedQuery(name = "Plantel.findByIdEscuelaAndNombre",query = "SELECT p FROM Plantel p WHERE p.idEscuela = ?1 AND p.nombre = ?2 AND p.estatus.nombre = 'ACTIVO' ")
-})
 public class Plantel implements Serializable{
 	
 	private static final long serialVersionUID = -1144141703432606826L;
@@ -59,7 +46,6 @@ public class Plantel implements Serializable{
     private Long id;
     @Column(name = "nombre")
     private String nombre;
-    @JsonProperty(access = Access.WRITE_ONLY)
     @ManyToOne
     @JoinColumn(name = "id_gerente")
     private Trabajador gerente;
@@ -75,10 +61,6 @@ public class Plantel implements Serializable{
     @ManyToOne
     @JoinColumn(name = "id_estatus")
     private Catalogo estatus;
-    @JsonProperty(access = Access.WRITE_ONLY)
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="plantel", cascade=CascadeType.REMOVE)
-    private List<Trabajador> trabajadores;
-    
 	public Long getId() {
 		return id;
 	}
@@ -127,10 +109,5 @@ public class Plantel implements Serializable{
 	public void setEstatus(Catalogo estatus) {
 		this.estatus = estatus;
 	}
-	public List<Trabajador> getTrabajadores() {
-		return trabajadores;
-	}
-	public void setTrabajadores(List<Trabajador> trabajadores) {
-		this.trabajadores = trabajadores;
-	}
+    
 }

@@ -17,10 +17,6 @@
  */
 package mx.tecabix.db.repository;
 
-import java.util.Optional;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import mx.tecabix.db.entity.Plantel;
@@ -31,6 +27,4 @@ import mx.tecabix.db.entity.Plantel;
  */
 public interface PlantelRepository extends JpaRepository<Plantel, Long>{
 
-	Page<Plantel> findByIdEscuela(Long idEmpresa,  Pageable pageable);
-	Optional<Plantel> findByIdEscuelaAndNombre(Long idEmpresa, String nombre);
 }

@@ -22,8 +22,8 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import mx.tecabix.db.GenericSeviceImpl;
 import mx.tecabix.db.entity.Municipio;
+import mx.tecabix.db.generic.GenericSeviceImpl;
 import mx.tecabix.db.repository.MunicipioRepository;
 import mx.tecabix.db.service.MunicipioService;
 /**

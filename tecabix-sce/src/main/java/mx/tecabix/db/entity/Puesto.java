@@ -27,8 +27,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 /**
@@ -38,9 +36,6 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "puesto")
-@NamedQueries({
-	@NamedQuery(name = "Puesto.findByIdEscuela",query = "SELECT p FROM Puesto p WHERE p.estatus.nombre = 'ACTIVO' AND p.departamento.idEscuela = ?1 ")
-})
 public class Puesto implements Serializable{
 
 	private static final long serialVersionUID = -1105824443217371322L;

@@ -31,9 +31,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import mx.tecabix.db.GenericSeviceImpl;
 import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.entity.Suscripcion;
+import mx.tecabix.db.generic.GenericSeviceImpl;
 import mx.tecabix.db.repository.SesionRepository;
 import mx.tecabix.db.service.SesionService;
 import mx.tecabix.db.service.SuscripcionService;
@@ -68,16 +68,9 @@ public class SesionServiceImpl extends GenericSeviceImpl<Sesion, Long> implement
 	}
 
 	@Override
-	public Page<Sesion> findByActive(Long idEscuela, int elements, int page) {
+	public Page<Sesion> findByActive(Long idLicencia, int elements, int page) {
 		Pageable pageable = PageRequest.of(page, elements);
-		Page<Sesion> response = sesionRepository.findByActive(idEscuela,pageable);
-		return response;
-	}
-	
-	@Override
-	public Page<Sesion> findByLicenciaAndActive(Long idLicencia, int elements, int page) {
-		Pageable pageable = PageRequest.of(page, elements);
-		Page<Sesion> response = sesionRepository.findByLicenciaAndActive(idLicencia,pageable);
+		Page<Sesion> response = sesionRepository.findByActive(idLicencia,pageable);
 		return response;
 	}
 
@@ -135,4 +128,5 @@ public class SesionServiceImpl extends GenericSeviceImpl<Sesion, Long> implement
 		Page<Sesion> entitys = sesionRepository.findByUsuarioAndNow(idLicencia, idUsuario, pageable);
 		return entitys;
 	}
+
 }

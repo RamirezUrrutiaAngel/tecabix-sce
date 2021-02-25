@@ -17,8 +17,8 @@
  */
 package mx.tecabix.db.service;
 
-import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.Banco;
+import mx.tecabix.db.generic.GenericSevice;
 
 /**
  * 

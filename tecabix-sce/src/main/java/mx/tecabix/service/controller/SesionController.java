@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import mx.tecabix.Auth;
 import mx.tecabix.db.entity.Catalogo;
 import mx.tecabix.db.entity.Licencia;
 import mx.tecabix.db.entity.Servicio;
@@ -49,8 +50,6 @@ import mx.tecabix.db.service.LicenciaService;
 import mx.tecabix.db.service.SesionService;
 import mx.tecabix.db.service.SuscripcionService;
 import mx.tecabix.db.service.UsuarioService;
-import mx.tecabix.service.Auth;
-import mx.tecabix.service.page.SesionPage;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -85,8 +84,8 @@ public class SesionController extends Auth {
 	private final String WEB = "WEB";
 	
 	@GetMapping("validateUsrPasw")
-	public ResponseEntity<Boolean> validateUsrPasw() {
-		return new ResponseEntity<Boolean>(true,HttpStatus.OK);
+	public ResponseEntity<Object> validateUsrPasw() {
+		return new ResponseEntity<Object>(HttpStatus.OK);
 	}
 
 	@PostMapping
@@ -96,7 +95,7 @@ public class SesionController extends Auth {
 		String usuarioName = auth.getName();
 		Licencia licencia = licenciaService.findByToken(key);
 		if(licencia == null) {
-			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND); 
+			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED); 
 		}
 		Usuario usuario = usuarioService.findByNombre(usuarioName);
 		if(usuario == null) {
@@ -146,9 +145,9 @@ public class SesionController extends Auth {
 			}
 		}else {
 			vencimiento = vencimiento.plusHours(8);
-			Page<Sesion> sesionesAviertas = sesionService.findByLicenciaAndActive(licencia.getId(), Integer.MAX_VALUE, 0);
+			List<Sesion> sesionesAviertas = sesionService.findByActive(licencia.getId(),Integer.MAX_VALUE,0).getContent();
 			if(sesionesAviertas != null) {
-				LOG.info("SE ENCONTRARON "+sesionesAviertas.getSize()+" PARA LA KEY: "+ key);
+				LOG.info("SE ENCONTRARON "+sesionesAviertas.size()+" PARA LA KEY: "+ key);
 				for (Sesion sesion : sesionesAviertas) {
 					sesion.setFechaDeModificacion(LocalDateTime.now());
 					sesion.setIdUsuarioModificado(sesion.getUsuario().getId());
@@ -156,10 +155,10 @@ public class SesionController extends Auth {
 					sesionService.update(sesion);
 				}
 			}
-			Page<Sesion> sesionesDeHoy = sesionService.findByNow(licencia.getId(), Integer.MAX_VALUE, 0);
+			List<Sesion> sesionesDeHoy = sesionService.findByNow(licencia.getId(), Integer.MAX_VALUE, 0).getContent();
 			if(sesionesDeHoy != null && !sesionesDeHoy.isEmpty()) {
-				LOG.info("SE ENCONTRARON "+sesionesAviertas.getSize()+" SESIONES DE HOY PARA LA ID_LICENCIA: "+ licencia.getId());
-				peticionesRestantes = sesionesDeHoy.getContent().get(0).getPeticionesRestantes();
+				LOG.info("SE ENCONTRARON "+sesionesAviertas.size()+" SESIONES DE HOY PARA LA ID_LICENCIA: "+ licencia.getId());
+				peticionesRestantes = sesionesDeHoy.get(0).getPeticionesRestantes();
 				if(peticionesRestantes < 1) {
 					return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);
 				}
@@ -216,7 +215,7 @@ public class SesionController extends Auth {
 		sesion.setEstatus(catalogoEliminado);
 		sesion = sesionService.update(sesion);
 		sesion.setLicencia(null);
-		return new ResponseEntity<Sesion>(sesion,HttpStatus.OK);
+		return new ResponseEntity<Sesion>(sesion,HttpStatus.NOT_FOUND);
 	}
 	
 	@DeleteMapping("deleteById")
@@ -272,26 +271,24 @@ public class SesionController extends Auth {
 	
 	
 	@GetMapping("findAll")
-	public ResponseEntity<SesionPage> findAll(@RequestParam(value="token") String token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
+	public ResponseEntity<Page<Sesion>> findAll(@RequestParam(value="token") String token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
 
 		Sesion sesion = getSessionIfIsAuthorized(token,ROOT_SESION);
 		if(sesion == null) {
-			return new ResponseEntity<SesionPage>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<Page<Sesion>>(HttpStatus.NOT_FOUND);
 		}
-		Page<Sesion> response = sesionService.findAll(elements, page);
-		SesionPage body = new SesionPage(response);
-		return new ResponseEntity<SesionPage>(body,HttpStatus.OK);
+		Page<Sesion> body = sesionService.findAll(elements, page);
+		return new ResponseEntity<Page<Sesion>>(body,HttpStatus.OK);
 	}
 	
 	@GetMapping("findByActive")
-	public ResponseEntity<SesionPage> findByActive(@RequestParam(value="token") String token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
+	public ResponseEntity<Page<Sesion>> findByActive(@RequestParam(value="token") String token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
 
 		Sesion sesion = getSessionIfIsAuthorized(token,ROOT_SESION);
 		if(sesion == null) {
-			return new ResponseEntity<SesionPage>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<Page<Sesion>>(HttpStatus.UNAUTHORIZED);
 		}
-		Page<Sesion> response = sesionService.findByActive(sesion.getLicencia().getPlantel().getIdEscuela(), elements, page);
-		SesionPage body = new SesionPage(response);
-		return new ResponseEntity<SesionPage>(body,HttpStatus.OK);
+		Page<Sesion> body = sesionService.findByActive(sesion.getLicencia().getPlantel().getIdEscuela(), elements, page);
+		return new ResponseEntity<Page<Sesion>>(body,HttpStatus.OK);
 	}
 }

@@ -17,8 +17,6 @@
  */
 package mx.tecabix.db.service.impl;
 
-import java.util.Optional;
-
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +24,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import mx.tecabix.db.GenericSeviceImpl;
 import mx.tecabix.db.entity.Trabajador;
+import mx.tecabix.db.generic.GenericSeviceImpl;
 import mx.tecabix.db.repository.TrabajadorRepository;
 import mx.tecabix.db.service.TrabajadorService;
 /**
@@ -50,14 +47,14 @@ public class TrabajadorServiceimpl extends GenericSeviceImpl<Trabajador, Long> i
 	}
 	
 	@Override
-	public Optional<Trabajador> findByKey(Long id) {
-		Optional<Trabajador> trabajador = trabajadorRepository.findByKey(id);
+	public Trabajador findByKey(Long id) {
+		Trabajador trabajador = trabajadorRepository.findByKey(id);
 		return trabajador;
 	}
 	
 	@Override
-	public Optional<Trabajador> findByUsuario(String usuario) {
-		Optional<Trabajador> trabajador = trabajadorRepository.findByUsuario(usuario);
+	public Trabajador findByUsuario(String usuario) {
+		Trabajador trabajador = trabajadorRepository.findByUsuario(usuario);
 		return trabajador;
 	}
 
@@ -76,8 +73,8 @@ public class TrabajadorServiceimpl extends GenericSeviceImpl<Trabajador, Long> i
 	}
 
 	@Override
-	public Optional<Trabajador> findByIdAndPendiente(Long id) {
-		Optional<Trabajador> trabajador = trabajadorRepository.findByKeyAndPendiente(id);
+	public Trabajador findByIdAndPendiente(Long id) {
+		Trabajador trabajador = trabajadorRepository.findByKeyAndPendiente(id);
 		return trabajador;
 	}
 

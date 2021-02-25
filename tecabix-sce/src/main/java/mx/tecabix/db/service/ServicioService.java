@@ -19,8 +19,8 @@ package mx.tecabix.db.service;
 
 import java.util.Optional;
 
-import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.Servicio;
+import mx.tecabix.db.generic.GenericSevice;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi

@@ -15,7 +15,7 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.db;
+package mx.tecabix.db.generic;
 import java.util.List;
 import java.util.Optional;
 

@@ -32,8 +32,7 @@ public interface SesionRepository extends JpaRepository<Sesion, Long>{
 	@Query(value = "SELECT MD5(?1)", nativeQuery = true)
 	String getMD5(String text);
 	
-	Page<Sesion> findByActive(Long idEscuela,Pageable pageable);
-	Page<Sesion> findByLicenciaAndActive(Long idLicencia,Pageable pageable);
+	Page<Sesion> findByActive(Long idLicencia,Pageable pageable);
 	Page<Sesion> findByUsuarioAndActive(Long idLicencia,Long idUsuario,Pageable pageable);
 	
 	Page<Sesion> findByNow(Long idLicencia,Pageable pageable);

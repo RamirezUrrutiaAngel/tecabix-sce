@@ -19,7 +19,6 @@ package mx.tecabix.db.entity;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -30,7 +29,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -67,10 +65,6 @@ public class Persona implements Serializable {
     @JsonProperty(access = Access.WRITE_ONLY)
 	@OneToOne(fetch = FetchType.LAZY, mappedBy = "persona", cascade=CascadeType.REMOVE)
 	private UsuarioPersona usuarioPersona;
-    @JsonProperty(access = Access.WRITE_ONLY)
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="persona", cascade=CascadeType.REMOVE)
-	private List<Contacto> contactos;
-    
 	public Long getId() {
 		return id;
 	}
@@ -112,12 +106,6 @@ public class Persona implements Serializable {
 	}
 	public void setUsuarioPersona(UsuarioPersona usuarioPersona) {
 		this.usuarioPersona = usuarioPersona;
-	}
-	public List<Contacto> getContactos() {
-		return contactos;
-	}
-	public void setContactos(List<Contacto> contactos) {
-		this.contactos = contactos;
 	}
     
 }

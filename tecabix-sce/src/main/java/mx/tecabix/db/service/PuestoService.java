@@ -17,10 +17,8 @@
  */
 package mx.tecabix.db.service;
 
-import org.springframework.data.domain.Page;
-
-import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.Puesto;
+import mx.tecabix.db.generic.GenericSevice;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -28,5 +26,4 @@ import mx.tecabix.db.entity.Puesto;
  */
 public interface PuestoService extends GenericSevice<Puesto, Long>{
 
-	Page<Puesto> findByIdEscuela(Long idEscuela, int elements, int page);
 }

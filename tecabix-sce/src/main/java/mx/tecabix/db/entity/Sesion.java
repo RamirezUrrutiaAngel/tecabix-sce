@@ -41,12 +41,11 @@ import javax.persistence.Table;
 @Entity()
 @Table(name = "sesion")
 @NamedQueries({
-    @NamedQuery(name = "Sesion.findByActive",query = "SELECT s FROM Sesion s WHERE s.licencia.plantel.idEscuela = ?1 AND vencimiento > NOW() AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' "),
-    @NamedQuery(name = "Sesion.findByLicenciaAndActive",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND vencimiento > NOW() AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' "),
+    @NamedQuery(name = "Sesion.findByActive",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND vencimiento > NOW() AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' "),
     @NamedQuery(name = "Sesion.findByUsuarioAndActive",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND s.usuario.id = ?2 AND vencimiento > NOW() AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' "),
     @NamedQuery(name = "Sesion.findByToken",query = "SELECT s FROM Sesion s WHERE s.token = ?1 AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' AND ( s.licencia.tipo.nombre = 'WEB' OR s.vencimiento > NOW() )"),
     @NamedQuery(name = "Sesion.findByNow",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND DATE(s.vencimiento) = DATE(NOW()) ORDER BY s.peticionesRestantes"),
-    @NamedQuery(name = "Sesion.findByUsuarioAndNow",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND s.usuario.id = ?2 AND DATE(s.fechaDeModificacion) = DATE(NOW()) ORDER BY s.peticionesRestantes")
+    @NamedQuery(name = "Sesion.findByUsuarioAndNow",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND s.usuario.id = ?2 AND DATE(s.vencimiento) = DATE(NOW()) ORDER BY s.peticionesRestantes")
 })
 public class Sesion implements Serializable{
 

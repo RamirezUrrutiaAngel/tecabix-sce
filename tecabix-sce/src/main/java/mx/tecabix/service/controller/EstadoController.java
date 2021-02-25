@@ -27,11 +27,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import mx.tecabix.Auth;
 import mx.tecabix.db.entity.Estado;
 import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.service.EstadoService;
 import mx.tecabix.db.service.SesionService;
-import mx.tecabix.service.Auth;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi

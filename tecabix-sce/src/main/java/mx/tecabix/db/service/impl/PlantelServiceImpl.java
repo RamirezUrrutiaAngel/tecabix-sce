@@ -17,18 +17,13 @@
  */
 package mx.tecabix.db.service.impl;
 
-import java.util.Optional;
-
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import mx.tecabix.db.GenericSeviceImpl;
 import mx.tecabix.db.entity.Plantel;
+import mx.tecabix.db.generic.GenericSeviceImpl;
 import mx.tecabix.db.repository.PlantelRepository;
 import mx.tecabix.db.service.PlantelService;
 /**
@@ -47,19 +42,6 @@ public class PlantelServiceImpl extends GenericSeviceImpl<Plantel, Long> impleme
 	protected void postConstruct() {
 		setJpaRepository(plantelRepository);
 		
-	}
-
-	@Override
-	public Page<Plantel> findByIdEscuela(Long idEmpresa, int elements, int page) {
-		Pageable pageable = PageRequest.of(page, elements);
-		Page<Plantel> result = plantelRepository.findByIdEscuela(idEmpresa, pageable);
-		return result;
-	}
-
-	@Override
-	public Optional<Plantel> findByIdEscuelaAndNombre(Long idEmpresa, String nombre) {
-		Optional<Plantel> result = plantelRepository.findByIdEscuelaAndNombre(idEmpresa, nombre);
-		return result;
 	}
 
 }

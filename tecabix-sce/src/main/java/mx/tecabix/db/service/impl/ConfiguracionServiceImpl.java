@@ -27,8 +27,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import mx.tecabix.db.GenericSeviceImpl;
 import mx.tecabix.db.entity.Configuracion;
+import mx.tecabix.db.generic.GenericSeviceImpl;
 import mx.tecabix.db.repository.ConfiguracionRepository;
 import mx.tecabix.db.service.ConfiguracionService;
 /**

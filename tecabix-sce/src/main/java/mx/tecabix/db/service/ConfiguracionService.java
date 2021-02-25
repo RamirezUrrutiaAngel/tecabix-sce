@@ -21,8 +21,8 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 
-import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.Configuracion;
+import mx.tecabix.db.generic.GenericSevice;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
