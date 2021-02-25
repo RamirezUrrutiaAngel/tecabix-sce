@@ -17,8 +17,12 @@
  */
 package mx.tecabix.db.service;
 
+import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+
+import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.Plantel;
-import mx.tecabix.db.generic.GenericSevice;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -26,4 +30,6 @@ import mx.tecabix.db.generic.GenericSevice;
  */
 public interface PlantelService extends GenericSevice<Plantel, Long>{
 
+	Page<Plantel> findByIdEscuela(Long idEmpresa,  int elements, int page);
+	Optional<Plantel> findByIdEscuelaAndNombre(Long idEmpresa, String nombre);
 }

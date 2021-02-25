@@ -65,6 +65,9 @@ public class Trabajador implements Serializable{
     @JoinColumn(name = "id_puesto")
 	private Puesto puesto;
 	@ManyToOne
+    @JoinColumn(name = "id_plantel")
+	private Plantel plantel;
+	@ManyToOne
     @JoinColumn(name = "id_jefe")
 	private Trabajador jefe;
 	@Column(name = "url_imagen")
@@ -78,6 +81,8 @@ public class Trabajador implements Serializable{
     @ManyToOne
     @JoinColumn(name = "id_estatus")
     private Catalogo estatus;
+    
+    
 	public Long getId() {
 		return id;
 	}
@@ -101,6 +106,12 @@ public class Trabajador implements Serializable{
 	}
 	public void setPuesto(Puesto puesto) {
 		this.puesto = puesto;
+	}
+	public Plantel getPlantel() {
+		return plantel;
+	}
+	public void setPlantel(Plantel plantel) {
+		this.plantel = plantel;
 	}
 	public Trabajador getJefe() {
 		return jefe;
@@ -138,5 +149,4 @@ public class Trabajador implements Serializable{
 	public void setEstatus(Catalogo estatus) {
 		this.estatus = estatus;
 	}
-    
 }

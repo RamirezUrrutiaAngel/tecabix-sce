@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import mx.tecabix.Auth;
 import mx.tecabix.db.entity.Catalogo;
 import mx.tecabix.db.entity.Licencia;
 import mx.tecabix.db.entity.PlanServicio;
@@ -49,6 +48,7 @@ import mx.tecabix.db.service.LicenciaService;
 import mx.tecabix.db.service.PlanServicioService;
 import mx.tecabix.db.service.ServicioService;
 import mx.tecabix.db.service.SuscripcionService;
+import mx.tecabix.service.Auth;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi

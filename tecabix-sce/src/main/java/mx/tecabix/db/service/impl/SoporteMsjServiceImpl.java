@@ -22,8 +22,8 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import mx.tecabix.db.GenericSeviceImpl;
 import mx.tecabix.db.entity.SoporteMsj;
-import mx.tecabix.db.generic.GenericSeviceImpl;
 import mx.tecabix.db.repository.SoporteMsjRepository;
 import mx.tecabix.db.service.SoporteMsjService;
 /**

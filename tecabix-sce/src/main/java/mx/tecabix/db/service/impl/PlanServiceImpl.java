@@ -22,8 +22,8 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import mx.tecabix.db.GenericSeviceImpl;
 import mx.tecabix.db.entity.Plan;
-import mx.tecabix.db.generic.GenericSeviceImpl;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi

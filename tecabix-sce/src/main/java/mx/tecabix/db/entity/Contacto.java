@@ -19,6 +19,7 @@ package mx.tecabix.db.entity;
 
 import java.io.Serializable;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -28,6 +29,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -43,15 +47,16 @@ public class Contacto implements Serializable{
 	@SequenceGenerator(name = "catalogo_tipo_id_contacto_gen", sequenceName = "tecabix_sce.contacto_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "catalogo_tipo_id_contacto_gen")
     private Long id;
-	@ManyToOne
-	@JoinColumn(name = "id_persona")
+	@JsonProperty(access = Access.WRITE_ONLY)
+    @ManyToOne(cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "id_persona")
 	private Persona persona;
 	@ManyToOne
 	@JoinColumn(name = "id_tipo")
 	private Catalogo tipo;
     @Column(name = "valor")
     private String valor;
-    
+      
 	public Long getId() {
 		return id;
 	}

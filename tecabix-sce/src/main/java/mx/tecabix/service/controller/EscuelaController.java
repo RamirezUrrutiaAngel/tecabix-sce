@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import mx.tecabix.Auth;
 import mx.tecabix.db.entity.Catalogo;
 import mx.tecabix.db.entity.Direccion;
 import mx.tecabix.db.entity.Escuela;
@@ -56,6 +55,7 @@ import mx.tecabix.db.service.PersonaService;
 import mx.tecabix.db.service.TrabajadorService;
 import mx.tecabix.db.service.UsuarioPersonaService;
 import mx.tecabix.db.service.UsuarioService;
+import mx.tecabix.service.Auth;
 import mx.tecabix.service.request.EmpresaRequest;
 /**
  * 
@@ -262,8 +262,9 @@ public class EscuelaController extends Auth{
 			return new ResponseEntity<Escuela>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Municipio municipioInstitucional = municipioOptional.get();
-		Trabajador jefe = trabajadorService.findByKey(trabajador.getJefe().getId());
-		if(jefe == null) {
+		
+		Optional<Trabajador> opcionalTrabajador = trabajadorService.findByKey(trabajador.getJefe().getId());
+		if(!opcionalTrabajador.isPresent()) {
 			return new ResponseEntity<Escuela>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		

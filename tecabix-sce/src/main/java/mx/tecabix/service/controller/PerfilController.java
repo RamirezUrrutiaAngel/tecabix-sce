@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import mx.tecabix.Auth;
+
 import mx.tecabix.db.entity.Authority;
 import mx.tecabix.db.entity.Catalogo;
 import mx.tecabix.db.entity.Perfil;
@@ -43,6 +43,8 @@ import mx.tecabix.db.entity.Usuario;
 import mx.tecabix.db.service.AuthorityService;
 import mx.tecabix.db.service.CatalogoService;
 import mx.tecabix.db.service.PerfilService;
+import mx.tecabix.service.Auth;
+import mx.tecabix.service.page.PerfilPage;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -86,27 +88,29 @@ public class PerfilController extends Auth{
 	}
 	
 	@GetMapping("findAll")
-	public ResponseEntity<Page<Perfil>> findAll(@RequestParam(value="token") String token, byte elements, short page) {
+	public ResponseEntity<PerfilPage> findAll(@RequestParam(value="token") String token, byte elements, short page) {
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, PERFIL);
 		if(sesion == null){
-			return new ResponseEntity<Page<Perfil>>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<PerfilPage>(HttpStatus.UNAUTHORIZED);
 		}
 		
 		Page<Perfil> response = perfilService.findAll(sesion.getLicencia().getPlantel().getIdEscuela(), elements, page);
-		return new ResponseEntity<Page<Perfil>>(response, HttpStatus.OK);
+		PerfilPage body = new PerfilPage(response);
+		return new ResponseEntity<PerfilPage>(body, HttpStatus.OK);
 	}
 	
 	@GetMapping("findAllByNombre")
-	public ResponseEntity<Page<Perfil>> findAllByNombre(@RequestParam(value="token") String token, @RequestParam(value="nombre") String nombre, byte elements, short page) {
+	public ResponseEntity<PerfilPage> findAllByNombre(@RequestParam(value="token") String token, @RequestParam(value="nombre") String nombre, byte elements, short page) {
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, PERFIL);
 		if(sesion == null){
-			return new ResponseEntity<Page<Perfil>>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<PerfilPage>(HttpStatus.UNAUTHORIZED);
 		}
 		
 		Page<Perfil> response = perfilService.findAllbyNombre(sesion.getLicencia().getPlantel().getIdEscuela(), nombre, elements, page);
-		return new ResponseEntity<Page<Perfil>>(response, HttpStatus.OK);
+		PerfilPage body = new PerfilPage(response);
+		return new ResponseEntity<PerfilPage>(body, HttpStatus.OK);
 	}
 	
 	@PostMapping

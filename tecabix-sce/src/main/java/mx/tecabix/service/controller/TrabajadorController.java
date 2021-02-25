@@ -36,12 +36,12 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import mx.tecabix.Auth;
 import mx.tecabix.db.entity.Catalogo;
 import mx.tecabix.db.entity.Direccion;
 import mx.tecabix.db.entity.Municipio;
 import mx.tecabix.db.entity.Persona;
 import mx.tecabix.db.entity.PersonaFisica;
+import mx.tecabix.db.entity.Plantel;
 import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.entity.Trabajador;
 import mx.tecabix.db.service.CatalogoService;
@@ -49,7 +49,9 @@ import mx.tecabix.db.service.DireccionService;
 import mx.tecabix.db.service.MunicipioService;
 import mx.tecabix.db.service.PersonaFisicaService;
 import mx.tecabix.db.service.PersonaService;
+import mx.tecabix.db.service.PlantelService;
 import mx.tecabix.db.service.TrabajadorService;
+import mx.tecabix.service.Auth;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -71,6 +73,8 @@ public class TrabajadorController extends Auth{
 	private MunicipioService municipioService;
 	@Autowired
 	private DireccionService direccionService;
+	@Autowired
+	private PlantelService plantelService;
 	
 	private final String ESTATUS = "ESTATUS";
 	private final String PENDIENTE = "PENDIENTE";
@@ -91,24 +95,26 @@ public class TrabajadorController extends Auth{
 	
 	@ApiOperation(value = "Devuelve los datos del trabajador que realiza la petición.")
 	@ApiResponses(value = {
-				@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
-				@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso.")
-		})
+			@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
+			@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso.") })
 	@GetMapping
 	public ResponseEntity<Trabajador> findByUsuario(@RequestParam(value="token") String token) {
 		Sesion sesion = getSessionIfIsAuthorized(token);
 		if(sesion == null) {
 			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
 		}
-		Trabajador trabajador =  trabajadorService.findByUsuario(sesion.getUsuario().getNombre());
+		Optional<Trabajador> opcionalTrabajador =  trabajadorService.findByUsuario(sesion.getUsuario().getNombre());
+		if(!opcionalTrabajador.isPresent()) {
+			return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+		}
+		Trabajador trabajador = opcionalTrabajador.get();
 		return new ResponseEntity<Trabajador>(trabajador,HttpStatus.OK);
 	}
 	
 	@ApiOperation(value = "Trae todos los trabajadores paginados con estatus ACTIVO.")
 	@ApiResponses(value = {
-				@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
-				@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso.")
-			})
+			@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
+			@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso.") })
 	@GetMapping("findAll")
 	public ResponseEntity<Page<Trabajador>> findAll(@RequestParam(value="token") String token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
 
@@ -123,9 +129,8 @@ public class TrabajadorController extends Auth{
 	
 	@ApiOperation(value = "Trae los trabajadores por coincidencia de nombre")
 	@ApiResponses(value = {
-				@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
-				@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso.")
-			})
+			@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
+			@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso.") })
 	@GetMapping("findAllByNombre")
 	public ResponseEntity<Page<Trabajador>> findAllByNombre(@RequestParam(value="token") String token, @RequestParam(value="nombre") String nombre,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
 		Sesion sesion = getSessionIfIsAuthorized(token, TRABAJADOR);
@@ -137,15 +142,13 @@ public class TrabajadorController extends Auth{
 	}
 	
 	
-	@ApiOperation(value = "Dar de alta un nuevo trabajador",
-			notes = "Dar de alta un trabajador nuevo en una empresa ya existente, pero no se encontrara habilitado hasta que se active con el serivicio trabajador/activar.")
+	@ApiOperation(value = "Dar de alta un nuevo trabajador", notes = "Dar de alta un trabajador nuevo en una empresa ya existente, pero no se encontrara habilitado hasta que se active con el serivicio trabajador/activar.")
 	@ApiResponses(value = {
-				@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
-				@ApiResponse(code = 400, message = "Faltan datos para poder procesar la petición o no son validos."),
-				@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso."),
-				@ApiResponse(code = 406, message = "Uno o varios datos ingresados no son validos para procesar la petición."),
-				@ApiResponse(code = 409, message = "La petición no pudo realizarse por que el usuario que se intenta guardar ya existe.")
-			})
+			@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
+			@ApiResponse(code = 400, message = "Faltan datos para poder procesar la petición o no son validos."),
+			@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso."),
+			@ApiResponse(code = 406, message = "Uno o varios datos ingresados no son validos para procesar la petición."),
+			@ApiResponse(code = 409, message = "La petición no pudo realizarse por que el usuario que se intenta guardar ya existe.") })
 	@PostMapping
 	public ResponseEntity<Trabajador> save(@RequestBody Trabajador trabajador, @RequestParam(value="token") String token) {
 		
@@ -228,9 +231,24 @@ public class TrabajadorController extends Auth{
 			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Municipio municipio = municipioOptional.get();
-		Trabajador jefe = trabajadorService.findByKey(trabajador.getJefe().getId());
-		if(jefe == null) {
+		
+		Optional<Trabajador> opcionalTrabajador =  trabajadorService.findByKey(trabajador.getJefe().getId());
+		if(!opcionalTrabajador.isPresent()) {
 			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
+		}
+		Trabajador jefe = opcionalTrabajador.get();
+		
+		Plantel plantel = trabajador.getPlantel();
+		if(plantel != null) {
+			Optional<Plantel> optionalPlantel = plantelService.findById(plantel.getId());
+			if(optionalPlantel.isPresent()) {
+				plantel = optionalPlantel.get();
+				if(!plantel.getIdEscuela().equals(sesion.getLicencia().getPlantel().getIdEscuela())) {
+					plantel = null;
+				}
+			}else {
+				plantel = null;
+			}
 		}
 		
 		direccion.setEstatus(CAT_PENDIENTE);
@@ -259,6 +277,7 @@ public class TrabajadorController extends Auth{
 		trabajador.setIdEscuela(sesion.getLicencia().getPlantel().getIdEscuela());
 		trabajador.setJefe(jefe);
 		trabajador.setPersonaFisica(persona);
+		trabajador.setPlantel(plantel);
 		trabajadorService.save(trabajador);
 		return new ResponseEntity<Trabajador>(trabajador, HttpStatus.OK);
 	}
@@ -286,11 +305,15 @@ public class TrabajadorController extends Auth{
 		}
 		final Catalogo CAT_ACTIVO = optionalCatalogoActivo.get();
 		
-		Trabajador trabajador = trabajadorService.findByIdAndPendiente(id);
-		Long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
-		if(trabajador == null) {
-			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		
+		Optional<Trabajador> opcionalTrabajador =  trabajadorService.findByIdAndPendiente(id);
+		if(!opcionalTrabajador.isPresent()) {
+			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 		}
+
+		Trabajador trabajador = opcionalTrabajador.get();
+		Long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
+		
 		if(trabajador.getIdEscuela().longValue() != idEscuela.longValue()) {
 			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 		}
@@ -326,10 +349,13 @@ public class TrabajadorController extends Auth{
 		final Catalogo CAT_ELIMINADO = optionalCatalogoEliminado.get();
 		
 
-		Trabajador trabajador = trabajadorService.findByKey(id);
-		if(trabajador == null) {
-			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		Optional<Trabajador> opcionalTrabajador = trabajadorService.findByKey(id);
+		if(!opcionalTrabajador.isPresent()) {
+			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 		}
+		
+		Trabajador trabajador = opcionalTrabajador.get();
+		
 		Long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
 		if(trabajador.getIdEscuela().longValue() != idEscuela.longValue()) {
 			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);

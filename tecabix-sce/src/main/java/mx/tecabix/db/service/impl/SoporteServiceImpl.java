@@ -4,8 +4,8 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import mx.tecabix.db.GenericSeviceImpl;
 import mx.tecabix.db.entity.Soporte;
-import mx.tecabix.db.generic.GenericSeviceImpl;
 import mx.tecabix.db.repository.SoporteRepository;
 import mx.tecabix.db.service.SoporteService;
 

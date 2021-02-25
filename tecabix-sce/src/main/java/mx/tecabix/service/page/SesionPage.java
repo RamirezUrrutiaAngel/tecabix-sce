@@ -15,15 +15,42 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.db.service;
+package mx.tecabix.service.page;
 
-import mx.tecabix.db.GenericSevice;
-import mx.tecabix.db.entity.Direccion;
+import java.io.Serializable;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+
+import mx.tecabix.db.entity.Sesion;
+import mx.tecabix.service.PageGeneric;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface DireccionService extends GenericSevice<Direccion, Long> {
+public class SesionPage extends PageGeneric implements Serializable {
 
+	private static final long serialVersionUID = 6968074626761322444L;
+	
+	private List<Sesion> data;
+
+	public SesionPage() {
+		
+	}
+	public SesionPage(Page<Sesion> data) {
+		super(data);
+		this.data = data.getContent();
+	}
+
+
+	public List<Sesion> getData() {
+		return data;
+	}
+
+
+	public void setData(List<Sesion> data) {
+		this.data = data;
+	}
+	
 }

@@ -32,13 +32,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.ApiOperation;
-import mx.tecabix.Auth;
 import mx.tecabix.db.entity.Catalogo;
 import mx.tecabix.db.entity.CatalogoTipo;
 import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.service.CatalogoService;
 import mx.tecabix.db.service.CatalogoTipoService;
 import mx.tecabix.db.service.SesionService;
+import mx.tecabix.service.Auth;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
