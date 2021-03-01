@@ -17,18 +17,38 @@
  */
 package mx.tecabix.service.controller;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import javax.activation.DataHandler;
+import javax.activation.FileDataSource;
 import javax.annotation.PostConstruct;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,14 +56,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import mx.tecabix.db.entity.Contacto;
+import mx.tecabix.db.entity.Correo;
 import mx.tecabix.db.entity.Escuela;
 import mx.tecabix.db.entity.Sesion;
+import mx.tecabix.db.service.CorreoService;
 import mx.tecabix.db.service.EscuelaService;
 import mx.tecabix.service.Auth;
 /**
@@ -55,11 +78,15 @@ import mx.tecabix.service.Auth;
 @RequestMapping("log")
 public class LogController extends Auth{
 	
-	@Autowired
-	private EscuelaService escuelaService;
-	
 	@Value("${configuracion.email}")
 	private String configuracionEmailFile;
+	
+	@Autowired
+	private EscuelaService escuelaService;
+	@Autowired
+	private CorreoService correoService;
+	
+	
 	
 	private final String SMTP						= "smtp";
 	private final String TRUE						= "true";
@@ -74,27 +101,85 @@ public class LogController extends Auth{
 	private String PASSWORD			= null;
 	private String SMTP_SERVIDOR	= null;
 	private String SMTP_PORT		= null;
+	private String SUBJECT			= null;
+	private String TO				= null;
+	private List<String> CC			= null;
+	private String FILE_MESSAGE		= null;
+	private String LOG_DIR			= null;
+	
 	
 	@PostConstruct
 	private void postConstruct() {
-		if(configuracionEmailFile != null) {
-			if(!configuracionEmailFile.isEmpty()) {
-				String REMITENTE 		= "REMITENTE";
-				String PASSWORD			= "PASSWORD";
-				String SMTP_SERVIDOR	= "SMTP_SERVIDOR";
-				String SMTP_PORT		= "SMTP_PORT";
-				try {
-					Properties properties = new Properties();
-					FileReader fileReader = new FileReader(configuracionEmailFile);
-					properties.load(fileReader);
-					this.REMITENTE		= properties.getProperty(REMITENTE);
-					this.PASSWORD		= properties.getProperty(PASSWORD);
-					this.SMTP_SERVIDOR	= properties.getProperty(SMTP_SERVIDOR);
-					this.SMTP_PORT		= properties.getProperty(SMTP_PORT);
-				} catch (Exception e) {
-					e.printStackTrace();
+		try {
+			if(configuracionEmailFile != null) {
+				if(!configuracionEmailFile.isEmpty()) {
+					String REMITENTE 		= "LOG_REMITENTE";
+					String SUBJECT			= "LOG_SUBJECT";
+					String TO				= "LOG_TO";
+					String CC				= "LOG_CC";
+					String FILE_MESSAGE		= "LOG_FILE_MESSAGE";
+					String LOG_DIR			= "LOG_DIR";
+					String SEED				= "SEED";
+					
+					try {
+						Properties properties = new Properties();
+						FileReader fileReader = new FileReader(configuracionEmailFile);
+						properties.load(fileReader);
+						SEED				= properties.getProperty(SEED);
+						this.REMITENTE		= properties.getProperty(REMITENTE);
+						this.SUBJECT		= properties.getProperty(SUBJECT);
+						this.TO				= properties.getProperty(TO);
+						this.FILE_MESSAGE	= properties.getProperty(FILE_MESSAGE);
+						this.LOG_DIR		= properties.getProperty(LOG_DIR);
+						String aux 			= properties.getProperty(CC);
+						if(aux != null && !aux.trim().isEmpty()) {
+							String[] array = aux.split(" ");
+							this.CC = new ArrayList<String>();
+							for (String correo : array) {
+								if(!correo.isEmpty()) {
+									this.CC.add(correo);
+								}
+							}
+						}
+						fileReader.close();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					boolean isNull = this.REMITENTE == null;
+					isNull = isNull || this.TO == null || this.SUBJECT == null;
+					isNull = isNull || this.FILE_MESSAGE == null || this.LOG_DIR == null;
+					if(!isNull) {
+						Optional<Correo> optionalCorreo = correoService.findByRemitente(this.REMITENTE);
+						if(optionalCorreo.isPresent()) {
+							Correo correo = optionalCorreo.get();
+							this.SMTP_SERVIDOR = correo.getSmtpServidor();
+							this.SMTP_PORT = correo.getSmtpPort();
+							this.PASSWORD = this.desencriptar(correo.getPassword(), SEED);
+							isNull = this.SMTP_SERVIDOR.isEmpty();
+							isNull = isNull || this.SMTP_PORT.isEmpty();
+							isNull = isNull || this.SUBJECT.isEmpty();
+							isNull = isNull || this.TO.isEmpty();
+							isNull = isNull || this.FILE_MESSAGE.isEmpty();
+							isNull = isNull || this.LOG_DIR.isEmpty();
+							if(!isNull) {
+								TimerTask timerTask = new TimerTask() {
+									@Override
+									public void run() {
+										enviarLogs();
+									}
+								};
+								int minutos = 60000;
+								int hora = minutos * 60;
+								Timer timer = new Timer();
+								timer.schedule(timerTask, 0 * minutos, 3 * hora);
+								
+							}
+						}
+					}
 				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -111,7 +196,7 @@ public class LogController extends Auth{
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		List<Contacto> contactos = optionalEscuela.get().getPresona().getContactos();
-		StringBuilder mensaje = new StringBuilder()
+		StringBuilder mensaje = new StringBuilder(LocalDateTime.now()+"\n")
 		.append("EMPRESARIAL:    ").append(optionalEscuela.get().getNombre()).append("\n")
 		.append("EMPRESARIAL ID: ").append(sesion.getLicencia().getPlantel().getIdEscuela()).append("\n");
 		if(contactos != null) {
@@ -134,11 +219,39 @@ public class LogController extends Auth{
 		.append("USUARIO ID: ").append(sesion.getUsuario().getId()).append('\n')
 		.append("LICENCIA ID:").append(sesion.getLicencia().getId()).append("\n\n\n")
 		
-		.append(cuerpo);
+		.append(cuerpo)
+		.append("\n\n=====================================================================\n\n\n\n");
 		cuerpo = mensaje.toString();
 		
-		String destinatario = "info@tecabix.com";
-		String asunto = "LOG " + optionalEscuela.get().getNombre();
+		try {
+			File file = new File(LOG_DIR,sesion.getLicencia().getPlantel().getIdEscuela().toString());
+			
+			FileWriter fw = new FileWriter(file, true);
+			fw.write(cuerpo);
+			fw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+	
+	public void enviarLogs() {
+		File[] logs = new File(LOG_DIR).listFiles();
+		if(logs == null || logs.length == 0) {
+			return;
+		}
+		for (int i = 0; i < logs.length; i++) {
+			File file = logs[i];
+			if(file.getName().startsWith(".")) {
+				file.delete();
+			}
+		}
+		logs = new File(LOG_DIR).listFiles();
+		if(logs == null || logs.length == 0) {
+			return;
+		}
+		String cuerpo = new String();
 		
 	    Properties props = System.getProperties();
 	    props.put(MAIL_SMTP_HOST, SMTP_SERVIDOR);
@@ -152,18 +265,61 @@ public class LogController extends Auth{
 	    MimeMessage message = new MimeMessage(session);
 	    
 	    try {
+	    	File fileMsg = new File(FILE_MESSAGE);
+	    	if(fileMsg.exists() && fileMsg.canRead()) {
+	    		FileReader fr = new FileReader(fileMsg);
+	    		BufferedReader br = new BufferedReader(fr);
+	    		StringBuilder sb = new StringBuilder();
+	    		String linea;
+	    		while((linea = br.readLine())!=null) {
+	    			sb.append(linea);
+	    		}
+	    		br.close();
+	    		fr.close();
+	    		sb.append("\n\n");
+	    		cuerpo = sb.toString();
+	    	}
+	    	MimeMultipart multiParte = new MimeMultipart();
+	    	BodyPart texto = new MimeBodyPart();
+	    	texto.setContent(cuerpo,"text/html");
+	        multiParte.addBodyPart(texto);
+	        
+    		for (int i = 0; i < logs.length; i++) {
+				File aux = new File(logs[i].getParent(),logs[i].getName()+".log");
+				logs[i].renameTo(aux);
+				logs[i].deleteOnExit();
+				logs[i] = aux;
+				BodyPart adjunto = new MimeBodyPart();
+		        adjunto.setDataHandler(new DataHandler(new FileDataSource(logs[i])));
+		        adjunto.setFileName(logs[i].getName());
+		        multiParte.addBodyPart(adjunto);					
+			}
+    		
 	        message.setFrom(new InternetAddress(REMITENTE));
-	        message.addRecipients(Message.RecipientType.TO, destinatario);
-	        message.setSubject(asunto);
-	        message.setText(cuerpo);
+	        message.addRecipients(Message.RecipientType.TO, TO);
+	        if(CC != null) {
+	        	for (String correo : CC) {
+	        		message.addRecipients(Message.RecipientType.CC, correo);
+				}
+	        }
+	        
+	        message.setSubject(SUBJECT);
+	        message.setContent(multiParte);
 	        Transport transport = session.getTransport(SMTP);
 	        transport.connect(SMTP_SERVIDOR, REMITENTE, PASSWORD);
 	        transport.sendMessage(message, message.getAllRecipients());
 	        transport.close();
+	        for (int i = 0; i < logs.length; i++) {
+				logs[i].delete();
+			}
 	    }
 	    catch (MessagingException me) {
 	        me.printStackTrace();
-	    }
-		return new ResponseEntity<>(HttpStatus.OK);
+	    } catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
 	}
 }
+
