@@ -17,20 +17,9 @@
  */
 package mx.tecabix.service;
 
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidKeyException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -46,12 +35,14 @@ import mx.tecabix.db.service.UsuarioService;
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public class Auth {
+public class Auth extends Notificacion{
+	
 	
 	@Autowired 
 	private UsuarioService usuarioService;
 	@Autowired
 	private SesionService sesionService;
+	
 	
 	protected boolean hash(Authentication authentication, String... authorities) {
 		Collection<? extends GrantedAuthority> collectionAuthorities = authentication.getAuthorities();
@@ -125,77 +116,4 @@ public class Auth {
 		}
 		return true;
 	}
-	
-
-    /**
-     * Crea la clave de encriptacion usada internamente
-     * @param key Clave o llave que se usara para encriptar
-     * @return Clave de encriptacion
-     * @throws UnsupportedEncodingException
-     * @throws NoSuchAlgorithmException 
-     */
-    protected SecretKeySpec crearClave(String key) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        byte[] claveEncriptacion = key.getBytes("UTF-8");
-        
-        MessageDigest sha = MessageDigest.getInstance("SHA-1");
-        
-        claveEncriptacion = sha.digest(claveEncriptacion);
-        claveEncriptacion = Arrays.copyOf(claveEncriptacion, 16);
-        
-        SecretKeySpec secretKey = new SecretKeySpec(claveEncriptacion, "AES");
-
-        return secretKey;
-    }
-    
-
-    /**
-     * Aplica la encriptacion AES a la cadena de texto usando la clave indicada
-     * @param texto a encriptar
-     * @param key Clave para encriptar
-     * @return Información encriptada
-     * @throws UnsupportedEncodingException
-     * @throws NoSuchAlgorithmException
-     * @throws InvalidKeyException
-     * @throws NoSuchPaddingException
-     * @throws IllegalBlockSizeException
-     * @throws BadPaddingException 
-     */
-    protected String encriptar(String texto, String key) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
-        SecretKeySpec secretKey = this.crearClave(key);
-        
-        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");        
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-
-        byte[] datosEncriptar = texto.getBytes("UTF-8");
-        byte[] bytesEncriptados = cipher.doFinal(datosEncriptar);
-        String encriptado = Base64.getEncoder().encodeToString(bytesEncriptados);
-
-        return encriptado;
-    }
-
-    /**
-     * Desencripta la cadena de texto indicada usando la clave de encriptacion
-     * @param textoEncriptado Datos encriptados
-     * @param key Clave de encriptacion
-     * @return Informacion desencriptada
-     * @throws UnsupportedEncodingException
-     * @throws NoSuchAlgorithmException
-     * @throws InvalidKeyException
-     * @throws NoSuchPaddingException
-     * @throws IllegalBlockSizeException
-     * @throws BadPaddingException 
-     */
-    protected String desencriptar(String textoEncriptado, String key) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
-        SecretKeySpec secretKey = this.crearClave(key);
-
-        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
-        cipher.init(Cipher.DECRYPT_MODE, secretKey);
-        
-        byte[] bytesEncriptados = Base64.getDecoder().decode(textoEncriptado);
-        byte[] datosDesencriptados = cipher.doFinal(bytesEncriptados);
-        String datos = new String(datosDesencriptados);
-        
-        return datos;
-    }
-
 }
