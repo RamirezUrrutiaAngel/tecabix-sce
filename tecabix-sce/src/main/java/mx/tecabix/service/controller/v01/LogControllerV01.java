@@ -15,7 +15,7 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.service.controller;
+package mx.tecabix.service.controller.v01;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -56,8 +56,8 @@ import mx.tecabix.service.Auth;
  * 
  */
 @RestController
-@RequestMapping("log")
-public class LogController extends Auth{
+@RequestMapping("log/v1")
+public class LogControllerV01 extends Auth{
 	
 	@Autowired
 	private EscuelaService escuelaService;

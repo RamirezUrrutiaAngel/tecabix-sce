@@ -15,7 +15,7 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.service.controller;
+package mx.tecabix.service.controller.v01;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -55,8 +55,8 @@ import mx.tecabix.service.Auth;
  * 
  */
 @RestController
-@RequestMapping("licencia")
-public class LicenciaController extends Auth{
+@RequestMapping("licencia/v1")
+public class LicenciaControllerV01 extends Auth{
 	
 	private final String LICENCIA = "LICENCIA";
 	private final String LICENCIA_CREAR = "LICENCIA_CREAR";

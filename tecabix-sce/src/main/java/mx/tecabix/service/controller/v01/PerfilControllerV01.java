@@ -15,7 +15,7 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.service.controller;
+package mx.tecabix.service.controller.v01;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -51,8 +51,8 @@ import mx.tecabix.service.page.PerfilPage;
  * 
  */
 @RestController
-@RequestMapping("perfil")
-public class PerfilController extends Auth{
+@RequestMapping("perfil/v1")
+public class PerfilControllerV01 extends Auth{
 
 	@Autowired
 	private PerfilService perfilService;

@@ -15,7 +15,7 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.service.controller;
+package mx.tecabix.service.controller.v01;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -51,8 +51,8 @@ import mx.tecabix.service.Auth;
  * 
  */
 @RestController
-@RequestMapping("puesto")
-public class PuestoController extends Auth{
+@RequestMapping("puesto/v1")
+public class PuestoControllerV01 extends Auth{
 
 	@Autowired
 	private TrabajadorService trabajadorService;

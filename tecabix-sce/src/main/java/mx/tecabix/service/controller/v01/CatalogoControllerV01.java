@@ -15,7 +15,7 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.service.controller;
+package mx.tecabix.service.controller.v01;
 
 import java.util.List;
 import java.util.Optional;
@@ -45,8 +45,8 @@ import mx.tecabix.service.Auth;
  * 
  */
 @RestController
-@RequestMapping("catalogo")
-public class CatalogoController extends Auth{
+@RequestMapping("catalogo/v1")
+public class CatalogoControllerV01 extends Auth{
 	
 	private static final String CATALOGO = "CATALOGO";
 	

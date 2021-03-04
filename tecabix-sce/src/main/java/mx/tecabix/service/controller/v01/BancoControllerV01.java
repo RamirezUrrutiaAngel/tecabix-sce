@@ -15,7 +15,7 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.service.controller;
+package mx.tecabix.service.controller.v01;
 
 import java.util.Optional;
 
@@ -43,8 +43,8 @@ import mx.tecabix.service.Auth;
  * 
  */
 @RestController
-@RequestMapping("banco")
-public class BancoController extends Auth{
+@RequestMapping("banco/v1")
+public class BancoControllerV01 extends Auth{
 	
 	private String BANCO ="BANCO";
 	private String ROOT_BANCO = "ROOT_BANCO";

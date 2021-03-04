@@ -15,7 +15,7 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.service.controller;
+package mx.tecabix.service.controller.v01;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,7 +27,7 @@ import mx.tecabix.service.Auth;
  * 
  */
 @RestController
-@RequestMapping("correo")
-public class CorreoController extends Auth{
+@RequestMapping("correo/v1")
+public class CorreoControllerV01 extends Auth{
 
 }

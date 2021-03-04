@@ -15,7 +15,7 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.service.controller;
+package mx.tecabix.service.controller.v01;
 
 import java.util.Optional;
 
@@ -43,8 +43,8 @@ import mx.tecabix.service.Auth;
  * 
  */
 @RestController
-@RequestMapping("plan")
-public class PlanController extends Auth {
+@RequestMapping("plan/v1")
+public class PlanControllerV01 extends Auth {
 
 	@Autowired
 	private PlanService planService;

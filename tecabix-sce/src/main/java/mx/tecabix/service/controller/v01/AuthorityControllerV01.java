@@ -15,7 +15,7 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.service.controller;
+package mx.tecabix.service.controller.v01;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,8 +46,8 @@ import mx.tecabix.service.Auth;
  * 
  */
 @RestController
-@RequestMapping("authority")
-public class AuthorityController extends Auth{
+@RequestMapping("authority/v1")
+public class AuthorityControllerV01 extends Auth{
 	
 	private static final String AUTHORITY = "AUTHORITY";
 	private static final String PERFIL = "PERFIL";
@@ -59,7 +59,7 @@ public class AuthorityController extends Auth{
 	private PerfilAuthorityService perfilAuthorityService;
 	
 	@ApiOperation(value = "Persiste la entidad del Authority con sus correspondientes sub Authority. ")
-	@PostMapping
+	@PostMapping()
 	public ResponseEntity<Authority> save(@RequestParam(value="token") String token, @RequestBody Authority authority){
 		if(isNotAuthorized(token, AUTHORITY)) {
 			return new ResponseEntity<Authority>(HttpStatus.UNAUTHORIZED);
@@ -204,7 +204,7 @@ public class AuthorityController extends Auth{
 			+ " el id se indica que se va actualizar dicho Authority, "
 			+ "si no se le proporciona se le considera un nuevo sub Authority.\n"
 			+ "Los Authority ya guardado que no se especifiquen en la petición serán eliminados.")
-	@PutMapping
+	@PutMapping()
 	public ResponseEntity<Authority> update(@RequestParam(value="token") String token, @RequestBody Authority authority){
 		if(isNotAuthorized(token, AUTHORITY)) {
 			return new ResponseEntity<Authority>(HttpStatus.UNAUTHORIZED);
@@ -323,7 +323,7 @@ public class AuthorityController extends Auth{
 	}
 	
 	@ApiOperation(value = "Elimina la entity con sus correspondientes sub Authority.")
-	@DeleteMapping
+	@DeleteMapping()
 	public ResponseEntity<Boolean> delete(@RequestParam(value="token") String token, @RequestParam(value="id") Integer id){
 		if(isNotAuthorized(token, AUTHORITY)) {
 			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);

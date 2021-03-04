@@ -15,7 +15,7 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.service.controller;
+package mx.tecabix.service.controller.v01;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,9 +57,9 @@ import mx.tecabix.service.page.SesionPage;
  * 
  */
 @RestController
-@RequestMapping("sesion")
-public class SesionController extends Auth {
-	private static final Logger LOG = LoggerFactory.getLogger(SesionController.class);
+@RequestMapping("sesion/v1")
+public class SesionControllerV01 extends Auth {
+	private static final Logger LOG = LoggerFactory.getLogger(SesionControllerV01.class);
 
 	
 	@Autowired
