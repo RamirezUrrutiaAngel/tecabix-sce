@@ -67,7 +67,7 @@ public class BancoControllerV01 extends Auth{
 	}
 	
 	@ApiOperation(value = "Obtiene el bancos por Clave.")
-	@GetMapping("findById")
+	@GetMapping("findByClave")
 	public ResponseEntity<Banco> findById(@RequestParam(value="token") String token,@RequestParam(value="clave") UUID uuid) {
 		if(isNotAuthorized(token, BANCO, ROOT_BANCO)) {
 			return new ResponseEntity<Banco>(HttpStatus.UNAUTHORIZED);
@@ -105,7 +105,7 @@ public class BancoControllerV01 extends Auth{
 		if(isNotAuthorized(token, ROOT_BANCO_EDITAR)) {
 			return new ResponseEntity<Banco>(HttpStatus.UNAUTHORIZED);
 		}
-		if(banco.getId() == null) {
+		if(banco.getClave() == null) {
 			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
 		}
 		if(banco.getClaveBanco() == null || banco.getClaveBanco().isEmpty()) {
@@ -117,7 +117,7 @@ public class BancoControllerV01 extends Auth{
 		if(banco.getRazonSocial() == null || banco.getRazonSocial().isEmpty()) {
 			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
 		}
-		Optional<Banco> bancoAux =  bancoService.findById(banco.getId());
+		Optional<Banco> bancoAux =  bancoService.findByClave(banco.getClave());
 		if(!bancoAux.isPresent()) {
 			return new ResponseEntity<Banco>(HttpStatus.NOT_FOUND);
 		}
@@ -125,13 +125,17 @@ public class BancoControllerV01 extends Auth{
 		return new ResponseEntity<Banco>(banco,HttpStatus.OK);
 	}
 	
-	@ApiOperation(value = "Elimina la entidad del Banco por ID. ")
+	@ApiOperation(value = "Elimina la entidad del Banco por clave. ")
 	@DeleteMapping
-	public ResponseEntity<Boolean> delete(@RequestParam(value="token") String token,@RequestParam(value="id") Integer id) {
+	public ResponseEntity<Boolean> delete(@RequestParam(value="token") String token,@RequestParam(value="clave") UUID clave) {
 		if(isNotAuthorized(token,ROOT_BANCO_ELIMINAR)) {
 			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
 		}
-		bancoService.deleteById(id);
+		Optional<Banco> optional = bancoService.findByClave(clave);
+		if(!optional.isPresent()) {
+			return new ResponseEntity<Boolean>(HttpStatus.NOT_FOUND);
+		}
+		bancoService.deleteById(optional.get().getId());
 		return new ResponseEntity<Boolean>(true,HttpStatus.OK);
 	}
 }

@@ -184,6 +184,7 @@ public class SesionControllerV01 extends Auth {
 		sesion.setLicencia(licencia);
 		sesion.setVencimiento(vencimiento);
 		sesion.setPeticionesRestantes(peticionesRestantes);
+		sesion.setClave(UUID.randomUUID());
 		sesion = sesionService.save(sesion);
 		sesion.setLicencia(null);
 		return new ResponseEntity<Sesion>(sesion, HttpStatus.OK);

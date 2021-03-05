@@ -211,7 +211,7 @@ public class AuthorityControllerV01 extends Auth{
 		if(isNotAuthorized(token, AUTHORITY)) {
 			return new ResponseEntity<Authority>(HttpStatus.UNAUTHORIZED);
 		}
-		if(authority.getId() == null) {
+		if(authority.getClave() == null) {
 			return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 		}
 		if(authority.getNombre() == null || authority.getNombre().isEmpty()) {
@@ -220,7 +220,7 @@ public class AuthorityControllerV01 extends Auth{
 		if(authority.getDescripcion() == null || authority.getDescripcion().isEmpty()) {
 			return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 		}
-		Optional<Authority> optionalAuthorityViejo =  authorityService.findById(authority.getId());
+		Optional<Authority> optionalAuthorityViejo =  authorityService.findByClave(authority.getClave());
 		if(!optionalAuthorityViejo.isPresent()) {
 			return new ResponseEntity<Authority>(HttpStatus.NOT_FOUND);
 		}
@@ -278,8 +278,8 @@ public class AuthorityControllerV01 extends Auth{
 		if(listaDeSubAuthoritysActualizados != null) {
 			for (int i = 0; i < listaDeSubAuthoritysActualizados.size(); i++) {
 				Authority subAuthorityActualizado = listaDeSubAuthoritysActualizados.get(i);
-				if(subAuthorityActualizado.getId() != null) {
-					Optional<Authority> optionalSubAuthorityViejo =  authorityService.findById(subAuthorityActualizado.getId());
+				if(subAuthorityActualizado.getClave() != null) {
+					Optional<Authority> optionalSubAuthorityViejo =  authorityService.findByClave(subAuthorityActualizado.getClave());
 					if(optionalSubAuthorityViejo.isPresent()) {
 						Authority subAuthorityViejo = optionalSubAuthorityViejo.get();
 						listaDeAuthoritiesPorBorrar.remove(subAuthorityViejo);
@@ -287,15 +287,16 @@ public class AuthorityControllerV01 extends Auth{
 						continue;
 					}else {
 						subAuthorityActualizado.setId(null);
+						subAuthorityActualizado.setClave(null);
 					}
 				}
 				
 				Optional<Authority> optionalSubAuthorityAux = authorityService.findByNombre(subAuthorityActualizado.getNombre());
 				if(optionalSubAuthorityAux.isPresent()) {
 					Authority authority2 = optionalSubAuthorityAux.get();
-					if(subAuthorityActualizado.getId() == null ) {
+					if(subAuthorityActualizado.getClave() == null ) {
 						return new ResponseEntity<Authority>(HttpStatus.CONFLICT);
-					}else if(!authority2.getId().equals(subAuthorityActualizado.getId())) {
+					}else if(!authority2.getClave().equals(subAuthorityActualizado.getClave())) {
 						return new ResponseEntity<Authority>(HttpStatus.CONFLICT);
 					}
 				}
@@ -326,11 +327,11 @@ public class AuthorityControllerV01 extends Auth{
 	
 	@ApiOperation(value = "Elimina la entity con sus correspondientes sub Authority.")
 	@DeleteMapping()
-	public ResponseEntity<Boolean> delete(@RequestParam(value="token") String token, @RequestParam(value="id") Integer id){
+	public ResponseEntity<Boolean> delete(@RequestParam(value="token") String token, @RequestParam(value="clave") UUID uuid){
 		if(isNotAuthorized(token, AUTHORITY)) {
 			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
 		}
-		Optional<Authority> optionalAuthorityViejo =  authorityService.findById(id);
+		Optional<Authority> optionalAuthorityViejo =  authorityService.findByClave(uuid);
 		if(!optionalAuthorityViejo.isPresent()) {
 			return new ResponseEntity<Boolean>(HttpStatus.NOT_FOUND);
 		}
