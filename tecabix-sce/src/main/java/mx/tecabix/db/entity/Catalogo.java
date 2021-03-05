@@ -77,6 +77,7 @@ public class Catalogo implements Serializable{
     private LocalDateTime fechaDeModificacion;
     @ManyToOne
     @JoinColumn(name = "id_estatus")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Catalogo estatus;
     @Column(name = "clave")
     @Type(type="pg-uuid")
