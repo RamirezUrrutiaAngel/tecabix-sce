@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.repository;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import mx.tecabix.db.entity.Municipio;
@@ -28,4 +31,5 @@ import mx.tecabix.db.entity.Municipio;
  */
 public interface MunicipioRepository extends JpaRepository<Municipio, Integer>{
 
+	Optional<Municipio> findByClave(UUID uuid);
 }

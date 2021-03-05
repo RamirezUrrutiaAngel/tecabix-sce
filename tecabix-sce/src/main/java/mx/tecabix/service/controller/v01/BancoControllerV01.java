@@ -18,6 +18,7 @@
 package mx.tecabix.service.controller.v01;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -65,13 +66,13 @@ public class BancoControllerV01 extends Auth{
 		return new ResponseEntity<Page<Banco>>(result, HttpStatus.OK);
 	}
 	
-	@ApiOperation(value = "Obtiene el bancos por ID.")
+	@ApiOperation(value = "Obtiene el bancos por Clave.")
 	@GetMapping("findById")
-	public ResponseEntity<Banco> findById(@RequestParam(value="token") String token,@RequestParam(value="id") Integer id) {
+	public ResponseEntity<Banco> findById(@RequestParam(value="token") String token,@RequestParam(value="clave") UUID uuid) {
 		if(isNotAuthorized(token, BANCO, ROOT_BANCO)) {
 			return new ResponseEntity<Banco>(HttpStatus.UNAUTHORIZED);
 		}
-		Optional<Banco> result =  bancoService.findById(id);
+		Optional<Banco> result =  bancoService.findByClave(uuid);
 		if(!result.isPresent()) {
 			return new ResponseEntity<Banco>(HttpStatus.NOT_FOUND);
 		}
@@ -85,7 +86,7 @@ public class BancoControllerV01 extends Auth{
 		if(isNotAuthorized(token, ROOT_BANCO_CREAR)) {
 			return new ResponseEntity<Banco>(HttpStatus.UNAUTHORIZED);
 		}
-		if(banco.getClave() == null || banco.getClave().isEmpty()) {
+		if(banco.getClaveBanco() == null || banco.getClaveBanco().isEmpty()) {
 			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
 		}
 		if(banco.getNombre() == null || banco.getNombre().isEmpty()) {
@@ -107,7 +108,7 @@ public class BancoControllerV01 extends Auth{
 		if(banco.getId() == null) {
 			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
 		}
-		if(banco.getClave() == null || banco.getClave().isEmpty()) {
+		if(banco.getClaveBanco() == null || banco.getClaveBanco().isEmpty()) {
 			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
 		}
 		if(banco.getNombre() == null || banco.getNombre().isEmpty()) {

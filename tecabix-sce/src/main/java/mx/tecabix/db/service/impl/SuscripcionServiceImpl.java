@@ -18,6 +18,7 @@
 package mx.tecabix.db.service.impl;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
@@ -56,6 +57,11 @@ public class SuscripcionServiceImpl extends GenericSeviceImpl<Suscripcion, Long>
 	public Optional<Suscripcion> findByIdEscuelaAndValid(Long idEscuela) {
 		Optional<Suscripcion> result = suscripcionRepository.findByIdEscuelaAndValid(idEscuela);
 		return result;
+	}
+
+	@Override
+	public Optional<Suscripcion> findByClave(UUID uuid) {
+		return suscripcionRepository.findByClave(uuid);
 	}
 
 }

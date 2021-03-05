@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.repository;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import mx.tecabix.db.entity.UsuarioPersona;
@@ -28,4 +31,5 @@ import mx.tecabix.db.entity.UsuarioPersona;
 public interface UsuarioPersonaRepository extends JpaRepository<UsuarioPersona, Long>{
 
 	UsuarioPersona findByUsuario(String nombre);
+	Optional<UsuarioPersona> findByClave(UUID uuid);
 }

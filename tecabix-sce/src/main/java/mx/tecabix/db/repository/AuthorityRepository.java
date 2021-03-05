@@ -18,6 +18,7 @@
 package mx.tecabix.db.repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,4 +34,5 @@ public interface AuthorityRepository extends JpaRepository<Authority, Integer>{
 
 	Page<Authority> findByLikeNombre(String nombre,  Pageable pageable);
 	Optional<Authority> findByNombre(String nombre);
+	Optional<Authority> findByClave(UUID uuid);
 }

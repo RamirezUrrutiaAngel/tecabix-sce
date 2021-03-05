@@ -18,6 +18,7 @@
 package mx.tecabix.db.service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 
@@ -32,4 +33,5 @@ public interface PlantelService extends GenericSevice<Plantel, Long>{
 
 	Page<Plantel> findByIdEscuela(Long idEmpresa,  int elements, int page);
 	Optional<Plantel> findByIdEscuelaAndNombre(Long idEmpresa, String nombre);
+	Optional<Plantel> findByClave(UUID uuid);
 }

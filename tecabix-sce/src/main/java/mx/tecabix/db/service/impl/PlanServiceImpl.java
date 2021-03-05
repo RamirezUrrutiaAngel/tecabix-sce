@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.service.impl;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +45,11 @@ public class PlanServiceImpl extends GenericSeviceImpl<Plan, Integer> implements
 	protected void postConstruct() {
 		setJpaRepository(planRepository);
 		
+	}
+
+	@Override
+	public Optional<Plan> findByClave(UUID uuid) {
+		return planRepository.findByClave(uuid);
 	}
 
 }

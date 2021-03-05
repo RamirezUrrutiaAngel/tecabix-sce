@@ -18,6 +18,7 @@
 package mx.tecabix.db.service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 
@@ -35,4 +36,5 @@ public interface TrabajadorService  extends GenericSevice<Trabajador, Long>{
 	Optional<Trabajador> findByUsuario(String usuario);
 	Page<Trabajador> findAll(Long idEscuelam, int elements, int page);
 	Page<Trabajador> findAllByNombre(Long idEscuela,String nombre, int elements, int page);
+	Optional<Trabajador> findByClave(UUID uuid);
 }

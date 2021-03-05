@@ -20,6 +20,7 @@ package mx.tecabix.db.entity;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -33,6 +34,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Type;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -44,6 +50,7 @@ public class Soporte implements Serializable{
 
 	private static final long serialVersionUID = -7012345416547676841L;
 	@Id
+	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_soporte", unique = true, nullable = false)
 	@SequenceGenerator(name = "soporte_id_soporte_gen", sequenceName = "tecabix_sce.soporte_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "soporte_id_soporte_gen")
@@ -64,6 +71,9 @@ public class Soporte implements Serializable{
     @ManyToOne
     @JoinColumn(name = "id_estatus")
     private Catalogo estatus;
+    @Column(name = "clave")
+    @Type(type="pg-uuid")
+    private UUID clave;
     @OneToMany(fetch = FetchType.LAZY, mappedBy="soporte", cascade=CascadeType.REMOVE)
 	private List<SoporteMsj> soporteMsjs;
 	public Long getId() {
@@ -114,11 +124,16 @@ public class Soporte implements Serializable{
 	public void setEstatus(Catalogo estatus) {
 		this.estatus = estatus;
 	}
+	public UUID getClave() {
+		return clave;
+	}
+	public void setClave(UUID clave) {
+		this.clave = clave;
+	}
 	public List<SoporteMsj> getSoporteMsjs() {
 		return soporteMsjs;
 	}
 	public void setSoporteMsjs(List<SoporteMsj> soporteMsjs) {
 		this.soporteMsjs = soporteMsjs;
 	}
-    
 }

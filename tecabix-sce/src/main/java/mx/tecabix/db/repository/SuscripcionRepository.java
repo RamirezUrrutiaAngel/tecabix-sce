@@ -18,6 +18,7 @@
 package mx.tecabix.db.repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import mx.tecabix.db.entity.Suscripcion;
@@ -30,5 +31,6 @@ public interface SuscripcionRepository extends JpaRepository<Suscripcion, Long>{
 
 	Optional<Suscripcion> findByIdEscuela(Long idEscuela);
 	Optional<Suscripcion> findByIdEscuelaAndValid(Long idEscuela);
+	Optional<Suscripcion> findByClave(UUID uuid);
 	
 }

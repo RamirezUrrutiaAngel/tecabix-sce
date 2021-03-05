@@ -18,7 +18,9 @@
 package mx.tecabix.db.entity;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -27,9 +29,16 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Type;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinad
@@ -40,6 +49,7 @@ public class CatalogoTipo implements Serializable{
 
 	private static final long serialVersionUID = -4174323806062618433L;
 	@Id
+	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_catalogo_tipo", unique = true, nullable = false)
 	@SequenceGenerator(name = "catalogo_tipo_id_catalogo_tipo_gen", sequenceName = "tecabix_sce.catalogo_tipo_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "catalogo_tipo_id_catalogo_tipo_gen")
@@ -48,6 +58,16 @@ public class CatalogoTipo implements Serializable{
 	private String nombre;
 	@Column(name = "descripcion")
 	private String descripcion;
+    @Column(name = "id_usuario_modificado")
+    private Long idUsuarioModificado;
+    @Column(name = "fecha_modificado")
+    private LocalDateTime fechaDeModificacion;
+    @ManyToOne
+    @JoinColumn(name = "id_estatus")
+    private Catalogo estatus;
+    @Column(name = "clave")
+    @Type(type="pg-uuid")
+    private UUID clave;
 	@OneToMany(fetch = FetchType.LAZY, mappedBy="catalogoTipo", cascade=CascadeType.REMOVE)
 	private List<Catalogo> catalogos;
 	
@@ -68,6 +88,30 @@ public class CatalogoTipo implements Serializable{
 	}
 	public void setDescripcion(String descripcion) {
 		this.descripcion = descripcion;
+	}
+	public Long getIdUsuarioModificado() {
+		return idUsuarioModificado;
+	}
+	public void setIdUsuarioModificado(Long idUsuarioModificado) {
+		this.idUsuarioModificado = idUsuarioModificado;
+	}
+	public LocalDateTime getFechaDeModificacion() {
+		return fechaDeModificacion;
+	}
+	public void setFechaDeModificacion(LocalDateTime fechaDeModificacion) {
+		this.fechaDeModificacion = fechaDeModificacion;
+	}
+	public Catalogo getEstatus() {
+		return estatus;
+	}
+	public void setEstatus(Catalogo estatus) {
+		this.estatus = estatus;
+	}
+	public UUID getClave() {
+		return clave;
+	}
+	public void setClave(UUID clave) {
+		this.clave = clave;
 	}
 	public List<Catalogo> getCatalogos() {
 		return catalogos;

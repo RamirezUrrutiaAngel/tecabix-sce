@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.service.impl;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,6 +50,10 @@ public class PuestoServiceImpl extends GenericSeviceImpl<Puesto, Long> implement
 		Pageable pageable = PageRequest.of(page, elements);
 		Page<Puesto> puestos = puestoRepository.findByIdEscuela(idEscuela, pageable);
 		return puestos;
+	}
+	@Override
+	public Optional<Puesto> findByClave(UUID uuid) {
+		return puestoRepository.findByClave(uuid);
 	}
 
 }

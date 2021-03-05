@@ -19,6 +19,7 @@ package mx.tecabix.service.controller.v01;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -149,17 +150,17 @@ public class DepartamentoControllerV01 extends Auth{
 		return new ResponseEntity<Departamento>(body,HttpStatus.OK);
 	}
 	
-	@ApiOperation(value = "Elimina la entidad del Departamento por ID. ")
+	@ApiOperation(value = "Elimina la entidad del departamento por clave. ")
 	@DeleteMapping
 	public ResponseEntity<Boolean> delete(
-			@RequestParam(value="id") Long id,
+			@RequestParam(value="clave") UUID uuid,
 			@RequestParam(value="token") String token){
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, DEPARTAMENTO_ELIMINAR) ;
 		if(sesion == null) {
 			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
 		}
-		Optional<Departamento> optionalDepartamento = departamentoService.findById(id);
+		Optional<Departamento> optionalDepartamento = departamentoService.findByClave(uuid);
 		if(!optionalDepartamento.isPresent()) {
 			return new ResponseEntity<Boolean>(HttpStatus.NOT_FOUND);
 		}
@@ -168,7 +169,7 @@ public class DepartamentoControllerV01 extends Auth{
 		if(!response.getIdEscuela().equals(idEscuela)) {
 			return new ResponseEntity<Boolean>(HttpStatus.NOT_FOUND);
 		}
-		departamentoService.deleteById(id);
+		departamentoService.deleteById(optionalDepartamento.get().getId());
 		return new ResponseEntity<Boolean>(true,HttpStatus.OK);
 	}
 }

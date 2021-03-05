@@ -19,6 +19,10 @@ package mx.tecabix.db.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import mx.tecabix.db.entity.Sesion;
@@ -40,5 +44,6 @@ public interface SesionRepository extends JpaRepository<Sesion, Long>{
 	Page<Sesion> findByUsuarioAndNow(Long idLicencia,Long idUsuari, Pageable pageable);
 	
 	Sesion findByToken(String keyToken);
+	Optional<Sesion> findByClave(UUID uuid);
 	
 }

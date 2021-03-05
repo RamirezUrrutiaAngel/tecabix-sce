@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.service;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.SoporteMsj;
 /**
@@ -26,4 +29,5 @@ import mx.tecabix.db.entity.SoporteMsj;
  */
 public interface SoporteMsjService extends GenericSevice<SoporteMsj, Long>{
 
+	Optional<SoporteMsj> findByClave(UUID uuid);
 }

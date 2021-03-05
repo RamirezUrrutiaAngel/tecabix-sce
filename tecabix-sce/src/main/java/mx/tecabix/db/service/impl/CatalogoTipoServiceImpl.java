@@ -18,6 +18,7 @@
 package mx.tecabix.db.service.impl;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
@@ -48,5 +49,10 @@ public class CatalogoTipoServiceImpl extends GenericSeviceImpl<CatalogoTipo, Int
 	@Override
 	public Optional<CatalogoTipo> findByNombre(String String) {
 		return cataGrupoRepository.findByNombre(String);
+	}
+
+	@Override
+	public Optional<CatalogoTipo> findByClave(UUID uuid) {
+		return cataGrupoRepository.findByClave(uuid);
 	}
 }

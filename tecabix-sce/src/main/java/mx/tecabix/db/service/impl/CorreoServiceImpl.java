@@ -18,6 +18,7 @@
 package mx.tecabix.db.service.impl;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,11 @@ public class CorreoServiceImpl extends GenericSeviceImpl<Correo, Long> implement
 	@Override
 	public Optional<Correo> findByRemitente(String remitente) {
 		Optional<Correo> result = correoRepository.findByRemitente(remitente);
+		return result;
+	}
+	@Override
+	public Optional<Correo> findByClave(UUID uuid) {
+		Optional<Correo> result = correoRepository.findByClave(uuid);
 		return result;
 	}
 

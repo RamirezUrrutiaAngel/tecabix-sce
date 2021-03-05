@@ -18,6 +18,7 @@
 package mx.tecabix.db.service.impl;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
@@ -79,6 +80,11 @@ public class TrabajadorServiceimpl extends GenericSeviceImpl<Trabajador, Long> i
 	public Optional<Trabajador> findByIdAndPendiente(Long id) {
 		Optional<Trabajador> trabajador = trabajadorRepository.findByKeyAndPendiente(id);
 		return trabajador;
+	}
+
+	@Override
+	public Optional<Trabajador> findByClave(UUID uuid) {
+		return trabajadorRepository.findByClave(uuid);
 	}
 
 }

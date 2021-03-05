@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.service.impl;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +44,12 @@ public class BancoServiceImpl extends GenericSeviceImpl<Banco, Integer> implemen
 	@Override
 	protected void postConstruct() {
 		setJpaRepository(bancoRepository);
+	}
+
+	@Override
+	public Optional<Banco> findByClave(UUID uuid) {
+		Optional<Banco> result = bancoRepository.findByClave(uuid);
+		return result;
 	}
 
 }

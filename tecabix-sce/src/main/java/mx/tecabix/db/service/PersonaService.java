@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.service;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.Persona;
 /**
@@ -25,6 +28,6 @@ import mx.tecabix.db.entity.Persona;
  * 
  */
 public interface PersonaService extends GenericSevice<Persona, Long> {
-
+	Optional<Persona> findByClave(UUID uuid);
 	
 }

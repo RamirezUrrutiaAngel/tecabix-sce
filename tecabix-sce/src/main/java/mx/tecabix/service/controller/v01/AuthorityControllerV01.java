@@ -20,6 +20,7 @@ package mx.tecabix.service.controller.v01;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -170,16 +171,17 @@ public class AuthorityControllerV01 extends Auth{
 	}
 	
 	@ApiOperation(value = "Obtiene el authority con el ID proporcionado. ")
-	@GetMapping("findById")
-	public ResponseEntity<Authority> findById(@RequestParam(value="token") String token, @RequestParam(value = "id") Integer id){
+	@GetMapping("findByClave")
+	public ResponseEntity<Authority> findById(@RequestParam(value="token") String token, @RequestParam(value = "clave") UUID clave){
 		
 		if(isNotAuthorized(token, AUTHORITY, PERFIL)) {
 			return new ResponseEntity<Authority>(HttpStatus.UNAUTHORIZED);
 		}
-		Optional<Authority> result = authorityService.findById(id);
+		Optional<Authority> result = authorityService.findByClave(clave);
 		if(!result.isPresent()) {
 			return new ResponseEntity<Authority>(HttpStatus.NOT_FOUND);
 		}
+		
 		Authority body = result.get();
 		return new ResponseEntity<Authority>(body, HttpStatus.OK);
 	}

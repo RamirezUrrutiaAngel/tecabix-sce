@@ -20,6 +20,7 @@ package mx.tecabix.db.entity;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -35,6 +36,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Type;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 /**
@@ -48,6 +51,7 @@ public class Persona implements Serializable {
 
 	private static final long serialVersionUID = -9183446056153236924L;
 	@Id
+	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_persona", unique = true, nullable = false)
 	@SequenceGenerator(name = "persona_id_persona_gen", sequenceName = "tecabix_sce.persona_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "persona_id_persona_gen")
@@ -64,13 +68,15 @@ public class Persona implements Serializable {
     @ManyToOne
     @JoinColumn(name = "id_estatus")
     private Catalogo estatus;
+    @Column(name = "clave")
+    @Type(type="pg-uuid")
+    private UUID clave;
     @JsonProperty(access = Access.WRITE_ONLY)
 	@OneToOne(fetch = FetchType.LAZY, mappedBy = "persona", cascade=CascadeType.REMOVE)
 	private UsuarioPersona usuarioPersona;
     @JsonProperty(access = Access.WRITE_ONLY)
     @OneToMany(fetch = FetchType.LAZY, mappedBy="persona", cascade=CascadeType.REMOVE)
 	private List<Contacto> contactos;
-    
 	public Long getId() {
 		return id;
 	}
@@ -107,6 +113,12 @@ public class Persona implements Serializable {
 	public void setEstatus(Catalogo estatus) {
 		this.estatus = estatus;
 	}
+	public UUID getClave() {
+		return clave;
+	}
+	public void setClave(UUID clave) {
+		this.clave = clave;
+	}
 	public UsuarioPersona getUsuarioPersona() {
 		return usuarioPersona;
 	}
@@ -119,5 +131,4 @@ public class Persona implements Serializable {
 	public void setContactos(List<Contacto> contactos) {
 		this.contactos = contactos;
 	}
-    
 }

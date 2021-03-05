@@ -18,6 +18,7 @@
 package mx.tecabix.db.service.impl;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
@@ -58,6 +59,12 @@ public class AuthorityServiceImpl extends GenericSeviceImpl<Authority, Integer> 
 	@Override
 	public Optional<Authority> findByNombre(String nombre) {
 		Optional<Authority> optional = authorityRepository.findByNombre(nombre);
+		return optional;
+	}
+
+	@Override
+	public Optional<Authority> findByClave(UUID uuid) {
+		Optional<Authority> optional = authorityRepository.findByClave(uuid);
 		return optional;
 	}
 }

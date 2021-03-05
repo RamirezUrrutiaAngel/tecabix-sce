@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -219,8 +220,8 @@ public class SesionControllerV01 extends Auth {
 		return new ResponseEntity<Sesion>(sesion,HttpStatus.OK);
 	}
 	
-	@DeleteMapping("deleteById")
-	public ResponseEntity<Sesion> deleteById(@RequestParam(value="token") String token, @RequestParam(value="id") Long id){
+	@DeleteMapping("deleteByClave")
+	public ResponseEntity<Sesion> deleteById(@RequestParam(value="token") String token, @RequestParam(value="clave") UUID uuid){
 		Sesion sesion = getSessionIfIsAuthorized(token,SESION_ELIMINAR);
 		if(sesion == null) {
 			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);
@@ -230,7 +231,7 @@ public class SesionControllerV01 extends Auth {
 			return new ResponseEntity<Sesion>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		Catalogo catalogoEliminado = optionalCatalogoEliminado.get();
-		Optional<Sesion> sesionOptional = sesionService.findById(id);
+		Optional<Sesion> sesionOptional = sesionService.findByClave(uuid);
 		if(!sesionOptional.isPresent()) {
 			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
 		}
@@ -246,7 +247,7 @@ public class SesionControllerV01 extends Auth {
 	}
 	
 	@DeleteMapping("deleteRoot")
-	public ResponseEntity<Sesion> deleteRoot(@RequestParam(value="token") String token, @RequestParam(value="id") Long id){
+	public ResponseEntity<Sesion> deleteRoot(@RequestParam(value="token") String token, @RequestParam(value="clave") UUID uuid){
 		Sesion sesion = getSessionIfIsAuthorized(token,ROOT_SESION_ELIMINAR);
 		if(sesion == null) {
 			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);
@@ -257,7 +258,7 @@ public class SesionControllerV01 extends Auth {
 		}
 		Catalogo catalogoEliminado = optionalCatalogoEliminado.get();
 		
-		Optional<Sesion> sesionOptional = sesionService.findById(id);
+		Optional<Sesion> sesionOptional = sesionService.findByClave(uuid);
 		if(!sesionOptional.isPresent()) {
 			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
 		}

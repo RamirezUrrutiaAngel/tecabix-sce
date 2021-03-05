@@ -19,6 +19,7 @@ package mx.tecabix.service.controller.v01;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -178,8 +179,8 @@ public class LicenciaControllerV01 extends Auth{
 		return new ResponseEntity<Licencia>(licencia,HttpStatus.OK);
 	}
 	
-	@DeleteMapping("deleteById")
-	public ResponseEntity<Boolean> deleteById(@RequestParam(value="token") String token, @RequestParam(value="id") Long id){
+	@DeleteMapping("deleteByClave")
+	public ResponseEntity<Boolean> deleteById(@RequestParam(value="token") String token, @RequestParam(value="clave") UUID uuid){
 		Sesion sesion = getSessionIfIsAuthorized(token,LICENCIA_ELIMINAR);
 		if(sesion == null) {
 			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
@@ -189,7 +190,7 @@ public class LicenciaControllerV01 extends Auth{
 			return new ResponseEntity<Boolean>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		Catalogo catalogoEliminado = optionalCatalogoEliminado.get();
-		Optional<Licencia> optionalLicencia = licenciaService.findById(id);
+		Optional<Licencia> optionalLicencia = licenciaService.findByClave(uuid);
 		if(!optionalLicencia.isPresent()) {
 			return new ResponseEntity<Boolean>(HttpStatus.NOT_FOUND);
 		}

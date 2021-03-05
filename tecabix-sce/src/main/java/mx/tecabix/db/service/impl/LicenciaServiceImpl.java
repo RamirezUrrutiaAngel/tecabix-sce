@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.service.impl;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +81,12 @@ public class LicenciaServiceImpl extends GenericSeviceImpl<Licencia, Long> imple
 	public Page<Licencia> findByIdEscuelaAndServicio(Long idEscuela, Integer idServicio, int elements, int page) {
 		Pageable pageable = PageRequest.of(page, elements);
 		Page<Licencia> result = licenciaRepository.findByIdEscuelaAndServicio(idEscuela, idServicio, pageable);
+		return result;
+	}
+
+	@Override
+	public Optional<Licencia> findByClave(UUID uuid) {
+		Optional<Licencia> result = licenciaRepository.findByClave(uuid);
 		return result;
 	}
 

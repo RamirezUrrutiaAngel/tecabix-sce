@@ -18,6 +18,9 @@
 package mx.tecabix.db.entity;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -27,6 +30,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Type;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -40,6 +45,7 @@ public class Municipio implements Serializable {
 
 	private static final long serialVersionUID = -9218053756023446113L;
 	@Id
+	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_municipio", unique = true, nullable = false)
 	@SequenceGenerator(name = "municipio_id_municipio_gen", sequenceName = "tecabix_sce.municipio_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "municipio_id_municipio_gen")
@@ -50,7 +56,16 @@ public class Municipio implements Serializable {
 	@ManyToOne
     @JoinColumn(name = "id_estado")
 	private Estado entidadFederativa;
-	
+    @Column(name = "id_usuario_modificado")
+    private Long idUsuarioModificado;
+    @Column(name = "fecha_modificado")
+    private LocalDateTime fechaDeModificacion;
+    @ManyToOne
+    @JoinColumn(name = "id_estatus")
+    private Catalogo estatus;
+    @Column(name = "clave")
+    @Type(type="pg-uuid")
+    private UUID clave;
 	public Integer getId() {
 		return id;
 	}
@@ -69,6 +84,28 @@ public class Municipio implements Serializable {
 	public void setEntidadFederativa(Estado entidadFederativa) {
 		this.entidadFederativa = entidadFederativa;
 	}
-	
-	
+	public Long getIdUsuarioModificado() {
+		return idUsuarioModificado;
+	}
+	public void setIdUsuarioModificado(Long idUsuarioModificado) {
+		this.idUsuarioModificado = idUsuarioModificado;
+	}
+	public LocalDateTime getFechaDeModificacion() {
+		return fechaDeModificacion;
+	}
+	public void setFechaDeModificacion(LocalDateTime fechaDeModificacion) {
+		this.fechaDeModificacion = fechaDeModificacion;
+	}
+	public Catalogo getEstatus() {
+		return estatus;
+	}
+	public void setEstatus(Catalogo estatus) {
+		this.estatus = estatus;
+	}
+	public UUID getClave() {
+		return clave;
+	}
+	public void setClave(UUID clave) {
+		this.clave = clave;
+	}
 }

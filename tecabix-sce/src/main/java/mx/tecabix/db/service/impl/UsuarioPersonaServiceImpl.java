@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.service.impl;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +53,12 @@ public class UsuarioPersonaServiceImpl extends GenericSeviceImpl<UsuarioPersona,
 	public UsuarioPersona findByUsuario(String nombre) {
 		UsuarioPersona usuarioPersona = usuarioPersonaRepository.findByUsuario(nombre);
 		return usuarioPersona;
+	}
+
+
+	@Override
+	public Optional<UsuarioPersona> findByClave(UUID uuid) {
+		return usuarioPersonaRepository.findByClave(uuid);
 	}
 
 

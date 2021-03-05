@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.service;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 
 import mx.tecabix.db.GenericSevice;
@@ -30,5 +33,5 @@ public interface UsuarioService extends GenericSevice<Usuario, Long>{
 	Usuario findByNameRegardlessOfStatus(String nombre);
 	Usuario findByNombre(String nombre);
 	Page<Usuario> findByPerfil(Long idPerfil,int elements, int page);
-	
+	Optional<Usuario> findByClave(UUID uuid);
 }

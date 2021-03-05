@@ -18,6 +18,7 @@
 package mx.tecabix.db.repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,4 +35,5 @@ public interface ConfiguracionRepository extends JpaRepository<Configuracion, Lo
 	Page<Configuracion> findByIdEscuela(long id,Pageable pegable);
 	Page<Configuracion> findByNombre(String nombre,Pageable pegable);
 	Optional<Configuracion> findByIdEscuelaAndNombre(long idEscuela, String nombre);
+	Optional<Configuracion> findByClave(UUID uuid);
 }

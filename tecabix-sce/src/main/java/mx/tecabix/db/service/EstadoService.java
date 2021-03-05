@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.service;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.Estado;
 /**
@@ -26,5 +29,5 @@ import mx.tecabix.db.entity.Estado;
  */
 public interface EstadoService extends GenericSevice<Estado, Integer>{
 
-	
+	Optional<Estado> findByClave(UUID uuid);
 }

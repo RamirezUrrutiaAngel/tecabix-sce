@@ -20,6 +20,7 @@ package mx.tecabix.db.service.impl;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
@@ -134,5 +135,10 @@ public class SesionServiceImpl extends GenericSeviceImpl<Sesion, Long> implement
 		Pageable pageable = PageRequest.of(page, elements);
 		Page<Sesion> entitys = sesionRepository.findByUsuarioAndNow(idLicencia, idUsuario, pageable);
 		return entitys;
+	}
+
+	@Override
+	public Optional<Sesion> findByClave(UUID uuid) {
+		return sesionRepository.findByClave(uuid);
 	}
 }

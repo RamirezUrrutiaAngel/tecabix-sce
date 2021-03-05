@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.service;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.PersonaFisica;
 /**
@@ -26,4 +29,5 @@ import mx.tecabix.db.entity.PersonaFisica;
  */
 public interface PersonaFisicaService extends GenericSevice<PersonaFisica, Long>{
 
+	Optional<PersonaFisica> findByClave(UUID uuid);
 }

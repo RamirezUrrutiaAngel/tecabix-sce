@@ -18,6 +18,7 @@
 package mx.tecabix.db.service.impl;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
@@ -47,12 +48,13 @@ public class CatalogoServiceImpl extends GenericSeviceImpl<Catalogo, Integer> im
 
 	@Override
 	public Optional<Catalogo> findByTipoAndNombre(String tipo, String nombre) {
-		try {
-			Optional<Catalogo> entity = cataRepository.findByTipoAndNombre(tipo, nombre);
-			return entity;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+		Optional<Catalogo> entity = cataRepository.findByTipoAndNombre(tipo, nombre);
+		return entity;
+	}
+
+	@Override
+	public Optional<Catalogo> findByClave(UUID uuid) {
+		Optional<Catalogo> entity = cataRepository.findByClave(uuid);
+		return entity;
 	}
 }

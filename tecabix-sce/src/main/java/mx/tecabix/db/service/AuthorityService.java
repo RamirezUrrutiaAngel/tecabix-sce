@@ -18,6 +18,7 @@
 package mx.tecabix.db.service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 
@@ -33,4 +34,6 @@ public interface AuthorityService extends GenericSevice<Authority, Integer>{
 	Page<Authority> findByLikeNombre(String nombre,  int elements, int page);
 	
 	Optional<Authority> findByNombre(String nombre);
+	
+	Optional<Authority> findByClave(UUID uuid);
 }

@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.service.impl;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +45,11 @@ public class PersonaServiceImpl extends GenericSeviceImpl<Persona, Long> impleme
 	protected void postConstruct() {
 		setJpaRepository(personaRepository);
 		
+	}
+
+	@Override
+	public Optional<Persona> findByClave(UUID uuid) {
+		return personaRepository.findByClave(uuid);
 	}
 	
 }

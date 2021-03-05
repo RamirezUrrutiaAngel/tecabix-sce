@@ -30,6 +30,9 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -45,6 +48,7 @@ public class PerfilAuthority implements Serializable{
 
 	private static final long serialVersionUID = -4911315157724285906L;
 	@Id
+	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_perfil_authority", unique = true, nullable = false)
 	@SequenceGenerator(name = "perfil_authority_id_perfil_authority_gen", sequenceName = "tecabix_sce.perfil_authority_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "perfil_authority_id_perfil_authority_gen")
@@ -73,6 +77,4 @@ public class PerfilAuthority implements Serializable{
 	public void setAuthority(Authority authority) {
 		this.authority = authority;
 	}
-	
-	
 }

@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.service;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 
 import mx.tecabix.db.GenericSevice;
@@ -31,4 +34,5 @@ public interface PerfilService extends GenericSevice<Perfil, Long>{
 	Perfil findByNombre(Long idEscuela, String nombre);
 	Page<Perfil> findAll(Long idEscuela, int elements, int page);
 	Page<Perfil> findAllbyNombre(Long idEscuela, String nombre, int elements, int page);
+	Optional<Perfil> findByClave(UUID uuid);
 }

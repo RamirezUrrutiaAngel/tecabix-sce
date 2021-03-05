@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.service.impl;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,5 +67,11 @@ public class PerfilServiceImpl extends GenericSeviceImpl<Perfil, Long> implement
 	public Perfil findByNombre(Long idEscuela, String nombre) {
 		Perfil perfil = perfilRepository.findByNombre(idEscuela, nombre);
 		return perfil;
+	}
+
+	@Override
+	public Optional<Perfil> findByClave(UUID uuid) {
+		Optional<Perfil> result = perfilRepository.findByClave(uuid);
+		return result;
 	}	
 }

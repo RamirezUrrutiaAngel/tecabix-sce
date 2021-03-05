@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.service;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 
 import mx.tecabix.db.GenericSevice;
@@ -40,5 +43,6 @@ public interface SesionService extends GenericSevice<Sesion, Long>{
 	
 	Sesion findByToken(String keyToken);
 	
+	Optional<Sesion> findByClave(UUID uuid);
 	
 }

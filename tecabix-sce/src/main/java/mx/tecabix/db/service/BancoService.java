@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.service;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.Banco;
 
@@ -27,4 +30,5 @@ import mx.tecabix.db.entity.Banco;
  */
 public interface BancoService extends GenericSevice<Banco, Integer> {
 
+	Optional<Banco> findByClave(UUID uuid);
 }

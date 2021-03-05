@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.service;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.UsuarioPersona;
 /**
@@ -27,4 +30,5 @@ import mx.tecabix.db.entity.UsuarioPersona;
 public interface UsuarioPersonaService extends GenericSevice<UsuarioPersona, Long>{
 	
 	UsuarioPersona findByUsuario(String nombre);
+	Optional<UsuarioPersona> findByClave(UUID uuid);
 }

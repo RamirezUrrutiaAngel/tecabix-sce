@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.repository;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import mx.tecabix.db.entity.Banco;
@@ -27,4 +30,5 @@ import mx.tecabix.db.entity.Banco;
  */
 public interface BancoRepository extends JpaRepository<Banco, Integer>{
 
+	Optional<Banco> findByClave(UUID uuid);
 }

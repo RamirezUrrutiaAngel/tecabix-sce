@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.repository;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -36,5 +39,6 @@ public interface LicenciaRepository extends JpaRepository<Licencia, Long>{
 	Page<Licencia> findAll(Pageable pageable);
 	Page<Licencia> findByIdEscuela(Long idEscuela, Pageable pageable);
 	Page<Licencia> findByIdEscuelaAndServicio(Long idEscuela, Integer idServicio, Pageable pageable);
+	Optional<Licencia> findByClave(UUID uuid);
 	
 }

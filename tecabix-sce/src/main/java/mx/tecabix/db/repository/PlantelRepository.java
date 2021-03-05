@@ -18,6 +18,7 @@
 package mx.tecabix.db.repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,4 +34,5 @@ public interface PlantelRepository extends JpaRepository<Plantel, Long>{
 
 	Page<Plantel> findByIdEscuela(Long idEmpresa,  Pageable pageable);
 	Optional<Plantel> findByIdEscuelaAndNombre(Long idEmpresa, String nombre);
+	Optional<Plantel> findByClave(UUID uuid);
 }

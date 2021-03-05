@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.service.impl;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,5 +66,10 @@ public class UsuarioServiceImpl extends GenericSeviceImpl<Usuario, Long> impleme
 		Pageable pageable = PageRequest.of(page, elements);
 		Page<Usuario> entitys = usuarioRepository.findByPerfil(idPerfil, pageable);
 		return entitys;
+	}
+
+	@Override
+	public Optional<Usuario> findByClave(UUID uuid) {
+		return usuarioRepository.findByClave(uuid);
 	}
 }

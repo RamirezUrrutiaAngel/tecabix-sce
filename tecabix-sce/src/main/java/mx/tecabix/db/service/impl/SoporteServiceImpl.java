@@ -1,5 +1,8 @@
 package mx.tecabix.db.service.impl;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,11 @@ public class SoporteServiceImpl extends GenericSeviceImpl<Soporte, Long> impleme
 	@Override
 	protected void postConstruct() {
 		setJpaRepository(soporteRepository);
+	}
+
+	@Override
+	public Optional<Soporte> findByClave(UUID uuid) {
+		return soporteRepository.findByClave(uuid);
 	}
 
 }

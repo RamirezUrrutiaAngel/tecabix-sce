@@ -18,6 +18,7 @@
 package mx.tecabix.db.service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.Servicio;
@@ -29,4 +30,5 @@ import mx.tecabix.db.entity.Servicio;
 public interface ServicioService extends GenericSevice<Servicio, Integer>{
 
 	Optional<Servicio> findByNombre(String nombre);
+	Optional<Servicio> findByClave(UUID uuid);
 }

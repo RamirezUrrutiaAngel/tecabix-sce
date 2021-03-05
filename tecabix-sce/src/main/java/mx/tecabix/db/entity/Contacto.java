@@ -43,6 +43,7 @@ public class Contacto implements Serializable{
 	
 	private static final long serialVersionUID = 7247338251404078667L;
 	@Id
+	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_contacto", unique = true, nullable = false)
 	@SequenceGenerator(name = "catalogo_tipo_id_contacto_gen", sequenceName = "tecabix_sce.contacto_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "catalogo_tipo_id_contacto_gen")

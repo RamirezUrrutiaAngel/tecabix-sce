@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.service;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 
 import mx.tecabix.db.GenericSevice;
@@ -32,5 +35,5 @@ public interface LicenciaService extends GenericSevice<Licencia, Long>{
 	Page<Licencia> findAll(int elements, int page);
 	Page<Licencia> findByIdEscuela(Long idEscuela, int elements, int page);
 	Page<Licencia> findByIdEscuelaAndServicio(Long idEscuela, Integer idServicio, int elements, int page);
-	
+	Optional<Licencia> findByClave(UUID uuid);
 }

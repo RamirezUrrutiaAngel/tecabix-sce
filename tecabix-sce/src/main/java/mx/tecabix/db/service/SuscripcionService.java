@@ -18,6 +18,7 @@
 package mx.tecabix.db.service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.Suscripcion;
@@ -30,4 +31,5 @@ public interface SuscripcionService extends GenericSevice<Suscripcion, Long>{
 
 	Optional<Suscripcion> findByIdEscuela(Long idEscuela);
 	Optional<Suscripcion> findByIdEscuelaAndValid(Long idEscuela);
+	Optional<Suscripcion> findByClave(UUID uuid);
 }

@@ -18,6 +18,7 @@
 package mx.tecabix.db.service.impl;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
@@ -66,6 +67,12 @@ public class ConfiguracionServiceImpl extends GenericSeviceImpl<Configuracion, L
 	@Override
 	public Optional<Configuracion> findByIdEscuelaAndNombre(long idEscuela, String nombre) {
 		Optional<Configuracion> result = configuracionRepository.findByIdEscuelaAndNombre(idEscuela, nombre);
+		return result;
+	}
+
+	@Override
+	public Optional<Configuracion> findByClave(UUID uuid) {
+		Optional<Configuracion> result = configuracionRepository.findByClave(uuid);
 		return result;
 	}
 	

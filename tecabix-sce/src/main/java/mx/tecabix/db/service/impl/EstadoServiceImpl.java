@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.service.impl;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +45,12 @@ public class EstadoServiceImpl extends GenericSeviceImpl<Estado, Integer> implem
 	protected void postConstruct() {
 		setJpaRepository(estadoRepository);
 		
+	}
+
+	@Override
+	public Optional<Estado> findByClave(UUID uuid) {
+		Optional<Estado> result = estadoRepository.findByClave(uuid);
+		return result;
 	}
 
 	

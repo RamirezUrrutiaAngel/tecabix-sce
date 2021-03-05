@@ -19,6 +19,7 @@ package mx.tecabix.db.entity;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -31,6 +32,11 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Type;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -52,6 +58,7 @@ public class Trabajador implements Serializable{
 
 	private static final long serialVersionUID = -7407043110565368553L;
 	@Id
+	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_trabajador", unique = true, nullable = false)
 	@SequenceGenerator(name = "trabajador_id_trabajador_gen", sequenceName = "tecabix_sce.trabajador_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "trabajador_id_trabajador_gen")
@@ -81,8 +88,9 @@ public class Trabajador implements Serializable{
     @ManyToOne
     @JoinColumn(name = "id_estatus")
     private Catalogo estatus;
-    
-    
+    @Column(name = "clave")
+    @Type(type="pg-uuid")
+    private UUID clave;
 	public Long getId() {
 		return id;
 	}
@@ -148,5 +156,11 @@ public class Trabajador implements Serializable{
 	}
 	public void setEstatus(Catalogo estatus) {
 		this.estatus = estatus;
+	}
+	public UUID getClave() {
+		return clave;
+	}
+	public void setClave(UUID clave) {
+		this.clave = clave;
 	}
 }

@@ -17,6 +17,9 @@
  */
 package mx.tecabix.db.repository;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import mx.tecabix.db.entity.SoporteMsj;
@@ -27,4 +30,5 @@ import mx.tecabix.db.entity.SoporteMsj;
  */
 public interface SoporteMsjRepository extends JpaRepository<SoporteMsj, Long>{
 
+	Optional<SoporteMsj> findByClave(UUID uuid);
 }

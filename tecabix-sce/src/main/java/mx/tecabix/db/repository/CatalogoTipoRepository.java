@@ -18,6 +18,7 @@
 package mx.tecabix.db.repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import mx.tecabix.db.entity.CatalogoTipo;
@@ -29,5 +30,5 @@ import mx.tecabix.db.entity.CatalogoTipo;
 public interface CatalogoTipoRepository extends JpaRepository<CatalogoTipo, Integer>{
 	
 	Optional<CatalogoTipo> findByNombre(String String);
-	
+	Optional<CatalogoTipo> findByClave(UUID uuid);
 }

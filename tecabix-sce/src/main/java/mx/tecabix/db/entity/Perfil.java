@@ -20,6 +20,7 @@ package mx.tecabix.db.entity;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -35,6 +36,11 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Type;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -53,6 +59,7 @@ public class Perfil implements Serializable{
 
 	private static final long serialVersionUID = 1945352087628007583L;
 	@Id
+	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_perfil", unique = true, nullable = false)
 	@SequenceGenerator(name = "perfil_id_perfil_gen", sequenceName = "tecabix_sce.perfil_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "perfil_id_perfil_gen")
@@ -70,6 +77,9 @@ public class Perfil implements Serializable{
     @ManyToOne
     @JoinColumn(name = "id_estatus")
     private Catalogo estatus;
+    @Column(name = "clave")
+    @Type(type="pg-uuid")
+    private UUID clave;
 	@ManyToMany(cascade = { CascadeType.REMOVE})
     @JoinTable(
         name = "perfil_authority", 
@@ -119,12 +129,16 @@ public class Perfil implements Serializable{
 	public void setEstatus(Catalogo estatus) {
 		this.estatus = estatus;
 	}
+	public UUID getClave() {
+		return clave;
+	}
+	public void setClave(UUID clave) {
+		this.clave = clave;
+	}
 	public List<Authority> getAuthorities() {
 		return authorities;
 	}
 	public void setAuthorities(List<Authority> authorities) {
 		this.authorities = authorities;
 	}
-	
-	
 }

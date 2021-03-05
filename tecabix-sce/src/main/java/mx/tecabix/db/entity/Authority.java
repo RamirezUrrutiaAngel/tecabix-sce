@@ -18,7 +18,9 @@
 package mx.tecabix.db.entity;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -35,6 +37,8 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Type;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -54,6 +58,7 @@ public class Authority implements Serializable{
 	private static final long serialVersionUID = 4643106103106362573L;
 	
 	@Id
+	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_authority", unique = true, nullable = false)
 	@SequenceGenerator(name = "authority_id_authority_gen", sequenceName = "tecabix_sce.authority_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "authority_id_authority_gen")
@@ -66,12 +71,21 @@ public class Authority implements Serializable{
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "id_pre_authority")
     private Authority preAuthority;
+    @Column(name = "id_usuario_modificado")
+    private Long idUsuarioModificado;
+    @Column(name = "fecha_modificado")
+    private LocalDateTime fechaDeModificacion;
+    @ManyToOne
+    @JoinColumn(name = "id_estatus")
+    private Catalogo estatus;
+    @Column(name = "clave")
+    @Type(type="pg-uuid")
+    private UUID clave;
     @OneToMany(fetch = FetchType.LAZY, mappedBy="preAuthority", cascade=CascadeType.REMOVE)
     private List<Authority> subAuthority;
     @JsonProperty(access = Access.WRITE_ONLY)
     @ManyToMany(mappedBy = "authorities", cascade = CascadeType.REMOVE)
 	private List<Perfil> perfiles;
-    
 	public Integer getId() {
 		return id;
 	}
@@ -131,6 +145,10 @@ public class Authority implements Serializable{
 			return false;
 		return true;
 	}
-	
-    
+	public UUID getClave() {
+		return clave;
+	}
+	public void setClave(UUID clave) {
+		this.clave = clave;
+	}
 }

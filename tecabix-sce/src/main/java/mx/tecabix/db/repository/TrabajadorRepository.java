@@ -18,6 +18,7 @@
 package mx.tecabix.db.repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,4 +37,5 @@ public interface TrabajadorRepository extends JpaRepository<Trabajador, Long>{
 	Optional<Trabajador> findByUsuario(String usuario);
 	Page<Trabajador> findAll(Long idEscuela, Pageable pageable);
 	Page<Trabajador> findAllByNombre(Long idEscuela,String nombre, Pageable pageable);
+	Optional<Trabajador> findByClave(UUID uuid);
 }
