@@ -17,6 +17,7 @@
  */
 package mx.tecabix.service.controller.v01;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -38,9 +39,11 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.ApiOperation;
 import mx.tecabix.db.entity.Authority;
 import mx.tecabix.db.entity.PerfilAuthority;
+import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.service.AuthorityService;
 import mx.tecabix.db.service.PerfilAuthorityService;
 import mx.tecabix.service.Auth;
+import mx.tecabix.service.SingletonUtil;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -53,16 +56,20 @@ public class AuthorityControllerV01 extends Auth{
 	private static final String AUTHORITY = "AUTHORITY";
 	private static final String PERFIL = "PERFIL";
 	private static final String AUTENTIFICADOS = "AUTENTIFICADOS";
-	
+	@Autowired
+	private SingletonUtil singletonUtil;
 	@Autowired
 	private AuthorityService authorityService;
 	@Autowired
 	private PerfilAuthorityService perfilAuthorityService;
 	
+	
 	@ApiOperation(value = "Persiste la entidad del Authority con sus correspondientes sub Authority. ")
 	@PostMapping()
 	public ResponseEntity<Authority> save(@RequestParam(value="token") String token, @RequestBody Authority authority){
-		if(isNotAuthorized(token, AUTHORITY)) {
+		
+		Sesion sesion = getSessionIfIsAuthorized(token, AUTHORITY);
+		if(sesion == null) {
 			return new ResponseEntity<Authority>(HttpStatus.UNAUTHORIZED);
 		}
 		
@@ -119,11 +126,24 @@ public class AuthorityControllerV01 extends Auth{
 			return new ResponseEntity<Authority>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		Authority authorityPadre = authorityPadreOptional.get(); 
+		authority.setId(null);
+		authority.setPerfiles(null);
 		authority.setPreAuthority(authorityPadre);
+		authority.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+		authority.setFechaDeModificacion(LocalDateTime.now());
+		authority.setEstatus(singletonUtil.getActivo());
+		authority.setClave(UUID.randomUUID());
 		authority = authorityService.save(authority);
 		if(list != null) {
 			for (int i = 0; i < list.size(); i++) {
 				Authority aux = list.get(i);
+				aux.setId(null);
+				aux.setPerfiles(null);
+				aux.setSubAuthority(null);
+				aux.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+				aux.setFechaDeModificacion(LocalDateTime.now());
+				aux.setEstatus(singletonUtil.getActivo());
+				aux.setClave(UUID.randomUUID());
 				aux.setPreAuthority(authority);
 				aux = authorityService.save(aux);
 				authority = aux.getPreAuthority();
@@ -172,7 +192,7 @@ public class AuthorityControllerV01 extends Auth{
 	
 	@ApiOperation(value = "Obtiene el authority con el ID proporcionado. ")
 	@GetMapping("findByClave")
-	public ResponseEntity<Authority> findById(@RequestParam(value="token") String token, @RequestParam(value = "clave") UUID clave){
+	public ResponseEntity<Authority> findByClave(@RequestParam(value="token") String token, @RequestParam(value = "clave") UUID clave){
 		
 		if(isNotAuthorized(token, AUTHORITY, PERFIL)) {
 			return new ResponseEntity<Authority>(HttpStatus.UNAUTHORIZED);
@@ -208,7 +228,8 @@ public class AuthorityControllerV01 extends Auth{
 			+ "Los Authority ya guardado que no se especifiquen en la petición serán eliminados.")
 	@PutMapping()
 	public ResponseEntity<Authority> update(@RequestParam(value="token") String token, @RequestBody Authority authority){
-		if(isNotAuthorized(token, AUTHORITY)) {
+		Sesion sesion = getSessionIfIsAuthorized(token, AUTHORITY);
+		if(sesion == null) {
 			return new ResponseEntity<Authority>(HttpStatus.UNAUTHORIZED);
 		}
 		if(authority.getClave() == null) {
@@ -228,6 +249,9 @@ public class AuthorityControllerV01 extends Auth{
 		Authority authorityViejo = optionalAuthorityViejo.get();
 		authority.setId(authorityViejo.getId());
 		authority.setPreAuthority(authorityViejo.getPreAuthority());
+		authority.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+		authority.setFechaDeModificacion(LocalDateTime.now());
+		authority.setEstatus(singletonUtil.getActivo());
 		
 		Optional<Authority> authorityPadreOptional = authorityService.findByNombre(AUTENTIFICADOS);
 		if(!authorityPadreOptional.isPresent()) {
@@ -282,8 +306,13 @@ public class AuthorityControllerV01 extends Auth{
 					Optional<Authority> optionalSubAuthorityViejo =  authorityService.findByClave(subAuthorityActualizado.getClave());
 					if(optionalSubAuthorityViejo.isPresent()) {
 						Authority subAuthorityViejo = optionalSubAuthorityViejo.get();
+						if(!subAuthorityViejo.getPreAuthority().equals(authority)) {
+							return new ResponseEntity<Authority>(HttpStatus.CONFLICT);
+						}
 						listaDeAuthoritiesPorBorrar.remove(subAuthorityViejo);
-						listaDeSubAuthorityValidado.add(subAuthorityActualizado);
+						subAuthorityViejo.setNombre(subAuthorityActualizado.getNombre());
+						subAuthorityViejo.setDescripcion(subAuthorityActualizado.getNombre());
+						listaDeSubAuthorityValidado.add(subAuthorityViejo);
 						continue;
 					}else {
 						subAuthorityActualizado.setId(null);
@@ -305,7 +334,6 @@ public class AuthorityControllerV01 extends Auth{
 		}
 		
 		for (Authority authorityItem : listaDeAuthoritiesPorBorrar) {
-			
 			authorityItem.setPreAuthority(null);
 			authorityItem = authorityService.update(authorityItem);
 			authorityService.deleteById(authorityItem.getId());
@@ -314,7 +342,13 @@ public class AuthorityControllerV01 extends Auth{
 		if(listaDeSubAuthorityValidado != null) {
 			for (int i = 0; i < listaDeSubAuthorityValidado.size(); i++) {
 				Authority aux = listaDeSubAuthorityValidado.get(i);
+				if(aux.getId() == null) {
+					aux.setClave(UUID.randomUUID());
+					aux.setEstatus(singletonUtil.getActivo());
+				}
 				aux.setPreAuthority(authority);
+				aux.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+				aux.setFechaDeModificacion(LocalDateTime.now());
 				aux = authorityService.save(aux);
 				aux.getPreAuthority();
 			}
@@ -328,7 +362,8 @@ public class AuthorityControllerV01 extends Auth{
 	@ApiOperation(value = "Elimina la entity con sus correspondientes sub Authority.")
 	@DeleteMapping()
 	public ResponseEntity<Boolean> delete(@RequestParam(value="token") String token, @RequestParam(value="clave") UUID uuid){
-		if(isNotAuthorized(token, AUTHORITY)) {
+		Sesion sesion = getSessionIfIsAuthorized(token, AUTHORITY);
+		if(sesion == null) {
 			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
 		}
 		Optional<Authority> optionalAuthorityViejo =  authorityService.findByClave(uuid);
@@ -346,8 +381,9 @@ public class AuthorityControllerV01 extends Auth{
 		}
 		List<Authority> listaDeAuthoritiesPorBorrar = authorityViejo.getSubAuthority();
 		for (Authority authorityItem : listaDeAuthoritiesPorBorrar) {
-			
 			authorityItem.setPreAuthority(null);
+			authorityItem.setEstatus(singletonUtil.getEliminado());
+			authorityItem.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
 			authorityItem = authorityService.update(authorityItem);
 			Page<PerfilAuthority> pagePerfilAuthority = perfilAuthorityService.findByAuthority(authorityItem.getId());
 			for (PerfilAuthority perfilAuthority : pagePerfilAuthority) {

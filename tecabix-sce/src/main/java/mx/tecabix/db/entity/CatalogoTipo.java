@@ -58,8 +58,10 @@ public class CatalogoTipo implements Serializable{
 	private String nombre;
 	@Column(name = "descripcion")
 	private String descripcion;
+	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_usuario_modificado")
     private Long idUsuarioModificado;
+	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "fecha_modificado")
     private LocalDateTime fechaDeModificacion;
     @ManyToOne

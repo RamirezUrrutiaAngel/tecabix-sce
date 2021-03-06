@@ -71,8 +71,10 @@ public class Authority implements Serializable{
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "id_pre_authority")
     private Authority preAuthority;
+    @JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_usuario_modificado")
     private Long idUsuarioModificado;
+    @JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "fecha_modificado")
     private LocalDateTime fechaDeModificacion;
     @ManyToOne
@@ -110,6 +112,24 @@ public class Authority implements Serializable{
 	public void setPreAuthority(Authority preAuthority) {
 		this.preAuthority = preAuthority;
 	}
+	public Long getIdUsuarioModificado() {
+		return idUsuarioModificado;
+	}
+	public void setIdUsuarioModificado(Long idUsuarioModificado) {
+		this.idUsuarioModificado = idUsuarioModificado;
+	}
+	public LocalDateTime getFechaDeModificacion() {
+		return fechaDeModificacion;
+	}
+	public void setFechaDeModificacion(LocalDateTime fechaDeModificacion) {
+		this.fechaDeModificacion = fechaDeModificacion;
+	}
+	public Catalogo getEstatus() {
+		return estatus;
+	}
+	public void setEstatus(Catalogo estatus) {
+		this.estatus = estatus;
+	}
 	public List<Authority> getSubAuthority() {
 		return subAuthority;
 	}
@@ -122,6 +142,13 @@ public class Authority implements Serializable{
 	public void setPerfiles(List<Perfil> perfiles) {
 		this.perfiles = perfiles;
 	}
+	public UUID getClave() {
+		return clave;
+	}
+	public void setClave(UUID clave) {
+		this.clave = clave;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -138,17 +165,21 @@ public class Authority implements Serializable{
 		if (getClass() != obj.getClass())
 			return false;
 		Authority other = (Authority) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
-	}
-	public UUID getClave() {
-		return clave;
-	}
-	public void setClave(UUID clave) {
-		this.clave = clave;
+		if (this.id != null && other.id != null) {
+			if(this.id.equals(other.id)) {
+				if(this.clave != null && other.clave != null) {
+					if(this.clave.equals(this.clave)) {
+						return true;
+					}
+				}else {
+					return true;
+				}
+			}
+		}else if(this.clave != null && other.clave != null) {
+			if(this.clave.equals(other.clave)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

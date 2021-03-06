@@ -71,8 +71,10 @@ public class Catalogo implements Serializable{
     @ManyToOne
     @JoinColumn(name = "id_catalogo_tipo")
     private CatalogoTipo catalogoTipo;
+    @JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_usuario_modificado")
     private Long idUsuarioModificado;
+    @JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "fecha_modificado")
     private LocalDateTime fechaDeModificacion;
     @ManyToOne
