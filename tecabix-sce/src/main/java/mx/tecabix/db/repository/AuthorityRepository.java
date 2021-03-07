@@ -35,4 +35,5 @@ public interface AuthorityRepository extends JpaRepository<Authority, Integer>{
 	Page<Authority> findByLikeNombre(String nombre,  Pageable pageable);
 	Optional<Authority> findByNombre(String nombre);
 	Optional<Authority> findByClave(UUID uuid);
+	
 }

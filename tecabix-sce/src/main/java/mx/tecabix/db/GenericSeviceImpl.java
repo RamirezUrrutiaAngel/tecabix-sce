@@ -23,6 +23,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 /**
  * 
@@ -87,6 +88,13 @@ public abstract class GenericSeviceImpl<Entity,Key> implements GenericSevice<Ent
 	@Override
 	public Page<Entity> findAll(int elements, int page) {
 		Pageable pageable = PageRequest.of(page, elements);
+		Page<Entity> entitys = this.findAll(pageable);
+		return entitys;
+	}
+	
+	@Override
+	public Page<Entity> findAll(int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort);
 		Page<Entity> entitys = this.findAll(pageable);
 		return entitys;
 	}

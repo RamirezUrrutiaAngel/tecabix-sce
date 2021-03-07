@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.GenericSeviceImpl;
@@ -50,8 +51,8 @@ public class AuthorityServiceImpl extends GenericSeviceImpl<Authority, Integer> 
 	}
 
 	@Override
-	public Page<Authority> findByLikeNombre(String nombre, int elements, int page) {
-		Pageable pageable = PageRequest.of(page, elements);
+	public Page<Authority> findByLikeNombre(String nombre, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
 		Page<Authority> result = authorityRepository.findByLikeNombre(nombre, pageable);
 		return result;
 	}
@@ -66,5 +67,12 @@ public class AuthorityServiceImpl extends GenericSeviceImpl<Authority, Integer> 
 	public Optional<Authority> findByClave(UUID uuid) {
 		Optional<Authority> optional = authorityRepository.findByClave(uuid);
 		return optional;
+	}
+
+	@Override
+	public Page<Authority> findByLikeDescripcion(String descripcion, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		Page<Authority> result = authorityRepository.findByLikeDescripcion(descripcion, pageable);
+		return result;
 	}
 }

@@ -25,6 +25,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -44,6 +45,7 @@ import mx.tecabix.db.service.AuthorityService;
 import mx.tecabix.db.service.PerfilAuthorityService;
 import mx.tecabix.service.Auth;
 import mx.tecabix.service.SingletonUtil;
+import mx.tecabix.service.page.AuthorityPage;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -156,37 +158,53 @@ public class AuthorityControllerV01 extends Auth{
 		authority = authorityOptional.get();
 		return new ResponseEntity<Authority>(authority,HttpStatus.OK);
 	}
-	
-	@ApiOperation(value = "Obtiene todo los authority paginado.")
-	@GetMapping("findAll")
-	public ResponseEntity<Page<Authority>> findAll(@RequestParam(value="token") String token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
-		if(isNotAuthorized(token, AUTHORITY, PERFIL)) {
-			return new ResponseEntity<Page<Authority>>(HttpStatus.UNAUTHORIZED);
-		}
+	/**
+	 * 
+	 * @param by:		NOMBRE, DESCRIPCION
+	 * @param order:	ASC, DESC
+	 * 
+	 */
+	@ApiOperation(value = "Obtiene todo los authority paginado.", 
+			notes = "<b>by:</b> NOMBRE, DESCRIPCION<br/><b>order:</b> ASC, DESC")
+	@GetMapping
+	public ResponseEntity<AuthorityPage> find(
+			@RequestParam(value="token") String token,
+			@RequestParam(value="search", required = false) String search,
+			@RequestParam(value="by", defaultValue = "NOMBRE") String by,
+			@RequestParam(value="order", defaultValue = "ASC") String order,
+			@RequestParam(value="elements") byte elements,
+			@RequestParam(value="page") short page) {
 		
-		Page<Authority> authorities = authorityService.findAll(elements, page);
+		if(isNotAuthorized(token, AUTHORITY)) {
+			return new ResponseEntity<AuthorityPage>(HttpStatus.UNAUTHORIZED);
+		}
+		Page<Authority> authorities = null;
+		Sort sort;
+		if(order.equalsIgnoreCase("ASC")) {
+			sort = Sort.by(Sort.Direction.ASC, by.toLowerCase());
+		}else if(order.equalsIgnoreCase("DESC")) {
+			sort = Sort.by(Sort.Direction.DESC, by.toLowerCase());
+		}else {
+			return new ResponseEntity<AuthorityPage>(HttpStatus.BAD_REQUEST);
+		}
+		if(search == null || search.isEmpty()) {
+			authorities = authorityService.findAll(elements, page, sort);
+		}else {
+			StringBuilder text = new StringBuilder("%").append(search).append("%");
+			if(by.equalsIgnoreCase("NOMBRE")) {
+				authorities = authorityService.findByLikeNombre(text.toString(), elements, page, sort);
+			}else if(by.equalsIgnoreCase("DESCRIPCION")) {
+				authorities = authorityService.findByLikeDescripcion(text.toString(), elements, page, sort);
+			}else {
+				return new ResponseEntity<AuthorityPage>(HttpStatus.BAD_REQUEST);
+			}
+		}
 		for (Authority authority : authorities) {
 			authority.setPreAuthority(null);
 			authority.setSubAuthority(null);
 		}
-		
-		ResponseEntity<Page<Authority>> response = new ResponseEntity<Page<Authority>>(authorities, HttpStatus.OK);
-		return response;
-	}
-	
-	@ApiOperation(value = "Obtiene todo los authority paginado pero que coincidan con el nombre proporcionado.")
-	@GetMapping("findByLikeNombre")
-	public ResponseEntity<Page<Authority>> findByLikeNombre(@RequestParam(value="token") String token, @RequestParam(value="nombre") String nombre,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
-		if(isNotAuthorized(token, AUTHORITY, PERFIL)) {
-			return new ResponseEntity<Page<Authority>>(HttpStatus.UNAUTHORIZED);
-		}
-		StringBuilder search = new StringBuilder("%").append(nombre).append("%");
-		Page<Authority> authorities = authorityService.findByLikeNombre(search.toString(), elements, page);
-		for (Authority authority : authorities) {
-			authority.setPreAuthority(null);
-			authority.setSubAuthority(null);
-		}
-		ResponseEntity<Page<Authority>> response = new ResponseEntity<Page<Authority>>(authorities, HttpStatus.OK);
+		AuthorityPage body = new AuthorityPage(authorities); 
+		ResponseEntity<AuthorityPage> response = new ResponseEntity<AuthorityPage>(body, HttpStatus.OK);
 		return response;
 	}
 	
@@ -194,7 +212,7 @@ public class AuthorityControllerV01 extends Auth{
 	@GetMapping("findByClave")
 	public ResponseEntity<Authority> findByClave(@RequestParam(value="token") String token, @RequestParam(value = "clave") UUID clave){
 		
-		if(isNotAuthorized(token, AUTHORITY, PERFIL)) {
+		if(isNotAuthorized(token, AUTHORITY)) {
 			return new ResponseEntity<Authority>(HttpStatus.UNAUTHORIZED);
 		}
 		Optional<Authority> result = authorityService.findByClave(clave);
@@ -206,14 +224,14 @@ public class AuthorityControllerV01 extends Auth{
 		return new ResponseEntity<Authority>(body, HttpStatus.OK);
 	}
 	
-	@ApiOperation(value = "Obtiene el authority con el nombre exacto proporcionado. ")
-	@GetMapping("findByNombre")
-	public ResponseEntity<Authority> findByNombre(@RequestParam(value="token") String token, @RequestParam(value = "nombre") String nombre){
+	@ApiOperation(value = "Obtiene los authority autentificados.")
+	@GetMapping("findAutentificados")
+	public ResponseEntity<Authority> findAutentificados(@RequestParam(value="token") String token){
 		
-		if(isNotAuthorized(token, AUTHORITY, PERFIL)) {
+		if(isNotAuthorized(token, PERFIL)) {
 			return new ResponseEntity<Authority>(HttpStatus.UNAUTHORIZED);
 		}
-		Optional<Authority> result = authorityService.findByNombre(nombre);
+		Optional<Authority> result = authorityService.findByNombre(AUTENTIFICADOS);
 		if(!result.isPresent()) {
 			return new ResponseEntity<Authority>(HttpStatus.NOT_FOUND);
 		}

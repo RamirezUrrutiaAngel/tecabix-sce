@@ -21,6 +21,7 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -105,6 +106,14 @@ public interface GenericSevice<T, ID> {
 	 * @return a page of entities
 	 */
 	Page<T> findAll(int elements, int page);
+	
+	/**
+	 * Returns a {@link Page} of entities meeting the paging restriction provided in the {@code Pageable} object.
+	 *
+	 * @param pageable
+	 * @return a page of entities
+	 */
+	Page<T> findAll(int elements, int page, Sort sort);
 
 	/**
 	 * Returns the number of entities available.

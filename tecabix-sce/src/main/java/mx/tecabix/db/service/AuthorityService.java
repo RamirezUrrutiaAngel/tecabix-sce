@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 
 import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.Authority;
@@ -31,7 +32,9 @@ import mx.tecabix.db.entity.Authority;
  */
 public interface AuthorityService extends GenericSevice<Authority, Integer>{
 
-	Page<Authority> findByLikeNombre(String nombre,  int elements, int page);
+	Page<Authority> findByLikeNombre(String nombre, int elements, int page, Sort sort);
+	
+	Page<Authority> findByLikeDescripcion(String descripcion, int elements, int page, Sort sort);
 	
 	Optional<Authority> findByNombre(String nombre);
 	
