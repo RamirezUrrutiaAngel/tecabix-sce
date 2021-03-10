@@ -50,9 +50,9 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @Entity()
 @Table(name = "authority")
 @NamedQueries({
-		@NamedQuery(name = "Authority.findByLikeNombre",query = "SELECT a FROM Authority a WHERE a.nombre LIKE ?1 "),
-		@NamedQuery(name = "Authority.findByLikeDescripcion",query = "SELECT a FROM Authority a WHERE a.descripcion LIKE ?1 "),
-		@NamedQuery(name = "Authority.findByNombre",query = "SELECT a FROM Authority a WHERE a.nombre = ?1 ")
+		@NamedQuery(name = "Authority.findByLikeNombre",query = "SELECT a FROM Authority a WHERE UPPER(a.nombre) LIKE UPPER(?1) AND a.estatus.nombre = 'ACTIVO' "),
+		@NamedQuery(name = "Authority.findByLikeDescripcion",query = "SELECT a FROM Authority a WHERE UPPER(a.descripcion) LIKE UPPER(?1) AND a.estatus.nombre = 'ACTIVO' "),
+		@NamedQuery(name = "Authority.findByNombre",query = "SELECT a FROM Authority a WHERE a.nombre = ?1 AND a.estatus.nombre = 'ACTIVO' ")
 })
 public class Authority implements Serializable{
 
