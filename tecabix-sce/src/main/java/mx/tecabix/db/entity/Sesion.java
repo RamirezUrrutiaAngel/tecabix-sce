@@ -48,6 +48,9 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @Table(name = "sesion")
 @NamedQueries({
     @NamedQuery(name = "Sesion.findByActive",query = "SELECT s FROM Sesion s WHERE s.licencia.plantel.idEscuela = ?1 AND vencimiento > NOW() AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' "),
+    @NamedQuery(name = "Sesion.findByActiveAndLikeUsuario",query = "SELECT s FROM Sesion s WHERE s.licencia.plantel.idEscuela = ?1 AND vencimiento > NOW() AND peticionesRestantes > 0 AND UPPER(s.usuario.nombre) LIKE UPPER(?2) AND s.estatus.nombre = 'ACTIVO' "),
+    @NamedQuery(name = "Sesion.findByActiveAndLikeLicencia",query = "SELECT s FROM Sesion s WHERE s.licencia.plantel.idEscuela = ?1 AND vencimiento > NOW() AND peticionesRestantes > 0 AND UPPER(s.licencia.nombre) LIKE UPPER(?2) AND s.estatus.nombre = 'ACTIVO' "),
+    @NamedQuery(name = "Sesion.findByActiveAndLikeServicio",query = "SELECT s FROM Sesion s WHERE s.licencia.plantel.idEscuela = ?1 AND vencimiento > NOW() AND peticionesRestantes > 0 AND UPPER(s.licencia.servicio.nombre) LIKE UPPER(?2) AND s.estatus.nombre = 'ACTIVO' "),
     @NamedQuery(name = "Sesion.findByLicenciaAndActive",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND vencimiento > NOW() AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' "),
     @NamedQuery(name = "Sesion.findByUsuarioAndActive",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND s.usuario.id = ?2 AND vencimiento > NOW() AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' "),
     @NamedQuery(name = "Sesion.findByToken",query = "SELECT s FROM Sesion s WHERE s.token = ?1 AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' AND ( s.licencia.tipo.nombre = 'WEB' OR s.vencimiento > NOW() )"),
@@ -76,8 +79,10 @@ public class Sesion implements Serializable{
     @Column(name = "peticiones_restantes")
     private Integer peticionesRestantes;
     @Column(name = "id_usuario_modificado")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Long idUsuarioModificado;
     @Column(name = "fecha_modificado")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private LocalDateTime fechaDeModificacion;
     @ManyToOne
     @JoinColumn(name = "id_estatus")

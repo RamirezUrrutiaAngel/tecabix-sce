@@ -141,4 +141,22 @@ public class SesionServiceImpl extends GenericSeviceImpl<Sesion, Long> implement
 	public Optional<Sesion> findByClave(UUID uuid) {
 		return sesionRepository.findByClave(uuid);
 	}
+
+	@Override
+	public Page<Sesion> findByActiveAndLikeUsuario(Long idEscuela, String usuario, int elements, int page) {
+		Pageable pageable = PageRequest.of(page, elements);
+		return sesionRepository.findByActiveAndLikeUsuario(idEscuela, usuario, pageable);
+	}
+
+	@Override
+	public Page<Sesion> findByActiveAndLikeLicencia(Long idEscuela, String licencia, int elements, int page) {
+		Pageable pageable = PageRequest.of(page, elements);
+		return sesionRepository.findByActiveAndLikeLicencia(idEscuela, licencia, pageable);
+	}
+
+	@Override
+	public Page<Sesion> findByActiveAndLikeServicio(Long idEscuela, String servicio, int elements, int page) {
+		Pageable pageable = PageRequest.of(page, elements);
+		return sesionRepository.findByActiveAndLikeServicio(idEscuela, servicio, pageable);
+	}
 }

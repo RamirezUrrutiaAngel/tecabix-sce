@@ -73,8 +73,10 @@ public class Plantel implements Serializable{
     @Column(name = "id_escuela")
     private Long idEscuela;
     @Column(name = "id_usuario_modificado")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Long idUsuarioModificado;
     @Column(name = "fecha_modificado")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private LocalDateTime fechaDeModificacion;
     @ManyToOne
     @JoinColumn(name = "id_estatus")

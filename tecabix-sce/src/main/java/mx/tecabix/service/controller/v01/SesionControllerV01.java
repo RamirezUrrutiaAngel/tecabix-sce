@@ -191,8 +191,8 @@ public class SesionControllerV01 extends Auth {
 	}
 	
 	
-	@GetMapping
-	public ResponseEntity<Sesion> get(@RequestParam(value="token") String token){
+	@GetMapping("thisSesion")
+	public ResponseEntity<Sesion> thisSesion(@RequestParam(value="token") String token){
 
 		Sesion sesion = getSessionIfIsAuthorized(token);
 		if(sesion == null) {
@@ -273,26 +273,34 @@ public class SesionControllerV01 extends Auth {
 	}
 	
 	
-	@GetMapping("findAll")
-	public ResponseEntity<SesionPage> findAll(@RequestParam(value="token") String token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
+	@GetMapping()
+	public ResponseEntity<SesionPage> find(
+			@RequestParam(value="token") String token,
+			@RequestParam(value="search", required = false) String search,
+			@RequestParam(value="by", defaultValue = "USUARIO") String by,
+			@RequestParam(value="elements") byte elements,
+			@RequestParam(value="page") short page) {
 
 		Sesion sesion = getSessionIfIsAuthorized(token,ROOT_SESION);
 		if(sesion == null) {
 			return new ResponseEntity<SesionPage>(HttpStatus.NOT_FOUND);
 		}
-		Page<Sesion> response = sesionService.findAll(elements, page);
-		SesionPage body = new SesionPage(response);
-		return new ResponseEntity<SesionPage>(body,HttpStatus.OK);
-	}
-	
-	@GetMapping("findByActive")
-	public ResponseEntity<SesionPage> findByActive(@RequestParam(value="token") String token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
-
-		Sesion sesion = getSessionIfIsAuthorized(token,ROOT_SESION);
-		if(sesion == null) {
-			return new ResponseEntity<SesionPage>(HttpStatus.UNAUTHORIZED);
+		Page<Sesion> response = null;
+		long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
+		if(search == null || search.isEmpty()) {
+			response = sesionService.findByActive(idEscuela, elements, page);
+		}else {
+			StringBuilder text = new StringBuilder("%").append(search).append("%");
+			if(by.equalsIgnoreCase("USUARIO")) {
+				response = sesionService.findByActiveAndLikeUsuario(idEscuela, text.toString(), elements, page);
+			}else if(by.equalsIgnoreCase("LICENCIA")) {
+				response = sesionService.findByActiveAndLikeLicencia(idEscuela, text.toString(), elements, page);
+			}else if(by.equalsIgnoreCase("SERVICIO")) {
+				response = sesionService.findByActiveAndLikeServicio(idEscuela, text.toString(), elements, page);
+			}else {
+				return new ResponseEntity<SesionPage>(HttpStatus.BAD_REQUEST);
+			}
 		}
-		Page<Sesion> response = sesionService.findByActive(sesion.getLicencia().getPlantel().getIdEscuela(), elements, page);
 		SesionPage body = new SesionPage(response);
 		return new ResponseEntity<SesionPage>(body,HttpStatus.OK);
 	}

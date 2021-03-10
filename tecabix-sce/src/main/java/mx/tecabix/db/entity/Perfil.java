@@ -69,10 +69,13 @@ public class Perfil implements Serializable{
     @Column(name = "descripcion")
     private String descripcion;
     @Column(name = "id_escuela")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Long idEscuela;
     @Column(name = "id_usuario_modificado")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Long idUsuarioModificado;
     @Column(name = "fecha_modificado")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private LocalDateTime fechaDeModificacion;
     @ManyToOne
     @JoinColumn(name = "id_estatus")
