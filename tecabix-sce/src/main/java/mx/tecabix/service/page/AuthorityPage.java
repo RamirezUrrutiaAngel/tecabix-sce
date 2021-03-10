@@ -15,26 +15,39 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.db.repository;
+package mx.tecabix.service.page;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.io.Serializable;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import mx.tecabix.db.entity.Authority;
+import mx.tecabix.service.PageGeneric;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface AuthorityRepository extends JpaRepository<Authority, Integer>{
+public class AuthorityPage extends PageGeneric implements Serializable{
 
-	Page<Authority> findByLikeNombre(String nombre, Pageable pageable);
-	Page<Authority> findByLikeDescripcion(String descripcion, Pageable pageable);
-	Optional<Authority> findByNombre(String nombre);
-	Optional<Authority> findByClave(UUID uuid);
+	private static final long serialVersionUID = -3129044952862700224L;
+	
+	private List<Authority> data;
+	
+	public AuthorityPage() {}
+	
+	public AuthorityPage(Page<Authority> data) {
+		super(data);
+		this.data = data.getContent();
+	}
+
+	public List<Authority> getData() {
+		return data;
+	}
+
+	public void setData(List<Authority> data) {
+		this.data = data;
+	}
 	
 }
