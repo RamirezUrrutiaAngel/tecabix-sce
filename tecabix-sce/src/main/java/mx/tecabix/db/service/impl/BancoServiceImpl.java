@@ -23,6 +23,10 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.GenericSeviceImpl;
@@ -50,6 +54,24 @@ public class BancoServiceImpl extends GenericSeviceImpl<Banco, Integer> implemen
 	public Optional<Banco> findByClave(UUID uuid) {
 		Optional<Banco> result = bancoRepository.findByClave(uuid);
 		return result;
+	}
+
+	@Override
+	public Page<Banco> findByLikeNombre(String nombre, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		return bancoRepository.findByLikeNombre(nombre, pageable);
+	}
+
+	@Override
+	public Page<Banco> findByLikeClaveBanco(String claveBanco, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		return bancoRepository.findByLikeClaveBanco(claveBanco, pageable);
+	}
+
+	@Override
+	public Page<Banco> findByLikeRazonSocial(String razonSocial, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		return bancoRepository.findByLikeRazonSocial(razonSocial, pageable);
 	}
 
 }

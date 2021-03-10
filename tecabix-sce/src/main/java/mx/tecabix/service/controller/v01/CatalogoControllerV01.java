@@ -64,9 +64,6 @@ public class CatalogoControllerV01 extends Auth{
 			return new ResponseEntity<CatalogoTipo>(HttpStatus.UNAUTHORIZED);
 		}
 		
-		if(catalogoTipo.getId() != null ) {
-			return new ResponseEntity<CatalogoTipo>(HttpStatus.BAD_REQUEST);
-		}
 		if(catalogoTipo.getNombre() == null || catalogoTipo.getNombre().isEmpty()) {
 			return new ResponseEntity<CatalogoTipo>(HttpStatus.BAD_REQUEST);
 		}

@@ -18,6 +18,7 @@
 package mx.tecabix.db.entity;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -25,6 +26,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -39,6 +44,11 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
  */
 @Entity()
 @Table(name = "banco")
+@NamedQueries({
+	@NamedQuery(name = "Banco.findByLikeNombre",query = "SELECT b FROM Banco b WHERE UPPER(b.nombre) LIKE UPPER(?1) AND b.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Banco.findByLikeRazonSocial",query = "SELECT b FROM Banco b WHERE UPPER(b.razonSocial) LIKE UPPER(?1) AND b.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Banco.findByLikeClaveBanco",query = "SELECT b FROM Banco b WHERE UPPER(b.claveBanco) LIKE UPPER(?1) AND b.estatus.nombre = 'ACTIVO' ")
+})
 public class Banco implements Serializable{
 
 	private static final long serialVersionUID = -7280453670571498466L;
@@ -54,6 +64,15 @@ public class Banco implements Serializable{
     private String nombre;
     @Column(name = "razon_social")
     private String razonSocial;
+    @JsonProperty(access = Access.WRITE_ONLY)
+    @Column(name = "id_usuario_modificado")
+    private Long idUsuarioModificado;
+    @JsonProperty(access = Access.WRITE_ONLY)
+    @Column(name = "fecha_modificado")
+    private LocalDateTime fechaDeModificacion;
+    @ManyToOne
+    @JoinColumn(name = "id_estatus")
+    private Catalogo estatus;
     @Column(name = "clave")
     @Type(type="pg-uuid")
     private UUID clave;
@@ -80,6 +99,24 @@ public class Banco implements Serializable{
 	}
 	public void setRazonSocial(String razonSocial) {
 		this.razonSocial = razonSocial;
+	}
+	public Long getIdUsuarioModificado() {
+		return idUsuarioModificado;
+	}
+	public void setIdUsuarioModificado(Long idUsuarioModificado) {
+		this.idUsuarioModificado = idUsuarioModificado;
+	}
+	public LocalDateTime getFechaDeModificacion() {
+		return fechaDeModificacion;
+	}
+	public void setFechaDeModificacion(LocalDateTime fechaDeModificacion) {
+		this.fechaDeModificacion = fechaDeModificacion;
+	}
+	public Catalogo getEstatus() {
+		return estatus;
+	}
+	public void setEstatus(Catalogo estatus) {
+		this.estatus = estatus;
 	}
 	public UUID getClave() {
 		return clave;

@@ -17,11 +17,13 @@
  */
 package mx.tecabix.service.controller.v01;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -35,8 +37,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.ApiOperation;
 import mx.tecabix.db.entity.Banco;
+import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.service.BancoService;
 import mx.tecabix.service.Auth;
+import mx.tecabix.service.SingletonUtil;
+import mx.tecabix.service.page.BancoPage;
 
 /**
  * 
@@ -52,23 +57,68 @@ public class BancoControllerV01 extends Auth{
 	private String ROOT_BANCO_CREAR = "ROOT_BANCO_CREAR";
 	private String ROOT_BANCO_EDITAR = "ROOT_BANCO_EDITAR";
 	private String ROOT_BANCO_ELIMINAR = "ROOT_BANCO_ELIMINAR";
-	
+	@Autowired
+	private SingletonUtil singletonUtil;
 	@Autowired
 	private BancoService bancoService;
-	
-	@ApiOperation(value = "Obtiene todo los bancos paginado.")
-	@GetMapping("findAll")
-	public ResponseEntity<Page<Banco>> findAll(@RequestParam(value="token") String token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
+	/**
+	 * 
+	 * @param by:		NOMBRE, RAZON_SOCIAL, CLAVE_BANCO
+	 * @param order:	ASC, DESC
+	 * 
+	 */
+	@ApiOperation(value = "Obtiene todo los bancos paginado.",
+			notes = "<b>by:</b> NOMBRE, RAZON_SOCIAL, CLAVE_BANCO<br/><b>order:</b> ASC, DESC")
+	@GetMapping()
+	public ResponseEntity<BancoPage> find(
+			@RequestParam(value="token") String token,
+			@RequestParam(value="search", required = false) String search,
+			@RequestParam(value="by", defaultValue = "NOMBRE") String by,
+			@RequestParam(value="order", defaultValue = "ASC") String order,
+			@RequestParam(value="elements") byte elements,
+			@RequestParam(value="page") short page) {
+		
 		if(isNotAuthorized(token, BANCO, ROOT_BANCO)) {
-			return new ResponseEntity<Page<Banco>>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<BancoPage>(HttpStatus.UNAUTHORIZED);
 		}
-		Page<Banco> result =  bancoService.findAll(elements, page);
-		return new ResponseEntity<Page<Banco>>(result, HttpStatus.OK);
+		Page<Banco> result = null;
+		String columna = null;
+		if(by.equalsIgnoreCase("NOMBRE")) {
+			columna = "nombre";
+		}else if(by.equalsIgnoreCase("RAZON_SOCIAL")) {
+			columna = "razonSocial";
+		}else if(by.equalsIgnoreCase("CLAVE_BANCO")) {
+			columna = "claveBanco";
+		}else {
+			return new ResponseEntity<BancoPage>(HttpStatus.BAD_REQUEST);
+		}
+		Sort sort;
+		if(order.equalsIgnoreCase("ASC")) {
+			sort = Sort.by(Sort.Direction.ASC, columna);
+		}else if(order.equalsIgnoreCase("DESC")) {
+			sort = Sort.by(Sort.Direction.DESC, columna);
+		}else {
+			return new ResponseEntity<BancoPage>(HttpStatus.BAD_REQUEST);
+		}
+		if(search == null || search.isEmpty()) {
+			result = bancoService.findAll(elements, page, sort);
+		}else {
+			StringBuilder text = new StringBuilder("%").append(search).append("%");
+			if(by.equalsIgnoreCase("NOMBRE")) {
+				result = bancoService.findByLikeNombre(text.toString(), elements, page, sort);
+			}else if(by.equalsIgnoreCase("RAZON_SOCIAL")) {
+				result = bancoService.findByLikeRazonSocial(text.toString(), elements, page, sort);
+			}else if(by.equalsIgnoreCase("CLAVE_BANCO")) {
+				result = bancoService.findByLikeClaveBanco(text.toString(), elements, page, sort);
+			}
+		}
+		BancoPage body = new BancoPage(result);
+		return new ResponseEntity<BancoPage>(body, HttpStatus.OK);
 	}
 	
 	@ApiOperation(value = "Obtiene el bancos por Clave.")
 	@GetMapping("findByClave")
-	public ResponseEntity<Banco> findById(@RequestParam(value="token") String token,@RequestParam(value="clave") UUID uuid) {
+	public ResponseEntity<Banco> findByClave(@RequestParam(value="token") String token,@RequestParam(value="clave") UUID uuid) {
 		if(isNotAuthorized(token, BANCO, ROOT_BANCO)) {
 			return new ResponseEntity<Banco>(HttpStatus.UNAUTHORIZED);
 		}
@@ -83,7 +133,8 @@ public class BancoControllerV01 extends Auth{
 	@ApiOperation(value = "Persiste la entidad del Banco. ")
 	@PostMapping
 	public ResponseEntity<Banco> save(@RequestParam(value="token") String token, @RequestBody Banco banco){
-		if(isNotAuthorized(token, ROOT_BANCO_CREAR)) {
+		Sesion sesion = getSessionIfIsAuthorized(token, ROOT_BANCO_CREAR);
+		if(sesion == null) {
 			return new ResponseEntity<Banco>(HttpStatus.UNAUTHORIZED);
 		}
 		if(banco.getClaveBanco() == null || banco.getClaveBanco().isEmpty()) {
@@ -95,6 +146,10 @@ public class BancoControllerV01 extends Auth{
 		if(banco.getRazonSocial() == null || banco.getRazonSocial().isEmpty()) {
 			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
 		}
+		banco.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+		banco.setFechaDeModificacion(LocalDateTime.now());
+		banco.setEstatus(singletonUtil.getActivo());
+		banco.setClave(UUID.randomUUID());
 		banco = bancoService.save(banco);
 		return new ResponseEntity<Banco>(banco,HttpStatus.OK);
 	}
@@ -102,7 +157,8 @@ public class BancoControllerV01 extends Auth{
 	@ApiOperation(value = "Actualiza la entidad del Banco. ")
 	@PutMapping
 	public ResponseEntity<Banco> update(@RequestParam(value="token") String token, @RequestBody Banco banco){
-		if(isNotAuthorized(token, ROOT_BANCO_EDITAR)) {
+		Sesion sesion = getSessionIfIsAuthorized(token, ROOT_BANCO_EDITAR);
+		if(sesion == null) {
 			return new ResponseEntity<Banco>(HttpStatus.UNAUTHORIZED);
 		}
 		if(banco.getClave() == null) {
@@ -121,7 +177,13 @@ public class BancoControllerV01 extends Auth{
 		if(!bancoAux.isPresent()) {
 			return new ResponseEntity<Banco>(HttpStatus.NOT_FOUND);
 		}
-		banco = bancoService.save(banco);
+		Banco bancoUpdate = bancoAux.get();
+		bancoUpdate.setClaveBanco(banco.getClaveBanco());
+		bancoUpdate.setNombre(banco.getNombre());
+		bancoUpdate.setRazonSocial(banco.getRazonSocial());
+		bancoUpdate.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+		bancoUpdate.setFechaDeModificacion(LocalDateTime.now());
+		banco = bancoService.update(bancoUpdate);
 		return new ResponseEntity<Banco>(banco,HttpStatus.OK);
 	}
 	
