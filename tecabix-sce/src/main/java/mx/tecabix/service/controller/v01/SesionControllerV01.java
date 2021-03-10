@@ -51,6 +51,7 @@ import mx.tecabix.db.service.SesionService;
 import mx.tecabix.db.service.SuscripcionService;
 import mx.tecabix.db.service.UsuarioService;
 import mx.tecabix.service.Auth;
+import mx.tecabix.service.SingletonUtil;
 import mx.tecabix.service.page.SesionPage;
 /**
  * 
@@ -62,7 +63,8 @@ import mx.tecabix.service.page.SesionPage;
 public class SesionControllerV01 extends Auth {
 	private static final Logger LOG = LoggerFactory.getLogger(SesionControllerV01.class);
 
-	
+	@Autowired
+	private SingletonUtil singletonUtil;
 	@Autowired
 	private LicenciaService licenciaService;
 	@Autowired
@@ -74,9 +76,6 @@ public class SesionControllerV01 extends Auth {
 	@Autowired
 	private SuscripcionService suscripcionService;
 	
-	private final String ACTIVO = "ACTIVO";
-	private final String ELIMINADO = "ELIMINADO";
-	private final String ESTATUS = "ESTATUS";
 	private final String ROOT_SESION = "ROOT_SESION";
 	private final String ROOT_SESION_ELIMINAR = "ROOT_SESION_ELIMINAR";
 	
@@ -113,12 +112,6 @@ public class SesionControllerV01 extends Auth {
 			return new ResponseEntity<Sesion>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		final Catalogo catalogoTipoLicenciaWeb = optionalCatalogoTipoLicencia.get();
-		
-		Optional<Catalogo> optionalCatalogoEliminado = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
-		if(!optionalCatalogoEliminado.isPresent()) {
-			return new ResponseEntity<Sesion>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		final Catalogo catalogoEliminado = optionalCatalogoEliminado.get();
 		Integer peticionesRestantes = 0;
 		LocalDateTime vencimiento = LocalDateTime.now();
 		if(licencia.getTipo().getId().intValue() == catalogoTipoLicenciaWeb.getId().intValue()) {
@@ -130,7 +123,7 @@ public class SesionControllerV01 extends Auth {
 				for (Sesion sesion : sesionesAviertas) {
 					sesion.setFechaDeModificacion(LocalDateTime.now());
 					sesion.setIdUsuarioModificado(sesion.getUsuario().getId());
-					sesion.setEstatus(catalogoEliminado);
+					sesion.setEstatus(singletonUtil.getEliminado());
 					sesionService.update(sesion);
 				}
 			}
@@ -153,7 +146,7 @@ public class SesionControllerV01 extends Auth {
 				for (Sesion sesion : sesionesAviertas) {
 					sesion.setFechaDeModificacion(LocalDateTime.now());
 					sesion.setIdUsuarioModificado(sesion.getUsuario().getId());
-					sesion.setEstatus(catalogoEliminado);
+					sesion.setEstatus(singletonUtil.getEliminado());
 					sesionService.update(sesion);
 				}
 			}
@@ -170,15 +163,10 @@ public class SesionControllerV01 extends Auth {
 			}
 			
 		}
-		Optional<Catalogo> optionalCatalogoActivo = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO);
-		if(!optionalCatalogoActivo.isPresent()) {
-			return new ResponseEntity<Sesion>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		final Catalogo catalogoActivo = optionalCatalogoActivo.get();
 		
 		Sesion sesion = new Sesion();
 		sesion.setUsuario(usuario);
-		sesion.setEstatus(catalogoActivo);
+		sesion.setEstatus(singletonUtil.getActivo());
 		sesion.setFechaDeModificacion(LocalDateTime.now());
 		sesion.setIdUsuarioModificado(usuario.getId());
 		sesion.setLicencia(licencia);
@@ -208,14 +196,9 @@ public class SesionControllerV01 extends Auth {
 		if(sesion == null) {
 			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
 		}
-		Optional<Catalogo> optionalCatalogoEliminado = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
-		if(!optionalCatalogoEliminado.isPresent()) {
-			return new ResponseEntity<Sesion>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		Catalogo catalogoEliminado = optionalCatalogoEliminado.get();
 		sesion.setFechaDeModificacion(LocalDateTime.now());
 		sesion.setIdUsuarioModificado(sesion.getUsuario().getId());
-		sesion.setEstatus(catalogoEliminado);
+		sesion.setEstatus(singletonUtil.getEliminado());
 		sesion = sesionService.update(sesion);
 		sesion.setLicencia(null);
 		return new ResponseEntity<Sesion>(sesion,HttpStatus.OK);
@@ -227,11 +210,6 @@ public class SesionControllerV01 extends Auth {
 		if(sesion == null) {
 			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);
 		}
-		Optional<Catalogo> optionalCatalogoEliminado = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
-		if(!optionalCatalogoEliminado.isPresent()) {
-			return new ResponseEntity<Sesion>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		Catalogo catalogoEliminado = optionalCatalogoEliminado.get();
 		Optional<Sesion> sesionOptional = sesionService.findByClave(uuid);
 		if(!sesionOptional.isPresent()) {
 			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
@@ -242,7 +220,7 @@ public class SesionControllerV01 extends Auth {
 		}
 		sesionAux.setFechaDeModificacion(LocalDateTime.now());
 		sesionAux.setIdUsuarioModificado(sesion.getUsuario().getId());
-		sesionAux.setEstatus(catalogoEliminado);
+		sesionAux.setEstatus(singletonUtil.getEliminado());
 		sesionAux = sesionService.update(sesion);
 		return new ResponseEntity<Sesion>(sesion,HttpStatus.NOT_FOUND);
 	}
@@ -253,11 +231,6 @@ public class SesionControllerV01 extends Auth {
 		if(sesion == null) {
 			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);
 		}
-		Optional<Catalogo> optionalCatalogoEliminado = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
-		if(!optionalCatalogoEliminado.isPresent()) {
-			return new ResponseEntity<Sesion>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		Catalogo catalogoEliminado = optionalCatalogoEliminado.get();
 		
 		Optional<Sesion> sesionOptional = sesionService.findByClave(uuid);
 		if(!sesionOptional.isPresent()) {
@@ -267,7 +240,7 @@ public class SesionControllerV01 extends Auth {
 		
 		sesionAux.setFechaDeModificacion(LocalDateTime.now());
 		sesionAux.setIdUsuarioModificado(sesion.getUsuario().getId());
-		sesionAux.setEstatus(catalogoEliminado);
+		sesionAux.setEstatus(singletonUtil.getEliminado());
 		sesionAux = sesionService.update(sesion);
 		return new ResponseEntity<Sesion>(sesion,HttpStatus.NOT_FOUND);
 	}

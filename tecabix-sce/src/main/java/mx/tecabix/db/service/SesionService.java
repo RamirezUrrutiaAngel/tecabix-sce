@@ -33,6 +33,12 @@ public interface SesionService extends GenericSevice<Sesion, Long>{
 	
 	Page<Sesion> findByActive(Long idEscuela, int elements, int page);
 	
+	Page<Sesion> findByActiveAndLikeUsuario(Long idEscuela, String usuario, int elements, int page);
+	
+	Page<Sesion> findByActiveAndLikeLicencia(Long idEscuela, String licencia, int elements, int page);
+	
+	Page<Sesion> findByActiveAndLikeServicio(Long idEscuela, String servicio, int elements, int page);
+	
 	Page<Sesion> findByLicenciaAndActive(Long idLicencia, int elements, int page);
 	
 	Page<Sesion> findByUsuarioAndActive(Long idLicencia,Long idUsuario, int elements, int page);

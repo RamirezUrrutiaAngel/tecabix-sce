@@ -52,7 +52,7 @@ public class SingletonUtil {
 			instanciado = true;
 			activo = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO).get();
 			eliminado = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO).get();
-			pendiente = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO).get();
+			pendiente = catalogoService.findByTipoAndNombre(ESTATUS, PENDIENTE).get();
 		}
 	}
 	private CatalogoTipo cloneA(CatalogoTipo clone) {
