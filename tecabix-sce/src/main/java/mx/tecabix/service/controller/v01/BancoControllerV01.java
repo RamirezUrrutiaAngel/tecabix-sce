@@ -189,15 +189,15 @@ public class BancoControllerV01 extends Auth{
 	
 	@ApiOperation(value = "Elimina la entidad del Banco por clave. ")
 	@DeleteMapping
-	public ResponseEntity<Boolean> delete(@RequestParam(value="token") String token,@RequestParam(value="clave") UUID clave) {
+	public ResponseEntity<?> delete(@RequestParam(value="token") String token,@RequestParam(value="clave") UUID clave) {
 		if(isNotAuthorized(token,ROOT_BANCO_ELIMINAR)) {
-			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 		Optional<Banco> optional = bancoService.findByClave(clave);
 		if(!optional.isPresent()) {
-			return new ResponseEntity<Boolean>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		bancoService.deleteById(optional.get().getId());
-		return new ResponseEntity<Boolean>(true,HttpStatus.OK);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }

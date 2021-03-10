@@ -152,24 +152,24 @@ public class DepartamentoControllerV01 extends Auth{
 	
 	@ApiOperation(value = "Elimina la entidad del departamento por clave. ")
 	@DeleteMapping
-	public ResponseEntity<Boolean> delete(
+	public ResponseEntity<?> delete(
 			@RequestParam(value="clave") UUID uuid,
 			@RequestParam(value="token") String token){
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, DEPARTAMENTO_ELIMINAR) ;
 		if(sesion == null) {
-			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 		Optional<Departamento> optionalDepartamento = departamentoService.findByClave(uuid);
 		if(!optionalDepartamento.isPresent()) {
-			return new ResponseEntity<Boolean>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
 		Departamento response = optionalDepartamento.get();
 		if(!response.getIdEscuela().equals(idEscuela)) {
-			return new ResponseEntity<Boolean>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		departamentoService.deleteById(optionalDepartamento.get().getId());
-		return new ResponseEntity<Boolean>(true,HttpStatus.OK);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }

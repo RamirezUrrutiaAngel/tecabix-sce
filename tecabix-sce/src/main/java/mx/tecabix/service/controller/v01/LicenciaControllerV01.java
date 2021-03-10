@@ -180,26 +180,26 @@ public class LicenciaControllerV01 extends Auth{
 	}
 	
 	@DeleteMapping("deleteByClave")
-	public ResponseEntity<Boolean> deleteById(@RequestParam(value="token") String token, @RequestParam(value="clave") UUID uuid){
+	public ResponseEntity<?> deleteByClave(@RequestParam(value="token") String token, @RequestParam(value="clave") UUID uuid){
 		Sesion sesion = getSessionIfIsAuthorized(token,LICENCIA_ELIMINAR);
 		if(sesion == null) {
-			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 		Optional<Catalogo> optionalCatalogoEliminado = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
 		if(!optionalCatalogoEliminado.isPresent()) {
-			return new ResponseEntity<Boolean>(HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		Catalogo catalogoEliminado = optionalCatalogoEliminado.get();
 		Optional<Licencia> optionalLicencia = licenciaService.findByClave(uuid);
 		if(!optionalLicencia.isPresent()) {
-			return new ResponseEntity<Boolean>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		Licencia licencia =  optionalLicencia.get();
 		licencia.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
 		licencia.setFechaDeModificacion(LocalDateTime.now());
 		licencia.setEstatus(catalogoEliminado);
 		licencia = licenciaService.update(licencia);
-		return new ResponseEntity<Boolean>(true,HttpStatus.OK);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
 	

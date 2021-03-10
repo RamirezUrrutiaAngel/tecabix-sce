@@ -379,23 +379,23 @@ public class AuthorityControllerV01 extends Auth{
 	
 	@ApiOperation(value = "Elimina la entity con sus correspondientes sub Authority.")
 	@DeleteMapping()
-	public ResponseEntity<Boolean> delete(@RequestParam(value="token") String token, @RequestParam(value="clave") UUID uuid){
+	public ResponseEntity<?> delete(@RequestParam(value="token") String token, @RequestParam(value="clave") UUID uuid){
 		Sesion sesion = getSessionIfIsAuthorized(token, AUTHORITY);
 		if(sesion == null) {
-			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 		Optional<Authority> optionalAuthorityViejo =  authorityService.findByClave(uuid);
 		if(!optionalAuthorityViejo.isPresent()) {
-			return new ResponseEntity<Boolean>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		Authority authorityViejo = optionalAuthorityViejo.get();
 		Optional<Authority> authorityPadreOptional = authorityService.findByNombre(AUTENTIFICADOS);
 		if(!authorityPadreOptional.isPresent()) {
-			return new ResponseEntity<Boolean>(HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		Authority authorityPadre = authorityPadreOptional.get(); 
 		if(!authorityPadre.equals(authorityViejo.getPreAuthority())) {
-			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 		List<Authority> listaDeAuthoritiesPorBorrar = authorityViejo.getSubAuthority();
 		for (Authority authorityItem : listaDeAuthoritiesPorBorrar) {
@@ -417,6 +417,6 @@ public class AuthorityControllerV01 extends Auth{
 			perfilAuthorityService.deleteById(perfilAuthority.getId());
 		}
 		authorityService.deleteById(authorityViejo.getId());
-		return new ResponseEntity<Boolean>(true,HttpStatus.OK);
+		return new ResponseEntity<Boolean>(HttpStatus.OK);
 	}
 }

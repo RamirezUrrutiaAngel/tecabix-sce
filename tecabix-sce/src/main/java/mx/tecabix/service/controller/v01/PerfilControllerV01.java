@@ -204,25 +204,25 @@ public class PerfilControllerV01 extends Auth{
 		return new ResponseEntity<Perfil>(perfilAux,HttpStatus.OK);
 	}
 	@DeleteMapping
-	public ResponseEntity<Boolean> delete(@RequestParam(value="token") String token,@RequestParam Long idPerfil){
+	public ResponseEntity<?> delete(@RequestParam(value="token") String token,@RequestParam Long idPerfil){
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, PERFIL_ELIMINAR);
 		if(sesion == null){
-			return new ResponseEntity<Boolean>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 
 		Optional<Perfil> perfilOptional = perfilService.findById(idPerfil);
 		
 		if(!perfilOptional.isPresent() ) {
-			return new ResponseEntity<Boolean>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		Perfil perfil = perfilOptional.get();
 		if(perfil.getIdEscuela().longValue() != sesion.getLicencia().getPlantel().getIdEscuela().longValue()) {
-			return new ResponseEntity<Boolean>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		Optional<Catalogo> optionalCatalogoEliminado = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
 		if(!optionalCatalogoEliminado.isPresent()) {
-			return new ResponseEntity<Boolean>(HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		final Catalogo CAT_ELIMINADO = optionalCatalogoEliminado.get();
 		
@@ -231,7 +231,7 @@ public class PerfilControllerV01 extends Auth{
 		perfil.setFechaDeModificacion(LocalDateTime.now());
 		perfil = perfilService.update(perfil);
 		perfilService.deleteById(perfil.getId());
-		return new ResponseEntity<Boolean>(true,HttpStatus.OK);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
 }
