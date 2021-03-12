@@ -18,7 +18,6 @@
 package mx.tecabix.db.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -32,9 +31,6 @@ import mx.tecabix.db.entity.Sesion;
  * 
  */
 public interface SesionRepository extends JpaRepository<Sesion, Long>{
-
-	@Query(value = "SELECT MD5(?1)", nativeQuery = true)
-	String getMD5(String text);
 	
 	Page<Sesion> findByActive(Long idEscuela,Pageable pageable);
 	Page<Sesion> findByActiveAndLikeUsuario(Long idEscuela,String usuario,Pageable pageable);
@@ -46,7 +42,7 @@ public interface SesionRepository extends JpaRepository<Sesion, Long>{
 	Page<Sesion> findByNow(Long idLicencia,Pageable pageable);
 	Page<Sesion> findByUsuarioAndNow(Long idLicencia,Long idUsuari, Pageable pageable);
 	
-	Sesion findByToken(String keyToken);
+	Sesion findByToken(UUID keyToken);
 	Optional<Sesion> findByClave(UUID uuid);
 	
 }

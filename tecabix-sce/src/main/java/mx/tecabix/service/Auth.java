@@ -20,6 +20,8 @@ package mx.tecabix.service;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -55,7 +57,7 @@ public class Auth extends Notificacion{
 		return false;
 	}
 	
-	protected boolean isAuthorized(String token, String... authorities) {
+	protected boolean isAuthorized(UUID token, String... authorities) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if(authorities != null && authorities.length > 0) {
 			if(!hash(auth, authorities)) {
@@ -77,11 +79,11 @@ public class Auth extends Notificacion{
 		return true;
 	}
 	
-	protected boolean isNotAuthorized(String token, String... authorities) {
+	protected boolean isNotAuthorized(UUID token, String... authorities) {
 		return !isAuthorized(token, authorities);
 	}
 	
-	protected Sesion getSessionIfIsAuthorized(String token, String... authorities) {
+	protected Sesion getSessionIfIsAuthorized(UUID token, String... authorities) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if(authorities != null && authorities.length > 0) {
 			if(!hash(auth, authorities)) {
@@ -103,14 +105,87 @@ public class Auth extends Notificacion{
 		return sesion;
 	}
 	
-	protected boolean validateArg(Object... args) {
+	public static final byte TIPO_OBJECT = -1;
+	public static final byte TIPO_ALFA = 0;
+	public static final byte TIPO_ALFA_NUMERIC = 1;
+	public static final byte TIPO_ALFA_NUMERIC_SPACE = 2;
+	public static final byte TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS = 3;
+	public static final byte TIPO_TEL = 4;
+	public static final byte TIPO_EMAIL = 5;
+	public static final byte TIPO_NUMERIC = 6;
+	public static final byte TIPO_VARIABLE = 7;
+	public static final byte TIPO_NUMERIC_SPACE = 8;
+	public static final byte TIPO_NUMERIC_NATURAL = 9;
+	public static final byte TIPO_NUMERIC_POSITIVO = 10;
+	public static final byte TIPO_NUMERIC_NEGATIVO = 11;
+	
+	private static final String ALFA = "[a-zA-Z[áéíóúÁÉÍÓÚñÑ]]*";
+	private static final String ALFA_NUMERIC = "[a-zA-Z0-9[áéíóúÁÉÍÓÚñÑ]]*";
+	private static final String ALFA_NUMERIC_SPACE = "[a-zA-Z0-9[áéíóúÁÉÍÓÚñÑ\\s]]*";
+	private static final String ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS = "[a-zA-Z0-9[.,():¿?!¡_&%$#@|áéíóúÁÉÍÓÚñÑ\\s]]*";
+	private static final String TEL = "[0-9[()\\s]]*";
+	private static final String EMAIL = "[a-zA-Z0-9[._]]*[@]{1}[a-zA-Z0-9[.]]*";
+	private static final String VARIABLE = "[a-zA-Z]*[a-zA-Z0-9[_]]*";
+	private static final String NUMERIC = "[0-9]*";
+	private static final String NUMERIC_SPACE = "[0-9[\\s]]*";
+	
+	protected boolean isNotValid(Object arg) {
+		return isNotValid(TIPO_OBJECT, arg);
+	}
+	protected boolean isValid(Object arg) {
+		return isValid(TIPO_OBJECT, arg);
+	}
+	
+	protected boolean isNotValid(byte tipo, Object... args) {
+		return !isValid(tipo, args);
+	}
+	protected boolean isValid(byte tipo, Object... args) {
 		for (Object arg : args) {
 			if(arg == null) {
 				return false;
 			}
-			if(arg.getClass().equals(String.class)) {
-				if(arg.toString().isEmpty()) {
+			if(arg.getClass().equals(String.class) || arg.getClass().equals(StringBuilder.class)) {
+				String text = arg.toString();
+				if(text.isEmpty()) {
 					return false;
+				}
+				if(tipo == TIPO_ALFA) {
+					return Pattern.matches(ALFA, text);
+				}else if(tipo == TIPO_ALFA_NUMERIC) {
+					return Pattern.matches(ALFA_NUMERIC, text);
+				}else if(tipo == TIPO_ALFA_NUMERIC_SPACE) {
+					return Pattern.matches(ALFA_NUMERIC_SPACE, text);
+				}else if(tipo == TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS) {
+					return Pattern.matches(ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, text);
+				}else if(tipo == TIPO_TEL) {
+					return Pattern.matches(TEL, text);
+				}else if(tipo == TIPO_EMAIL) {
+					return Pattern.matches(EMAIL, text);
+				}else if(tipo == TIPO_NUMERIC) {
+					return Pattern.matches(NUMERIC, text);
+				}else if(tipo == TIPO_NUMERIC_SPACE) {
+					return Pattern.matches(NUMERIC_SPACE, text);
+				}else if(tipo == TIPO_VARIABLE){
+					return Pattern.matches(VARIABLE, text);
+				}
+			}else if(arg.getClass().equals(Integer.class) || arg.getClass().equals(Long.class)) {
+				Long num = Long.parseLong(arg.toString());
+				if(tipo == TIPO_NUMERIC_NATURAL) {
+					return num > 0;
+				}else if(tipo == TIPO_NUMERIC_POSITIVO) {
+					return num > -1;
+				}else if(tipo == TIPO_NUMERIC_NEGATIVO) {
+					return num < 0;
+				}
+			}else  if(arg.getClass().equals(Float.class) || arg.getClass().equals(Double.class)) {
+				Double num = Double.parseDouble(arg.toString());
+				if(tipo == TIPO_NUMERIC_NATURAL) {
+					long aux = num.longValue();
+					return num > 0 && aux == num.doubleValue();
+				}else if(tipo == TIPO_NUMERIC_POSITIVO) {
+					return num > -1;
+				}else if(tipo == TIPO_NUMERIC_NEGATIVO) {
+					return num < 0;
 				}
 			}
 		}

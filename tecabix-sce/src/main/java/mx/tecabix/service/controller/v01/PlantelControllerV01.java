@@ -19,6 +19,7 @@ package mx.tecabix.service.controller.v01;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -68,7 +69,7 @@ public class PlantelControllerV01 extends Auth{
 	
 	@GetMapping
 	private ResponseEntity<Page<Plantel>> get(
-			@RequestParam(value="token") String token, 
+			@RequestParam(value="token") UUID token, 
 			@RequestParam(value="elements") byte elements,
 			@RequestParam(value="page") short page) {
 
@@ -82,7 +83,7 @@ public class PlantelControllerV01 extends Auth{
 	}
 	
 	@PostMapping
-	private ResponseEntity<Plantel> post(@RequestParam(value="token") String token, @RequestBody Plantel plantel){
+	private ResponseEntity<Plantel> post(@RequestParam(value="token") UUID token, @RequestBody Plantel plantel){
 		Sesion sesion = getSessionIfIsAuthorized(token, PLANTEL_CREAR);
 		if(sesion == null){
 			return new ResponseEntity<Plantel>(HttpStatus.UNAUTHORIZED);
@@ -143,7 +144,7 @@ public class PlantelControllerV01 extends Auth{
 	}
 	
 	@PutMapping
-	private ResponseEntity<Plantel> put(@RequestParam(value="token") String token, @RequestBody Plantel plantel){
+	private ResponseEntity<Plantel> put(@RequestParam(value="token") UUID token, @RequestBody Plantel plantel){
 		Sesion sesion = getSessionIfIsAuthorized(token, PLANTEL_EDITAR);
 		if(sesion == null){
 			return new ResponseEntity<Plantel>(HttpStatus.UNAUTHORIZED);

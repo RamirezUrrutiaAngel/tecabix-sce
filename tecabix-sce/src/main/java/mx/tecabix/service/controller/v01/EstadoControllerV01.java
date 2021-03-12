@@ -18,6 +18,7 @@
 package mx.tecabix.service.controller.v01;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,7 +49,7 @@ public class EstadoControllerV01 extends Auth{
 	private SesionService sesionService;
 	
 	@GetMapping("all")
-	public ResponseEntity<List<Estado>> all(@RequestParam(value="token") String token) {
+	public ResponseEntity<List<Estado>> all(@RequestParam(value="token") UUID token) {
 		Sesion sesion = sesionService.findByToken(token);
 		if(sesion == null) {
 			return new ResponseEntity<List<Estado>>(HttpStatus.UNAUTHORIZED);
@@ -62,7 +63,7 @@ public class EstadoControllerV01 extends Auth{
 	
 	// INICIO DE SERVICIO NO PROTEGIDO CON AUTENTIFICACION
 	@GetMapping("all-join-municipio")
-	public ResponseEntity<List<Estado>> allJoinMunicipio(@RequestParam(value="token") String token) {
+	public ResponseEntity<List<Estado>> allJoinMunicipio(@RequestParam(value="token") UUID token) {
 		Sesion sesion = sesionService.findByToken(token);
 		if(sesion == null) {
 			return new ResponseEntity<List<Estado>>(HttpStatus.UNAUTHORIZED);

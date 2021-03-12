@@ -19,6 +19,7 @@ package mx.tecabix.service.controller.v01;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -98,7 +99,7 @@ public class TrabajadorControllerV01 extends Auth{
 			@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
 			@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso.") })
 	@GetMapping
-	public ResponseEntity<Trabajador> findByUsuario(@RequestParam(value="token") String token) {
+	public ResponseEntity<Trabajador> findByUsuario(@RequestParam(value="token") UUID token) {
 		Sesion sesion = getSessionIfIsAuthorized(token);
 		if(sesion == null) {
 			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
@@ -116,7 +117,7 @@ public class TrabajadorControllerV01 extends Auth{
 			@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
 			@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso.") })
 	@GetMapping("findAll")
-	public ResponseEntity<Page<Trabajador>> findAll(@RequestParam(value="token") String token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
+	public ResponseEntity<Page<Trabajador>> findAll(@RequestParam(value="token") UUID token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
 
 		Sesion sesion = getSessionIfIsAuthorized(token, TRABAJADOR);
 		if(sesion == null) {
@@ -132,7 +133,7 @@ public class TrabajadorControllerV01 extends Auth{
 			@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
 			@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso.") })
 	@GetMapping("findAllByNombre")
-	public ResponseEntity<Page<Trabajador>> findAllByNombre(@RequestParam(value="token") String token, @RequestParam(value="nombre") String nombre,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
+	public ResponseEntity<Page<Trabajador>> findAllByNombre(@RequestParam(value="token") UUID token, @RequestParam(value="nombre") String nombre,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
 		Sesion sesion = getSessionIfIsAuthorized(token, TRABAJADOR);
 		if(sesion == null) {
 			return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
@@ -150,7 +151,7 @@ public class TrabajadorControllerV01 extends Auth{
 			@ApiResponse(code = 406, message = "Uno o varios datos ingresados no son validos para procesar la petición."),
 			@ApiResponse(code = 409, message = "La petición no pudo realizarse por que el usuario que se intenta guardar ya existe.") })
 	@PostMapping
-	public ResponseEntity<Trabajador> save(@RequestBody Trabajador trabajador, @RequestParam(value="token") String token) {
+	public ResponseEntity<Trabajador> save(@RequestBody Trabajador trabajador, @RequestParam(value="token") UUID token) {
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, TRABAJADOR_CREAR);
 		if(sesion == null) {
@@ -293,7 +294,7 @@ public class TrabajadorControllerV01 extends Auth{
 				@ApiResponse(code = 409, message = "La petición no pudo realizarse por que el usuario que se intenta guardar ya existe.")
 			})
 	@PutMapping("activar")
-	public ResponseEntity<Trabajador> activar(@RequestParam(value="id") Long id, @RequestParam(value="token") String token) {
+	public ResponseEntity<Trabajador> activar(@RequestParam(value="id") Long id, @RequestParam(value="token") UUID token) {
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, TRABAJADOR_ACTIVAR);
 		if(sesion == null) {
@@ -335,7 +336,7 @@ public class TrabajadorControllerV01 extends Auth{
 	
 	@ApiOperation(value = "Eliminar trabajador y dependencias")
 	@DeleteMapping("delete")
-	public ResponseEntity<Trabajador> delete(@RequestParam(value="id") Long id, @RequestParam(value="token") String token) {
+	public ResponseEntity<Trabajador> delete(@RequestParam(value="id") Long id, @RequestParam(value="token") UUID token) {
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, TRABAJADOR_ELIMINAR);
 		if(sesion == null) {

@@ -60,6 +60,9 @@ public class Servicio  implements Serializable{
     private String nombre;
     @Column(name = "descripcion")
     private String descripcion;
+    @ManyToOne
+    @JoinColumn(name = "id_tipo")
+    private Catalogo tipo;
     @Column(name = "peticiones")
     private Integer peticiones;
     @Column(name = "id_usuario_modificado")
@@ -91,6 +94,12 @@ public class Servicio  implements Serializable{
 	}
 	public void setDescripcion(String descripcion) {
 		this.descripcion = descripcion;
+	}
+	public Catalogo getTipo() {
+		return tipo;
+	}
+	public void setTipo(Catalogo tipo) {
+		this.tipo = tipo;
 	}
 	public Integer getPeticiones() {
 		return peticiones;

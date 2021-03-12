@@ -61,9 +61,6 @@ public class SesionServiceImpl extends GenericSeviceImpl<Sesion, Long> implement
 
 	@Override
 	public Sesion save(Sesion save) {
-		String time = LocalDateTime.now().toString();
-		String key = sesionRepository.getMD5(time);
-		save.setToken(key);
 		save = sesionRepository.save(save);
 		return save;
 	}
@@ -90,13 +87,13 @@ public class SesionServiceImpl extends GenericSeviceImpl<Sesion, Long> implement
 	}
 
 	@Override
-	public Sesion findByToken(String keyToken) {
+	public Sesion findByToken(UUID keyToken) {
 		synchronized (LOG) {
 			try {
 				Sesion response = sesionRepository.findByToken(keyToken);
 				if(response != null) {
 					LocalDateTime hoy = LocalDateTime.now();
-					if(response.getLicencia().getTipo().getNombre().equals("WEB")) {
+					if(response.getLicencia().getServicio().getTipo().getNombre().equals("WEB")) {
 						if(response.getVencimiento().isBefore(hoy)) {
 							Long idEscuela = response.getLicencia().getPlantel().getIdEscuela();
 							Optional<Suscripcion> optionalSuscripsion = suscripcionService.findByIdEscuelaAndValid(idEscuela);

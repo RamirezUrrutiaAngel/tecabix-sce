@@ -71,7 +71,7 @@ public class BancoControllerV01 extends Auth{
 			notes = "<b>by:</b> NOMBRE, RAZON_SOCIAL, CLAVE_BANCO<br/><b>order:</b> ASC, DESC")
 	@GetMapping()
 	public ResponseEntity<BancoPage> find(
-			@RequestParam(value="token") String token,
+			@RequestParam(value="token") UUID token,
 			@RequestParam(value="search", required = false) String search,
 			@RequestParam(value="by", defaultValue = "NOMBRE") String by,
 			@RequestParam(value="order", defaultValue = "ASC") String order,
@@ -118,7 +118,7 @@ public class BancoControllerV01 extends Auth{
 	
 	@ApiOperation(value = "Obtiene el bancos por Clave.")
 	@GetMapping("findByClave")
-	public ResponseEntity<Banco> findByClave(@RequestParam(value="token") String token,@RequestParam(value="clave") UUID uuid) {
+	public ResponseEntity<Banco> findByClave(@RequestParam(value="token") UUID token,@RequestParam(value="clave") UUID uuid) {
 		if(isNotAuthorized(token, BANCO, ROOT_BANCO)) {
 			return new ResponseEntity<Banco>(HttpStatus.UNAUTHORIZED);
 		}
@@ -132,7 +132,7 @@ public class BancoControllerV01 extends Auth{
 	
 	@ApiOperation(value = "Persiste la entidad del Banco. ")
 	@PostMapping
-	public ResponseEntity<Banco> save(@RequestParam(value="token") String token, @RequestBody Banco banco){
+	public ResponseEntity<Banco> save(@RequestParam(value="token") UUID token, @RequestBody Banco banco){
 		Sesion sesion = getSessionIfIsAuthorized(token, ROOT_BANCO_CREAR);
 		if(sesion == null) {
 			return new ResponseEntity<Banco>(HttpStatus.UNAUTHORIZED);
@@ -156,7 +156,7 @@ public class BancoControllerV01 extends Auth{
 	
 	@ApiOperation(value = "Actualiza la entidad del Banco. ")
 	@PutMapping
-	public ResponseEntity<Banco> update(@RequestParam(value="token") String token, @RequestBody Banco banco){
+	public ResponseEntity<Banco> update(@RequestParam(value="token") UUID token, @RequestBody Banco banco){
 		Sesion sesion = getSessionIfIsAuthorized(token, ROOT_BANCO_EDITAR);
 		if(sesion == null) {
 			return new ResponseEntity<Banco>(HttpStatus.UNAUTHORIZED);
@@ -189,7 +189,7 @@ public class BancoControllerV01 extends Auth{
 	
 	@ApiOperation(value = "Elimina la entidad del Banco por clave. ")
 	@DeleteMapping
-	public ResponseEntity<?> delete(@RequestParam(value="token") String token,@RequestParam(value="clave") UUID clave) {
+	public ResponseEntity<?> delete(@RequestParam(value="token") UUID token,@RequestParam(value="clave") UUID clave) {
 		if(isNotAuthorized(token,ROOT_BANCO_ELIMINAR)) {
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}

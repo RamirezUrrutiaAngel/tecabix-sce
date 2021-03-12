@@ -81,7 +81,7 @@ public class SesionControllerV01 extends Auth {
 	
 	private final String SESION_ELIMINAR = "SESION_ELIMINAR";
 
-	private final String TIPO_DE_LICENCIA = "TIPO_DE_LICENCIA";
+	private final String TIPO_DE_SERVICIO = "TIPO_DE_SERVICIO";
 	private final String WEB = "WEB";
 	
 	@GetMapping("validateUsrPasw")
@@ -90,7 +90,7 @@ public class SesionControllerV01 extends Auth {
 	}
 
 	@PostMapping
-	public ResponseEntity<Sesion> post(@RequestParam(value="key") String key){
+	public ResponseEntity<Sesion> post(@RequestParam(value="key") UUID key){
 		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String usuarioName = auth.getName();
@@ -107,14 +107,14 @@ public class SesionControllerV01 extends Auth {
 			return new ResponseEntity<Sesion>(HttpStatus.LOCKED);
 		}
 		
-		Optional<Catalogo> optionalCatalogoTipoLicencia = catalogoService.findByTipoAndNombre(TIPO_DE_LICENCIA, WEB);
+		Optional<Catalogo> optionalCatalogoTipoLicencia = catalogoService.findByTipoAndNombre(TIPO_DE_SERVICIO, WEB);
 		if(!optionalCatalogoTipoLicencia.isPresent()) {
 			return new ResponseEntity<Sesion>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		final Catalogo catalogoTipoLicenciaWeb = optionalCatalogoTipoLicencia.get();
 		Integer peticionesRestantes = 0;
 		LocalDateTime vencimiento = LocalDateTime.now();
-		if(licencia.getTipo().getId().intValue() == catalogoTipoLicenciaWeb.getId().intValue()) {
+		if(licencia.getServicio().getTipo().getId().intValue() == catalogoTipoLicenciaWeb.getId().intValue()) {
 			vencimiento = LocalDateTime.of(vencimiento.toLocalDate(),LocalTime.of(23, 59));
 			
 			List<Sesion> sesionesAviertas = sesionService.findByUsuarioAndActive(licencia.getId(), usuario.getId(),Integer.MAX_VALUE,0).getContent();
@@ -180,7 +180,7 @@ public class SesionControllerV01 extends Auth {
 	
 	
 	@GetMapping("thisSesion")
-	public ResponseEntity<Sesion> thisSesion(@RequestParam(value="token") String token){
+	public ResponseEntity<Sesion> thisSesion(@RequestParam(value="token") UUID token){
 
 		Sesion sesion = getSessionIfIsAuthorized(token);
 		if(sesion == null) {
@@ -191,7 +191,7 @@ public class SesionControllerV01 extends Auth {
 	}
 	
 	@DeleteMapping
-	public ResponseEntity<Sesion> delete(@RequestParam(value="token") String token){
+	public ResponseEntity<Sesion> delete(@RequestParam(value="token") UUID token){
 		Sesion sesion = getSessionIfIsAuthorized(token);
 		if(sesion == null) {
 			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
@@ -205,7 +205,7 @@ public class SesionControllerV01 extends Auth {
 	}
 	
 	@DeleteMapping("deleteByClave")
-	public ResponseEntity<Sesion> deleteById(@RequestParam(value="token") String token, @RequestParam(value="clave") UUID uuid){
+	public ResponseEntity<Sesion> deleteById(@RequestParam(value="token") UUID token, @RequestParam(value="clave") UUID uuid){
 		Sesion sesion = getSessionIfIsAuthorized(token,SESION_ELIMINAR);
 		if(sesion == null) {
 			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);
@@ -226,7 +226,7 @@ public class SesionControllerV01 extends Auth {
 	}
 	
 	@DeleteMapping("deleteRoot")
-	public ResponseEntity<Sesion> deleteRoot(@RequestParam(value="token") String token, @RequestParam(value="clave") UUID uuid){
+	public ResponseEntity<Sesion> deleteRoot(@RequestParam(value="token") UUID token, @RequestParam(value="clave") UUID uuid){
 		Sesion sesion = getSessionIfIsAuthorized(token,ROOT_SESION_ELIMINAR);
 		if(sesion == null) {
 			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);
@@ -248,7 +248,7 @@ public class SesionControllerV01 extends Auth {
 	
 	@GetMapping()
 	public ResponseEntity<SesionPage> find(
-			@RequestParam(value="token") String token,
+			@RequestParam(value="token") UUID token,
 			@RequestParam(value="search", required = false) String search,
 			@RequestParam(value="by", defaultValue = "USUARIO") String by,
 			@RequestParam(value="elements") byte elements,

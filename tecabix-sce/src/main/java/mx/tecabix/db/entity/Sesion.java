@@ -53,7 +53,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
     @NamedQuery(name = "Sesion.findByActiveAndLikeServicio",query = "SELECT s FROM Sesion s WHERE s.licencia.plantel.idEscuela = ?1 AND vencimiento > NOW() AND peticionesRestantes > 0 AND UPPER(s.licencia.servicio.nombre) LIKE UPPER(?2) AND s.estatus.nombre = 'ACTIVO' "),
     @NamedQuery(name = "Sesion.findByLicenciaAndActive",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND vencimiento > NOW() AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' "),
     @NamedQuery(name = "Sesion.findByUsuarioAndActive",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND s.usuario.id = ?2 AND vencimiento > NOW() AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' "),
-    @NamedQuery(name = "Sesion.findByToken",query = "SELECT s FROM Sesion s WHERE s.token = ?1 AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' AND ( s.licencia.tipo.nombre = 'WEB' OR s.vencimiento > NOW() )"),
+    @NamedQuery(name = "Sesion.findByToken",query = "SELECT s FROM Sesion s WHERE s.clave = ?1 AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' AND ( s.licencia.servicio.tipo.nombre = 'WEB' OR s.vencimiento > NOW() )"),
     @NamedQuery(name = "Sesion.findByNow",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND DATE(s.vencimiento) = DATE(NOW()) ORDER BY s.peticionesRestantes"),
     @NamedQuery(name = "Sesion.findByUsuarioAndNow",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND s.usuario.id = ?2 AND DATE(s.fechaDeModificacion) = DATE(NOW()) ORDER BY s.peticionesRestantes")
 })
@@ -69,8 +69,6 @@ public class Sesion implements Serializable{
 	@ManyToOne
     @JoinColumn(name = "id_usuario")
 	private Usuario usuario;
-    @Column(name = "key_token")
-    private String token;
     @Column(name = "vencimiento")
     private LocalDateTime vencimiento;
     @ManyToOne
@@ -82,7 +80,6 @@ public class Sesion implements Serializable{
     @JsonProperty(access = Access.WRITE_ONLY)
     private Long idUsuarioModificado;
     @Column(name = "fecha_modificado")
-    @JsonProperty(access = Access.WRITE_ONLY)
     private LocalDateTime fechaDeModificacion;
     @ManyToOne
     @JoinColumn(name = "id_estatus")
@@ -101,12 +98,6 @@ public class Sesion implements Serializable{
 	}
 	public void setUsuario(Usuario usuario) {
 		this.usuario = usuario;
-	}
-	public String getToken() {
-		return token;
-	}
-	public void setToken(String token) {
-		this.token = token;
 	}
 	public LocalDateTime getVencimiento() {
 		return vencimiento;

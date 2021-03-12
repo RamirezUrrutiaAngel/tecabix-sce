@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -71,7 +72,7 @@ public class PerfilControllerV01 extends Auth{
 	private final String ELIMINADO = "ELIMINADO";
 	
 	@GetMapping
-	public ResponseEntity<Perfil> get(@RequestParam(value="token") String token) {
+	public ResponseEntity<Perfil> get(@RequestParam(value="token") UUID token) {
 		Sesion sesion = getSessionIfIsAuthorized(token);
 		if(sesion == null){
 			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
@@ -88,7 +89,7 @@ public class PerfilControllerV01 extends Auth{
 	}
 	
 	@GetMapping("findAll")
-	public ResponseEntity<PerfilPage> findAll(@RequestParam(value="token") String token, byte elements, short page) {
+	public ResponseEntity<PerfilPage> findAll(@RequestParam(value="token") UUID token, byte elements, short page) {
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, PERFIL);
 		if(sesion == null){
@@ -101,7 +102,7 @@ public class PerfilControllerV01 extends Auth{
 	}
 	
 	@GetMapping("findAllByNombre")
-	public ResponseEntity<PerfilPage> findAllByNombre(@RequestParam(value="token") String token, @RequestParam(value="nombre") String nombre, byte elements, short page) {
+	public ResponseEntity<PerfilPage> findAllByNombre(@RequestParam(value="token") UUID token, @RequestParam(value="nombre") String nombre, byte elements, short page) {
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, PERFIL);
 		if(sesion == null){
@@ -114,7 +115,7 @@ public class PerfilControllerV01 extends Auth{
 	}
 	
 	@PostMapping
-	public ResponseEntity<Perfil> save(@RequestParam(value="token") String token,@RequestBody Perfil perfil){
+	public ResponseEntity<Perfil> save(@RequestParam(value="token") UUID token,@RequestBody Perfil perfil){
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, PERFIL_CREAR);
 		if(sesion == null){
@@ -159,7 +160,7 @@ public class PerfilControllerV01 extends Auth{
 	}
 	
 	@PutMapping
-	public ResponseEntity<Perfil> update(@RequestParam(value="token") String token,@RequestBody Perfil perfil){
+	public ResponseEntity<Perfil> update(@RequestParam(value="token") UUID token,@RequestBody Perfil perfil){
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, PERFIL_EDITAR);
 		if(sesion == null){
@@ -204,7 +205,7 @@ public class PerfilControllerV01 extends Auth{
 		return new ResponseEntity<Perfil>(perfilAux,HttpStatus.OK);
 	}
 	@DeleteMapping
-	public ResponseEntity<?> delete(@RequestParam(value="token") String token,@RequestParam Long idPerfil){
+	public ResponseEntity<?> delete(@RequestParam(value="token") UUID token,@RequestParam Long idPerfil){
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, PERFIL_ELIMINAR);
 		if(sesion == null){

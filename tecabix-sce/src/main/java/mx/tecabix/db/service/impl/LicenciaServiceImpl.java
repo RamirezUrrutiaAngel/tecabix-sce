@@ -51,7 +51,7 @@ public class LicenciaServiceImpl extends GenericSeviceImpl<Licencia, Long> imple
 	}
 	
 	@Override
-	public Licencia findByToken(String key) {
+	public Licencia findByToken(UUID key) {
 		Licencia response = licenciaRepository.findByToken(key);
 		return response;
 	}
@@ -72,8 +72,6 @@ public class LicenciaServiceImpl extends GenericSeviceImpl<Licencia, Long> imple
 
 	@Override
 	public Licencia save(Licencia entity) {
-		String key = licenciaRepository.getMD5(String.valueOf(System.currentTimeMillis()));
-		entity.setToken(key);
 		return super.save(entity);
 	}
 

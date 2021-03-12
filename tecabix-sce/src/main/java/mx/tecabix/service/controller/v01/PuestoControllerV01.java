@@ -19,6 +19,7 @@ package mx.tecabix.service.controller.v01;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -71,7 +72,7 @@ public class PuestoControllerV01 extends Auth{
 	private final String ACTIVO = "ACTIVO";
 	
 	@GetMapping
-	public ResponseEntity<Puesto> get(@RequestParam(value="token") String token){
+	public ResponseEntity<Puesto> get(@RequestParam(value="token") UUID token){
 		Sesion sesion = getSessionIfIsAuthorized(token);
 		if(sesion == null) {
 			return new ResponseEntity<Puesto>(HttpStatus.UNAUTHORIZED);
@@ -86,7 +87,7 @@ public class PuestoControllerV01 extends Auth{
 		return new ResponseEntity<Puesto>(body,HttpStatus.OK);
 	}
 	@GetMapping("findAll")
-	public ResponseEntity<Page<Puesto>> findAll(@RequestParam(value="token") String token, byte elements, short page) {
+	public ResponseEntity<Page<Puesto>> findAll(@RequestParam(value="token") UUID token, byte elements, short page) {
 		Sesion sesion = getSessionIfIsAuthorized(token, PUESTO);
 		if(sesion == null) {
 			return new ResponseEntity<Page<Puesto>>(HttpStatus.UNAUTHORIZED);
@@ -97,7 +98,7 @@ public class PuestoControllerV01 extends Auth{
 	}
 	
 	@PostMapping
-	public ResponseEntity<Puesto> save(@RequestParam(value="token") String token,@RequestBody Puesto puesto){
+	public ResponseEntity<Puesto> save(@RequestParam(value="token") UUID token,@RequestBody Puesto puesto){
 		Sesion sesion = getSessionIfIsAuthorized(token, PUESTO_CREAR);
 		if(sesion == null) {
 			return new ResponseEntity<Puesto>(HttpStatus.UNAUTHORIZED);
@@ -136,7 +137,7 @@ public class PuestoControllerV01 extends Auth{
 	}
 	
 	@PutMapping
-	public ResponseEntity<Puesto> update(@RequestParam(value="token") String token,@RequestBody Puesto puesto){
+	public ResponseEntity<Puesto> update(@RequestParam(value="token") UUID token,@RequestBody Puesto puesto){
 		Sesion sesion = getSessionIfIsAuthorized(token, PUESTOS_EDITAR);
 		if(sesion == null) {
 			return new ResponseEntity<Puesto>(HttpStatus.UNAUTHORIZED);

@@ -80,7 +80,7 @@ public class LicenciaControllerV01 extends Auth{
 	
 	@GetMapping
 	public ResponseEntity<Page<Licencia>> get(
-			@RequestParam(value="token") String token,
+			@RequestParam(value="token") UUID token,
 			@RequestParam(value="elements") byte elements,
 			@RequestParam(value="page") short page) {
 		
@@ -95,7 +95,7 @@ public class LicenciaControllerV01 extends Auth{
 	
 	@GetMapping("findAll")
 	public ResponseEntity<Page<Licencia>> findAll(
-			@RequestParam(value="token") String token,
+			@RequestParam(value="token") UUID token,
 			@RequestParam(value="elements") byte elements,
 			@RequestParam(value="page") short page) {
 		
@@ -108,7 +108,7 @@ public class LicenciaControllerV01 extends Auth{
 	
 	@GetMapping("findByIdEscuela")
 	public ResponseEntity<Page<Licencia>> findByIdEscuela(
-			@RequestParam(value="token") String token,
+			@RequestParam(value="token") UUID token,
 			@RequestParam(value="idEscuela") Long idEscuela,
 			@RequestParam(value="elements") byte elements,
 			@RequestParam(value="page") short page) {
@@ -122,8 +122,7 @@ public class LicenciaControllerV01 extends Auth{
 	
 	@PostMapping
 	public ResponseEntity<Licencia> save(
-			@RequestParam(value="token") String token,
-			@RequestParam(value="tipo") String tipo,
+			@RequestParam(value="token") UUID token,
 			@RequestParam(value="nombre") String nombre,
 			@RequestParam(value="servicio") String servicio){
 		
@@ -132,10 +131,6 @@ public class LicenciaControllerV01 extends Auth{
 		Sesion sesion = getSessionIfIsAuthorized(token, LICENCIA_CREAR);
 		if(sesion == null) {
 			return new ResponseEntity<Licencia>(HttpStatus.UNAUTHORIZED);
-		}
-		Optional<Catalogo> optionalCatalogoTipo = catalogoService.findByTipoAndNombre("TIPO_DE_LICENCIA", tipo);
-		if(!optionalCatalogoTipo.isPresent()) {
-			return new ResponseEntity<Licencia>(HttpStatus.BAD_REQUEST);
 		}
 		Optional<Servicio> optionalServicio = servicioService.findByNombre(servicio);
 		if (!optionalServicio.isPresent()) {
@@ -147,7 +142,6 @@ public class LicenciaControllerV01 extends Auth{
 		}
 		final Catalogo CAT_ACTIVO = optionalCatalogoActivo.get();
 		
-		Catalogo catalogoTipo = optionalCatalogoTipo.get();
 		Servicio servicioTipo = optionalServicio.get();
 		Plantel plantel = sesion.getLicencia().getPlantel();
 		
@@ -169,7 +163,6 @@ public class LicenciaControllerV01 extends Auth{
 		}
 		Licencia licencia = new Licencia();
 		licencia.setNombre(nombre);
-		licencia.setTipo(catalogoTipo);
 		licencia.setServicio(servicioTipo);
 		licencia.setPlantel(plantel);
 		licencia.setEstatus(CAT_ACTIVO);
@@ -180,7 +173,7 @@ public class LicenciaControllerV01 extends Auth{
 	}
 	
 	@DeleteMapping("deleteByClave")
-	public ResponseEntity<?> deleteByClave(@RequestParam(value="token") String token, @RequestParam(value="clave") UUID uuid){
+	public ResponseEntity<?> deleteByClave(@RequestParam(value="token") UUID token, @RequestParam(value="clave") UUID uuid){
 		Sesion sesion = getSessionIfIsAuthorized(token,LICENCIA_ELIMINAR);
 		if(sesion == null) {
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);

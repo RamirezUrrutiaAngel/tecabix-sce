@@ -15,27 +15,38 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.db.repository;
+package mx.tecabix.service.page;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.io.Serializable;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
 
-import mx.tecabix.db.entity.Licencia;
+import mx.tecabix.db.entity.Configuracion;
+import mx.tecabix.service.PageGeneric;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface LicenciaRepository extends JpaRepository<Licencia, Long>{
+public class ConfiguracionPage extends PageGeneric implements Serializable{
 
-	Licencia findByToken(UUID key);
-	Page<Licencia> findAll(Pageable pageable);
-	Page<Licencia> findByIdEscuela(Long idEscuela, Pageable pageable);
-	Page<Licencia> findByIdEscuelaAndServicio(Long idEscuela, Integer idServicio, Pageable pageable);
-	Optional<Licencia> findByClave(UUID uuid);
+	private static final long serialVersionUID = -5735495844462742301L;
 	
+	private List<Configuracion> data;
+	
+	public ConfiguracionPage() {}
+	
+	public ConfiguracionPage(Page<Configuracion> data) {
+		super(data);
+		this.data = data.getContent();
+	}
+
+	public List<Configuracion> getData() {
+		return data;
+	}
+
+	public void setData(List<Configuracion> data) {
+		this.data = data;
+	}
 }

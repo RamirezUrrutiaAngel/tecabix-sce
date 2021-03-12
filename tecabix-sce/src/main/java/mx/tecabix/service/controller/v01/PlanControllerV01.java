@@ -18,6 +18,7 @@
 package mx.tecabix.service.controller.v01;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -58,7 +59,7 @@ public class PlanControllerV01 extends Auth {
 	
 	
 	@GetMapping("findAll")
-	public ResponseEntity<Page<Plan>> findAll(@RequestParam(value="token") String token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
+	public ResponseEntity<Page<Plan>> findAll(@RequestParam(value="token") UUID token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
 		Sesion sesion = getSessionIfIsAuthorized(token,ROOT_PLAN);
 		if(sesion == null){
 			return new ResponseEntity<Page<Plan>>(HttpStatus.UNAUTHORIZED);
@@ -68,7 +69,7 @@ public class PlanControllerV01 extends Auth {
 	}	
 	
 	@GetMapping
-	public ResponseEntity<Plan> get(@RequestParam(value="token") String token) {
+	public ResponseEntity<Plan> get(@RequestParam(value="token") UUID token) {
 		Sesion sesion = getSessionIfIsAuthorized(token,PLAN);
 		if(sesion == null){
 			return new ResponseEntity<Plan>(HttpStatus.UNAUTHORIZED);
@@ -83,7 +84,7 @@ public class PlanControllerV01 extends Auth {
 	}
 	
 	@PostMapping
-	public ResponseEntity<Plan> post(@RequestParam(value="token") String token, @RequestBody Plan plan) {
+	public ResponseEntity<Plan> post(@RequestParam(value="token") UUID token, @RequestBody Plan plan) {
 		if(isNotAuthorized(token, ROOT_PLAN_CREAR)) {
 			return new ResponseEntity<Plan>(HttpStatus.UNAUTHORIZED);
 		}
@@ -102,7 +103,7 @@ public class PlanControllerV01 extends Auth {
 	}
 	
 	@PutMapping
-	public ResponseEntity<Plan> put(@RequestParam(value="token") String token, @RequestBody Plan plan) {
+	public ResponseEntity<Plan> put(@RequestParam(value="token") UUID token, @RequestBody Plan plan) {
 		if(isNotAuthorized(token, ROOT_PLAN_EDITAR)) {
 			return new ResponseEntity<Plan>(HttpStatus.UNAUTHORIZED);
 		}

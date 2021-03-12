@@ -19,6 +19,7 @@ package mx.tecabix.service.controller.v01;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -70,7 +71,7 @@ public class UsuarioControllerV01 extends Auth {
 	private final String USUARIO_EDITAR ="USUARIO_EDITAR";
 		
 	@GetMapping
-	public ResponseEntity<Usuario> get(@RequestParam(value="key") String token) {
+	public ResponseEntity<Usuario> get(@RequestParam(value="key") UUID token) {
 		
 		Sesion sesion = getSessionIfIsAuthorized(token);
 		if(sesion == null) {
@@ -91,7 +92,7 @@ public class UsuarioControllerV01 extends Auth {
 	}
 	
 	@PostMapping()
-	public ResponseEntity<Usuario> save(@RequestBody Usuario usuario, @RequestParam(value="token") String token) {
+	public ResponseEntity<Usuario> save(@RequestBody Usuario usuario, @RequestParam(value="token") UUID token) {
 		Sesion sesion = getSessionIfIsAuthorized(token,USUARIO_CREAR);
 		if(sesion == null) {
 			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
@@ -147,7 +148,7 @@ public class UsuarioControllerV01 extends Auth {
 	}
 	
 	@PutMapping
-	public ResponseEntity<Usuario> update(@RequestBody Usuario usuario, @RequestParam(value="token") String token) {
+	public ResponseEntity<Usuario> update(@RequestBody Usuario usuario, @RequestParam(value="token") UUID token) {
 		Sesion sesion = getSessionIfIsAuthorized(token,USUARIO_CREAR);
 		if(sesion == null) {
 			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
@@ -165,7 +166,7 @@ public class UsuarioControllerV01 extends Auth {
 	}
 	
 	@PutMapping("update-usuario")
-	public ResponseEntity<Usuario> updateUsuario(@RequestBody Usuario usuario, @RequestParam(value="token") String token) {
+	public ResponseEntity<Usuario> updateUsuario(@RequestBody Usuario usuario, @RequestParam(value="token") UUID token) {
 		Sesion sesion = getSessionIfIsAuthorized(token,USUARIO_EDITAR);
 		if(sesion == null) {
 			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);

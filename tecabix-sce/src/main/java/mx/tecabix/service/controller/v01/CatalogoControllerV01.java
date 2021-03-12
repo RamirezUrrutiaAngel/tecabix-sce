@@ -19,6 +19,7 @@ package mx.tecabix.service.controller.v01;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -59,7 +60,7 @@ public class CatalogoControllerV01 extends Auth{
 	
 	@ApiOperation(value = "Persiste la entidad del tipo del catalogo con sus correspondientes catalogos. ")
 	@PostMapping("saveCatalogoTipo")
-	public ResponseEntity<CatalogoTipo> saveCatalogoTipo(@RequestParam(value = "token") String token, @RequestBody CatalogoTipo catalogoTipo){
+	public ResponseEntity<CatalogoTipo> saveCatalogoTipo(@RequestParam(value = "token") UUID token, @RequestBody CatalogoTipo catalogoTipo){
 		if(isNotAuthorized(token, CATALOGO)) {
 			return new ResponseEntity<CatalogoTipo>(HttpStatus.UNAUTHORIZED);
 		}
@@ -115,7 +116,7 @@ public class CatalogoControllerV01 extends Auth{
 	
 	@ApiOperation(value = "Persiste la entidad del catalogo a un tipo de catalogo. ")
 	@PostMapping("saveCatalogo")
-	public ResponseEntity<Catalogo> saveCatalogo(@RequestParam(value = "token") String token, @RequestBody Catalogo catalogo){
+	public ResponseEntity<Catalogo> saveCatalogo(@RequestParam(value = "token") UUID token, @RequestBody Catalogo catalogo){
 		
 		if(isNotAuthorized(token, CATALOGO)) {
 			return new ResponseEntity<Catalogo>(HttpStatus.UNAUTHORIZED);
@@ -150,7 +151,7 @@ public class CatalogoControllerV01 extends Auth{
 
 	@ApiOperation(value = "Actualiza la entidad del catalogo de un tipo de catalogo. ")
 	@PutMapping("updateCatalogo")
-	public ResponseEntity<Catalogo> updateCatalogo(@RequestParam(value = "token") String token, @RequestBody Catalogo catalogo){
+	public ResponseEntity<Catalogo> updateCatalogo(@RequestParam(value = "token") UUID token, @RequestBody Catalogo catalogo){
 		
 		if(isNotAuthorized(token, CATALOGO)) {
 			return new ResponseEntity<Catalogo>(HttpStatus.UNAUTHORIZED);
@@ -186,7 +187,7 @@ public class CatalogoControllerV01 extends Auth{
 
 	@ApiOperation(value = "Actualiza la entidad tipo catalogo. ")
 	@PutMapping("updateCatalogoTipo")
-	public ResponseEntity<CatalogoTipo> updateCatalogoTipo(@RequestParam(value = "token") String token, @RequestBody CatalogoTipo catalogoTipo){
+	public ResponseEntity<CatalogoTipo> updateCatalogoTipo(@RequestParam(value = "token") UUID token, @RequestBody CatalogoTipo catalogoTipo){
 		if(isNotAuthorized(token, CATALOGO)) {
 			return new ResponseEntity<CatalogoTipo>(HttpStatus.UNAUTHORIZED);
 		}
@@ -214,7 +215,7 @@ public class CatalogoControllerV01 extends Auth{
 	@GetMapping("findByTipoNombre")
 	public ResponseEntity<CatalogoTipo> findByTipoNombre(
 			@RequestParam(value="catalogoTipoNombre") String catalogoTipoNombre,
-			@RequestParam(value="token") String token) {
+			@RequestParam(value="token") UUID token) {
 		
 		Sesion sesion = sesionService.findByToken(token);
 		if(sesion == null) {
@@ -234,7 +235,7 @@ public class CatalogoControllerV01 extends Auth{
 	public ResponseEntity<Catalogo> findByTipoAndNombre(
 			@RequestParam(value="catalogoTipoNombre") String catalogoTipoNombre,
 			@RequestParam(value="nombre") String nombre,
-			@RequestParam(value="token") String token) {
+			@RequestParam(value="token") UUID token) {
 		
 		Sesion sesion = sesionService.findByToken(token);
 		if(sesion == null) {

@@ -31,7 +31,7 @@ import mx.tecabix.db.entity.Licencia;
  */
 public interface LicenciaService extends GenericSevice<Licencia, Long>{
 	
-	Licencia findByToken(String key);
+	Licencia findByToken(UUID key);
 	Page<Licencia> findAll(int elements, int page);
 	Page<Licencia> findByIdEscuela(Long idEscuela, int elements, int page);
 	Page<Licencia> findByIdEscuelaAndServicio(Long idEscuela, Integer idServicio, int elements, int page);

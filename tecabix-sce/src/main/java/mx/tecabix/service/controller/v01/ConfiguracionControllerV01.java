@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -74,7 +75,7 @@ public class ConfiguracionControllerV01 extends Auth{
 	
 	@ApiOperation(value = "Obtiene todas la configuración de la persona moral sujeta a la sesión.")
 	@GetMapping("findAll")
-	public ResponseEntity<Page<Configuracion>> findAll(@RequestParam(value="token") String token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
+	public ResponseEntity<Page<Configuracion>> findAll(@RequestParam(value="token") UUID token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, CONFIGURACION) ;
 		if(sesion == null) {
@@ -86,7 +87,7 @@ public class ConfiguracionControllerV01 extends Auth{
 	
 	@ApiOperation(value = "Obtiene mediante el nombre la configuración de la persona moral sujeta a la sesión.")
 	@GetMapping("findByNombre")
-	public ResponseEntity<Configuracion> findByNombre(@RequestParam(value="token") String token,@RequestParam(value="nombre") String nombre) {
+	public ResponseEntity<Configuracion> findByNombre(@RequestParam(value="token") UUID token,@RequestParam(value="nombre") String nombre) {
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, CONFIGURACION) ;
 		if(sesion == null) {
@@ -103,7 +104,7 @@ public class ConfiguracionControllerV01 extends Auth{
 	@ApiOperation(value = "Obtiene todas las configuraciones con respecto a el nombre proporcionado.")
 	@GetMapping("findWithRootByNombre")
 	public ResponseEntity<Page<Configuracion>> findWithRootByNombre(
-			@RequestParam(value="token") String token,
+			@RequestParam(value="token") UUID token,
 			@RequestParam(value="nombre") String nombre,
 			@RequestParam(value="elements") byte elements,
 			@RequestParam(value="page") short page) {
@@ -121,7 +122,7 @@ public class ConfiguracionControllerV01 extends Auth{
 			notes = "Se crea un nuevo catalogo de tipo configuración, todas los registros que estén en persona moral se le creara "
 			+ "un nueva configuración con el valor por defecto proporcionado.")
 	@PostMapping
-	public ResponseEntity<List<Configuracion>> save(@RequestBody Catalogo catalogo,@RequestParam(value="valorDefault") String valorDefault, @RequestParam(value="token") String token ){
+	public ResponseEntity<List<Configuracion>> save(@RequestBody Catalogo catalogo,@RequestParam(value="valorDefault") String valorDefault, @RequestParam(value="token") UUID token ){
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, ROOT_CONFIGURACION_CREAR);
 		if(sesion == null) {
@@ -173,7 +174,7 @@ public class ConfiguracionControllerV01 extends Auth{
 	
 	@ApiOperation(value = "Actualiza todas las configuraciones con respecto a el nombre proporcionado con un valor por defecto.")
 	@PutMapping("updateAllWithRoot")
-	public ResponseEntity<List<Configuracion>> updateRoot(@RequestParam(value="nombre") String nombre, @RequestParam(value="valor") String valor, @RequestParam(value="token") String token ){
+	public ResponseEntity<List<Configuracion>> updateRoot(@RequestParam(value="nombre") String nombre, @RequestParam(value="valor") String valor, @RequestParam(value="token") UUID token ){
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, ROOT_CONFIGURACION_EDITAR);
 		if(sesion == null) {
@@ -199,7 +200,7 @@ public class ConfiguracionControllerV01 extends Auth{
 	
 	@ApiOperation(value = "Actualiza una configuracion con respecto a el nombre proporcionado con un valor por defecto.")
 	@PutMapping("updateUnityWithRoot")
-	public ResponseEntity<Configuracion> updateUnityWithRoot(@RequestBody Configuracion configuracion, @RequestParam(value="token") String token ){
+	public ResponseEntity<Configuracion> updateUnityWithRoot(@RequestBody Configuracion configuracion, @RequestParam(value="token") UUID token ){
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, ROOT_CONFIGURACION_EDITAR);
 		if(sesion == null) {
@@ -241,7 +242,7 @@ public class ConfiguracionControllerV01 extends Auth{
 	public ResponseEntity<Configuracion> update(
 			@RequestParam(value="nombre") String nombre, 
 			@RequestParam(value="valor") String valor, 
-			@RequestParam(value="token") String token ){
+			@RequestParam(value="token") UUID token ){
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, CONFIGURACION_EDITAR);
 		if(sesion == null) {

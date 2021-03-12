@@ -70,7 +70,7 @@ public class DepartamentoControllerV01 extends Auth{
 	@ApiOperation(value = "Obtiene todo los Departamentos paginado.")
 	@GetMapping("findAll")
 	public ResponseEntity<Page<Departamento>> findAll(
-			@RequestParam(value="token") String token,
+			@RequestParam(value="token") UUID token,
 			@RequestParam(value="elements") byte elements,
 			@RequestParam(value="page") short page) {
 		
@@ -87,7 +87,7 @@ public class DepartamentoControllerV01 extends Auth{
 	@PostMapping("save")
 	public ResponseEntity<Departamento> save(
 			@RequestBody Departamento departamento,
-			@RequestParam(value="token") String token){
+			@RequestParam(value="token") UUID token){
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, DEPARTAMENTO_CREAR) ;
 		if(sesion == null) {
@@ -118,7 +118,7 @@ public class DepartamentoControllerV01 extends Auth{
 	@PutMapping("update")
 	public ResponseEntity<Departamento> update(
 			@RequestBody Departamento departamento,
-			@RequestParam(value="token") String token){
+			@RequestParam(value="token") UUID token){
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, DEPARTAMENTO_EDITAR) ;
 		if(sesion == null) {
@@ -154,7 +154,7 @@ public class DepartamentoControllerV01 extends Auth{
 	@DeleteMapping
 	public ResponseEntity<?> delete(
 			@RequestParam(value="clave") UUID uuid,
-			@RequestParam(value="token") String token){
+			@RequestParam(value="token") UUID token){
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, DEPARTAMENTO_ELIMINAR) ;
 		if(sesion == null) {

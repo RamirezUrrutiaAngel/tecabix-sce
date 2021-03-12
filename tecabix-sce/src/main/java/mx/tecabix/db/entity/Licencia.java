@@ -45,7 +45,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @Entity()
 @Table(name = "licencia")
 @NamedQueries({
-    @NamedQuery(name = "Licencia.findByToken",query = "SELECT l FROM Licencia l WHERE l.token = ?1 AND l.estatus.nombre = 'ACTIVO' "),
+    @NamedQuery(name = "Licencia.findByToken",query = "SELECT l FROM Licencia l WHERE l.clave = ?1 AND l.estatus.nombre = 'ACTIVO' "),
     @NamedQuery(name = "Licencia.findByIdEscuela",query = "SELECT l FROM Licencia l WHERE l.plantel.idEscuela = ?1 AND l.estatus.nombre = 'ACTIVO' "),
     @NamedQuery(name = "Licencia.findByIdEscuelaAndServicio",query = "SELECT l FROM Licencia l WHERE l.plantel.idEscuela = ?1 AND l.servicio.id = ?2 AND l.estatus.nombre = 'ACTIVO' "),
     @NamedQuery(name = "Licencia.findAll",query = "SELECT l FROM Licencia l WHERE l.estatus.nombre = 'ACTIVO' ")
@@ -61,17 +61,12 @@ public class Licencia implements Serializable{
     private Long id;
     @Column(name = "nombre")
     private String nombre;
-    @Column(name = "key_token")
-    private String token;
     @ManyToOne
     @JoinColumn(name = "id_servicio")
     private Servicio servicio;
     @ManyToOne
     @JoinColumn(name = "id_plantel")
     private Plantel plantel;
-    @ManyToOne
-    @JoinColumn(name = "id_tipo")
-    private Catalogo tipo;
     @Column(name = "id_usuario_modificado")
     @JsonProperty(access = Access.WRITE_ONLY)
     private Long idUsuarioModificado;
@@ -96,12 +91,6 @@ public class Licencia implements Serializable{
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
 	}
-	public String getToken() {
-		return token;
-	}
-	public void setToken(String token) {
-		this.token = token;
-	}
 	public Servicio getServicio() {
 		return servicio;
 	}
@@ -113,12 +102,6 @@ public class Licencia implements Serializable{
 	}
 	public void setPlantel(Plantel plantel) {
 		this.plantel = plantel;
-	}
-	public Catalogo getTipo() {
-		return tipo;
-	}
-	public void setTipo(Catalogo tipo) {
-		this.tipo = tipo;
 	}
 	public Long getIdUsuarioModificado() {
 		return idUsuarioModificado;

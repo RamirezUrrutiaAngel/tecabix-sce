@@ -47,7 +47,7 @@ public interface SesionService extends GenericSevice<Sesion, Long>{
 	
 	Page<Sesion> findByUsuarioAndNow(Long idLicencia, Long idUsuario, int elements,int page) ;
 	
-	Sesion findByToken(String keyToken);
+	Sesion findByToken(UUID keyToken);
 	
 	Optional<Sesion> findByClave(UUID uuid);
 	

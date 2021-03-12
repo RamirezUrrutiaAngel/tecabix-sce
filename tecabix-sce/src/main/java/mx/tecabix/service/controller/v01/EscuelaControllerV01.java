@@ -19,6 +19,7 @@ package mx.tecabix.service.controller.v01;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -100,7 +101,7 @@ public class EscuelaControllerV01 extends Auth{
 	
 	
 	@GetMapping
-	public ResponseEntity<Escuela> get(@RequestParam(value="token") String token){
+	public ResponseEntity<Escuela> get(@RequestParam(value="token") UUID token){
 		Sesion sesion = getSessionIfIsAuthorized(token);
 		if(sesion == null){
 			return new ResponseEntity<Escuela>(HttpStatus.UNAUTHORIZED);
@@ -114,7 +115,7 @@ public class EscuelaControllerV01 extends Auth{
 	}
 	
 	@GetMapping("findByNameRegardlessOfStatus")
-	public ResponseEntity<Escuela> findByNameRegardlessOfStatus(@RequestParam(value="token") String token, String nombre){
+	public ResponseEntity<Escuela> findByNameRegardlessOfStatus(@RequestParam(value="token") UUID token, String nombre){
 		Sesion sesion = getSessionIfIsAuthorized(token, ROOT_ESCUELA);
 		if(sesion == null){
 			return new ResponseEntity<Escuela>(HttpStatus.UNAUTHORIZED);
@@ -128,7 +129,7 @@ public class EscuelaControllerV01 extends Auth{
 	}
 	
 	@PostMapping("save")
-	private ResponseEntity<Escuela> save(@RequestParam(value="token") String token, @RequestBody EmpresaRequest empresaRequest){
+	private ResponseEntity<Escuela> save(@RequestParam(value="token") UUID token, @RequestBody EmpresaRequest empresaRequest){
 		Sesion sesion = getSessionIfIsAuthorized(token, ROOT_ESCUELA_CREAR);
 		if(sesion == null) {
 			return new ResponseEntity<Escuela>(HttpStatus.UNAUTHORIZED);

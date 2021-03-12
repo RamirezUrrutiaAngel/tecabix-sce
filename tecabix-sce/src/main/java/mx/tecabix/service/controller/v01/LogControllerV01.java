@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
@@ -149,7 +150,7 @@ public class LogControllerV01 extends Auth{
 	}
 	
 	@PostMapping
-	public ResponseEntity<?> post(@RequestParam(value="token") String token, @RequestParam(value="cuerpo") String cuerpo) {
+	public ResponseEntity<?> post(@RequestParam(value="token") UUID token, @RequestParam(value="cuerpo") String cuerpo) {
 		
 		Sesion sesion = getSessionIfIsAuthorized(token);
 		if(sesion == null) {

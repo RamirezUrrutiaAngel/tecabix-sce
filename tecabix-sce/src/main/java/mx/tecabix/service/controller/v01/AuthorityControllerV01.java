@@ -68,20 +68,18 @@ public class AuthorityControllerV01 extends Auth{
 	
 	@ApiOperation(value = "Persiste la entidad del Authority con sus correspondientes sub Authority. ")
 	@PostMapping()
-	public ResponseEntity<Authority> save(@RequestParam(value="token") String token, @RequestBody Authority authority){
+	public ResponseEntity<Authority> save(@RequestParam(value="token") UUID token, @RequestBody Authority authority){
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, AUTHORITY);
-		if(sesion == null) {
+		if(isNotValid(sesion)) {
 			return new ResponseEntity<Authority>(HttpStatus.UNAUTHORIZED);
 		}
-		
-		if(authority.getNombre() == null || authority.getNombre().isEmpty()) {
+		if(isNotValid(TIPO_VARIABLE, authority.getNombre())){
 			return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 		}
-		if(authority.getDescripcion() == null || authority.getDescripcion().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, authority.getDescripcion())) {
 			return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 		}
-		
 		List<Authority> list = authority.getSubAuthority();
 		if(list != null) {
 			for (int i = 0; i < list.size(); i++) {
@@ -89,10 +87,10 @@ public class AuthorityControllerV01 extends Auth{
 				if(aux == null) {
 					return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 				}
-				if(aux.getNombre() == null || aux.getNombre().isEmpty()) {
+				if(isNotValid(TIPO_VARIABLE, aux.getNombre())){
 					return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 				}
-				if(aux.getDescripcion() == null || aux.getDescripcion().isEmpty()) {
+				if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, aux.getDescripcion())) {
 					return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 				}
 				if(authority.getNombre().equalsIgnoreCase(aux.getNombre())) {
@@ -168,7 +166,7 @@ public class AuthorityControllerV01 extends Auth{
 			notes = "<b>by:</b> NOMBRE, DESCRIPCION<br/><b>order:</b> ASC, DESC")
 	@GetMapping
 	public ResponseEntity<AuthorityPage> find(
-			@RequestParam(value="token") String token,
+			@RequestParam(value="token") UUID token,
 			@RequestParam(value="search", required = false) String search,
 			@RequestParam(value="by", defaultValue = "NOMBRE") String by,
 			@RequestParam(value="order", defaultValue = "ASC") String order,
@@ -210,7 +208,7 @@ public class AuthorityControllerV01 extends Auth{
 	
 	@ApiOperation(value = "Obtiene el authority con el ID proporcionado. ")
 	@GetMapping("findByClave")
-	public ResponseEntity<Authority> findByClave(@RequestParam(value="token") String token, @RequestParam(value = "clave") UUID clave){
+	public ResponseEntity<Authority> findByClave(@RequestParam(value="token") UUID token, @RequestParam(value = "clave") UUID clave){
 		
 		if(isNotAuthorized(token, AUTHORITY)) {
 			return new ResponseEntity<Authority>(HttpStatus.UNAUTHORIZED);
@@ -226,7 +224,7 @@ public class AuthorityControllerV01 extends Auth{
 	
 	@ApiOperation(value = "Obtiene los authority autentificados.")
 	@GetMapping("findAutentificados")
-	public ResponseEntity<Authority> findAutentificados(@RequestParam(value="token") String token){
+	public ResponseEntity<Authority> findAutentificados(@RequestParam(value="token") UUID token){
 		
 		if(isNotAuthorized(token, PERFIL)) {
 			return new ResponseEntity<Authority>(HttpStatus.UNAUTHORIZED);
@@ -245,7 +243,7 @@ public class AuthorityControllerV01 extends Auth{
 			+ "si no se le proporciona se le considera un nuevo sub Authority.\n"
 			+ "Los Authority ya guardado que no se especifiquen en la petición serán eliminados.")
 	@PutMapping()
-	public ResponseEntity<Authority> update(@RequestParam(value="token") String token, @RequestBody Authority authority){
+	public ResponseEntity<Authority> update(@RequestParam(value="token") UUID token, @RequestBody Authority authority){
 		Sesion sesion = getSessionIfIsAuthorized(token, AUTHORITY);
 		if(sesion == null) {
 			return new ResponseEntity<Authority>(HttpStatus.UNAUTHORIZED);
@@ -253,10 +251,10 @@ public class AuthorityControllerV01 extends Auth{
 		if(authority.getClave() == null) {
 			return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 		}
-		if(authority.getNombre() == null || authority.getNombre().isEmpty()) {
+		if(isNotValid(TIPO_VARIABLE, authority.getNombre())) {
 			return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 		}
-		if(authority.getDescripcion() == null || authority.getDescripcion().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, authority.getDescripcion())) {
 			return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 		}
 		Optional<Authority> optionalAuthorityViejo =  authorityService.findByClave(authority.getClave());
@@ -287,10 +285,10 @@ public class AuthorityControllerV01 extends Auth{
 				if(aux == null) {
 					return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 				}
-				if(aux.getNombre() == null || aux.getNombre().isEmpty()) {
+				if(isNotValid(TIPO_VARIABLE, aux.getNombre())){
 					return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 				}
-				if(aux.getDescripcion() == null || aux.getDescripcion().isEmpty()) {
+				if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, aux.getDescripcion())) {
 					return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 				}
 				if(authority.getNombre().equalsIgnoreCase(aux.getNombre())) {
@@ -379,7 +377,7 @@ public class AuthorityControllerV01 extends Auth{
 	
 	@ApiOperation(value = "Elimina la entity con sus correspondientes sub Authority.")
 	@DeleteMapping()
-	public ResponseEntity<?> delete(@RequestParam(value="token") String token, @RequestParam(value="clave") UUID uuid){
+	public ResponseEntity<?> delete(@RequestParam(value="token") UUID token, @RequestParam(value="clave") UUID uuid){
 		Sesion sesion = getSessionIfIsAuthorized(token, AUTHORITY);
 		if(sesion == null) {
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
