@@ -58,6 +58,9 @@ public class Authority implements Serializable{
 
 	private static final long serialVersionUID = 4643106103106362573L;
 	
+	public static final short SIZE_NOMBRE = 50;
+	public static final short SIZE_DESCRIPCION = 300;
+	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_authority", unique = true, nullable = false)

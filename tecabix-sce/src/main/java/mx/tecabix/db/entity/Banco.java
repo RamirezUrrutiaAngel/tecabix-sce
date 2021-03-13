@@ -52,6 +52,11 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 public class Banco implements Serializable{
 
 	private static final long serialVersionUID = -7280453670571498466L;
+	
+	public static final short SIZE_NOMBRE = 35;
+	public static final short SIZE_CLAVE_BANCO = 4;
+	public static final short SIZE_RAZON_SOCIAL = 120;
+	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_banco", unique = true, nullable = false)

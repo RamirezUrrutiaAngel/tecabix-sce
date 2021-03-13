@@ -57,6 +57,8 @@ public class BancoControllerV01 extends Auth{
 	private String ROOT_BANCO_CREAR = "ROOT_BANCO_CREAR";
 	private String ROOT_BANCO_EDITAR = "ROOT_BANCO_EDITAR";
 	private String ROOT_BANCO_ELIMINAR = "ROOT_BANCO_ELIMINAR";
+	
+	
 	@Autowired
 	private SingletonUtil singletonUtil;
 	@Autowired
@@ -137,13 +139,13 @@ public class BancoControllerV01 extends Auth{
 		if(sesion == null) {
 			return new ResponseEntity<Banco>(HttpStatus.UNAUTHORIZED);
 		}
-		if(banco.getClaveBanco() == null || banco.getClaveBanco().isEmpty()) {
+		if(isNotValid(TIPO_NUMERIC, Banco.SIZE_CLAVE_BANCO, banco.getClaveBanco())) {
 			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
 		}
-		if(banco.getNombre() == null || banco.getNombre().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Banco.SIZE_NOMBRE, banco.getNombre())) {
 			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
 		}
-		if(banco.getRazonSocial() == null || banco.getRazonSocial().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Banco.SIZE_RAZON_SOCIAL, banco.getRazonSocial())) {
 			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
 		}
 		banco.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
@@ -161,16 +163,16 @@ public class BancoControllerV01 extends Auth{
 		if(sesion == null) {
 			return new ResponseEntity<Banco>(HttpStatus.UNAUTHORIZED);
 		}
-		if(banco.getClave() == null) {
+		if(isNotValid(banco.getClave())) {
 			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
 		}
-		if(banco.getClaveBanco() == null || banco.getClaveBanco().isEmpty()) {
+		if(isNotValid(TIPO_NUMERIC, Banco.SIZE_CLAVE_BANCO, banco.getClaveBanco())) {
 			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
 		}
-		if(banco.getNombre() == null || banco.getNombre().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE,Banco.SIZE_NOMBRE,banco.getNombre())) {
 			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
 		}
-		if(banco.getRazonSocial() == null || banco.getRazonSocial().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Banco.SIZE_RAZON_SOCIAL, banco.getRazonSocial())) {
 			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
 		}
 		Optional<Banco> bancoAux =  bancoService.findByClave(banco.getClave());

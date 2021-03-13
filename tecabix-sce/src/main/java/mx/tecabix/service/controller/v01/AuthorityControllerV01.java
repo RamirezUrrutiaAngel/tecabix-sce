@@ -58,6 +58,8 @@ public class AuthorityControllerV01 extends Auth{
 	private static final String AUTHORITY = "AUTHORITY";
 	private static final String PERFIL = "PERFIL";
 	private static final String AUTENTIFICADOS = "AUTENTIFICADOS";
+	
+	
 	@Autowired
 	private SingletonUtil singletonUtil;
 	@Autowired
@@ -74,10 +76,10 @@ public class AuthorityControllerV01 extends Auth{
 		if(isNotValid(sesion)) {
 			return new ResponseEntity<Authority>(HttpStatus.UNAUTHORIZED);
 		}
-		if(isNotValid(TIPO_VARIABLE, authority.getNombre())){
+		if(isNotValid(TIPO_VARIABLE, Authority.SIZE_NOMBRE, authority.getNombre())){
 			return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 		}
-		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, authority.getDescripcion())) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Authority.SIZE_DESCRIPCION, authority.getDescripcion())) {
 			return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 		}
 		List<Authority> list = authority.getSubAuthority();
@@ -87,10 +89,10 @@ public class AuthorityControllerV01 extends Auth{
 				if(aux == null) {
 					return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 				}
-				if(isNotValid(TIPO_VARIABLE, aux.getNombre())){
+				if(isNotValid(TIPO_VARIABLE, Authority.SIZE_NOMBRE, aux.getNombre())){
 					return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 				}
-				if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, aux.getDescripcion())) {
+				if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Authority.SIZE_DESCRIPCION, aux.getDescripcion())) {
 					return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 				}
 				if(authority.getNombre().equalsIgnoreCase(aux.getNombre())) {
@@ -251,10 +253,10 @@ public class AuthorityControllerV01 extends Auth{
 		if(authority.getClave() == null) {
 			return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 		}
-		if(isNotValid(TIPO_VARIABLE, authority.getNombre())) {
+		if(isNotValid(TIPO_VARIABLE, Authority.SIZE_NOMBRE, authority.getNombre())) {
 			return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 		}
-		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, authority.getDescripcion())) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Authority.SIZE_DESCRIPCION, authority.getDescripcion())) {
 			return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 		}
 		Optional<Authority> optionalAuthorityViejo =  authorityService.findByClave(authority.getClave());
@@ -285,10 +287,10 @@ public class AuthorityControllerV01 extends Auth{
 				if(aux == null) {
 					return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 				}
-				if(isNotValid(TIPO_VARIABLE, aux.getNombre())){
+				if(isNotValid(TIPO_VARIABLE, Authority.SIZE_NOMBRE, aux.getNombre())){
 					return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 				}
-				if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, aux.getDescripcion())) {
+				if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Authority.SIZE_DESCRIPCION, aux.getDescripcion())) {
 					return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 				}
 				if(authority.getNombre().equalsIgnoreCase(aux.getNombre())) {

@@ -124,69 +124,72 @@ public class Auth extends Notificacion{
 	private static final String ALFA_NUMERIC_SPACE = "[a-zA-Z0-9[áéíóúÁÉÍÓÚñÑ\\s]]+";
 	private static final String ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS = "[a-zA-Z0-9[.,():¿?!¡_&%$#@|áéíóúÁÉÍÓÚñÑ\\s]]+";
 	private static final String TEL = "([(]{1}[0-9]{2,3}[)]{1}[\\s]{1}){0,1}([0-9]{2,4}[\\s])*[0-9]{2,8}";
-	private static final String EMAIL = "[a-zA-Z]{1}[a-zA-Z0-9[._]]*[a-zA-Z0-9]{1}[@]{1}[a-zA-Z]{1}[a-zA-Z0-9]+([.]{1}[a-zA-Z]{2,4}){1,2}";
+	private static final String EMAIL = "[a-zA-Z0-9]{1}[a-zA-Z0-9[._]]*[a-zA-Z0-9]{1}[@]{1}[a-zA-Z]{1}[a-zA-Z0-9]+([.]{1}[a-zA-Z]{2,4}){1,2}";
 	private static final String VARIABLE = "[a-zA-Z]+([_]{1}[a-zA-Z0-9]+)*[a-zA-Z0-9]+";
 	private static final String NUMERIC = "[0-9]+";
 	private static final String NUMERIC_SPACE = "[0-9]+[0-9[\\s]]*[0-9]+";
 	
 	protected boolean isNotValid(Object arg) {
-		return isNotValid(TIPO_OBJECT, arg);
+		return isNotValid(TIPO_OBJECT, Integer.MAX_VALUE, arg);
 	}
 	protected boolean isValid(Object arg) {
-		return isValid(TIPO_OBJECT, arg);
+		return isValid(TIPO_OBJECT,Integer.MAX_VALUE, arg);
 	}
-	
-	protected boolean isNotValid(byte tipo, Object... args) {
-		return !isValid(tipo, args);
+	protected boolean isNotValid(int size,Object arg) {
+		return isNotValid(TIPO_OBJECT,size, arg);
 	}
-	protected boolean isValid(byte tipo, Object... args) {
-		for (Object arg : args) {
-			if(arg == null) {
+	protected boolean isValid(int size,Object arg) {
+		return isValid(TIPO_OBJECT,size, arg);
+	}
+	protected boolean isNotValid(byte tipo,int size, Object arg) {
+		return !isValid(tipo,size, arg);
+	}
+	protected boolean isValid(byte tipo,int size, Object arg) {
+		if(arg == null) {
+			return false;
+		}
+		if(arg.getClass().equals(String.class) || arg.getClass().equals(StringBuilder.class)) {
+			String text = arg.toString();
+			if(text.trim().isEmpty() || text.length() > size) {
 				return false;
 			}
-			if(arg.getClass().equals(String.class) || arg.getClass().equals(StringBuilder.class)) {
-				String text = arg.toString();
-				if(text.isEmpty()) {
-					return false;
-				}
-				if(tipo == TIPO_ALFA) {
-					return Pattern.matches(ALFA, text);
-				}else if(tipo == TIPO_ALFA_NUMERIC) {
-					return Pattern.matches(ALFA_NUMERIC, text);
-				}else if(tipo == TIPO_ALFA_NUMERIC_SPACE) {
-					return Pattern.matches(ALFA_NUMERIC_SPACE, text);
-				}else if(tipo == TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS) {
-					return Pattern.matches(ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, text);
-				}else if(tipo == TIPO_TEL) {
-					return Pattern.matches(TEL, text);
-				}else if(tipo == TIPO_EMAIL) {
-					return Pattern.matches(EMAIL, text);
-				}else if(tipo == TIPO_NUMERIC) {
-					return Pattern.matches(NUMERIC, text);
-				}else if(tipo == TIPO_NUMERIC_SPACE) {
-					return Pattern.matches(NUMERIC_SPACE, text);
-				}else if(tipo == TIPO_VARIABLE){
-					return Pattern.matches(VARIABLE, text);
-				}
-			}else if(arg.getClass().equals(Integer.class) || arg.getClass().equals(Long.class)) {
-				Long num = Long.parseLong(arg.toString());
-				if(tipo == TIPO_NUMERIC_NATURAL) {
-					return num > 0;
-				}else if(tipo == TIPO_NUMERIC_POSITIVO) {
-					return num > -1;
-				}else if(tipo == TIPO_NUMERIC_NEGATIVO) {
-					return num < 0;
-				}
-			}else  if(arg.getClass().equals(Float.class) || arg.getClass().equals(Double.class)) {
-				Double num = Double.parseDouble(arg.toString());
-				if(tipo == TIPO_NUMERIC_NATURAL) {
-					long aux = num.longValue();
-					return num > 0 && aux == num.doubleValue();
-				}else if(tipo == TIPO_NUMERIC_POSITIVO) {
-					return num > -1;
-				}else if(tipo == TIPO_NUMERIC_NEGATIVO) {
-					return num < 0;
-				}
+			if(tipo == TIPO_ALFA) {
+				return Pattern.matches(ALFA, text);
+			}else if(tipo == TIPO_ALFA_NUMERIC) {
+				return Pattern.matches(ALFA_NUMERIC, text);
+			}else if(tipo == TIPO_ALFA_NUMERIC_SPACE) {
+				return Pattern.matches(ALFA_NUMERIC_SPACE, text);
+			}else if(tipo == TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS) {
+				return Pattern.matches(ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, text);
+			}else if(tipo == TIPO_TEL) {
+				return Pattern.matches(TEL, text);
+			}else if(tipo == TIPO_EMAIL) {
+				return Pattern.matches(EMAIL, text);
+			}else if(tipo == TIPO_NUMERIC) {
+				return Pattern.matches(NUMERIC, text);
+			}else if(tipo == TIPO_NUMERIC_SPACE) {
+				return Pattern.matches(NUMERIC_SPACE, text);
+			}else if(tipo == TIPO_VARIABLE){
+				return Pattern.matches(VARIABLE, text);
+			}
+		}else if(arg.getClass().equals(Integer.class) || arg.getClass().equals(Long.class)) {
+			Long num = Long.parseLong(arg.toString());
+			if(tipo == TIPO_NUMERIC_NATURAL) {
+				return num > 0;
+			}else if(tipo == TIPO_NUMERIC_POSITIVO) {
+				return num > -1;
+			}else if(tipo == TIPO_NUMERIC_NEGATIVO) {
+				return num < 0;
+			}
+		}else  if(arg.getClass().equals(Float.class) || arg.getClass().equals(Double.class)) {
+			Double num = Double.parseDouble(arg.toString());
+			if(tipo == TIPO_NUMERIC_NATURAL) {
+				long aux = num.longValue();
+				return num > 0 && aux == num.doubleValue();
+			}else if(tipo == TIPO_NUMERIC_POSITIVO) {
+				return num > -1;
+			}else if(tipo == TIPO_NUMERIC_NEGATIVO) {
+				return num < 0;
 			}
 		}
 		return true;
