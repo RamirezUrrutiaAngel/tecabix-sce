@@ -51,6 +51,10 @@ public class Catalogo implements Serializable{
 
 	private static final long serialVersionUID = 8898558749708373148L;
 	
+	public static final short SIZE_NOMBRE = 45;
+	public static final short SIZE_DESCRIPCION = 500;
+	public static final short SIZE_NOMBRE_COMPLETO = 250;
+	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_catalogo", unique = true, nullable = false)

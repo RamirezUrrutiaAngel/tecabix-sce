@@ -60,58 +60,60 @@ public class CatalogoControllerV01 extends Auth{
 	
 	@ApiOperation(value = "Persiste la entidad del tipo del catalogo con sus correspondientes catalogos. ")
 	@PostMapping("saveCatalogoTipo")
-	public ResponseEntity<CatalogoTipo> saveCatalogoTipo(@RequestParam(value = "token") UUID token, @RequestBody CatalogoTipo catalogoTipo){
-		if(isNotAuthorized(token, CATALOGO)) {
+	public ResponseEntity<CatalogoTipo> saveCatalogoTipo(@RequestParam(value = "token") UUID token,
+			@RequestBody CatalogoTipo catalogoTipo) {
+		if (isNotAuthorized(token, CATALOGO)) {
 			return new ResponseEntity<CatalogoTipo>(HttpStatus.UNAUTHORIZED);
 		}
-		
-		if(catalogoTipo.getNombre() == null || catalogoTipo.getNombre().isEmpty()) {
+		if (isNotValid(TIPO_VARIABLE, CatalogoTipo.SIZE_NOMBRE, catalogoTipo.getNombre())) {
 			return new ResponseEntity<CatalogoTipo>(HttpStatus.BAD_REQUEST);
 		}
-		if(catalogoTipo.getDescripcion() == null || catalogoTipo.getDescripcion().isEmpty()) {
+
+		if (isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, CatalogoTipo.SIZE_DESCRIPCION,
+				catalogoTipo.getDescripcion())) {
 			return new ResponseEntity<CatalogoTipo>(HttpStatus.BAD_REQUEST);
 		}
 		Optional<CatalogoTipo> optionalCatalogoTipo = catalogoTipoService.findByNombre(catalogoTipo.getNombre());
-		if(optionalCatalogoTipo.isPresent()) {
+		if (optionalCatalogoTipo.isPresent()) {
 			return new ResponseEntity<CatalogoTipo>(HttpStatus.CONFLICT);
 		}
 		List<Catalogo> catalogos = catalogoTipo.getCatalogos();
-		if(catalogos != null) {
-			for (int i = 0; i < catalogos.size(); i++ ) {
+		if (catalogos != null) {
+			for (int i = 0; i < catalogos.size(); i++) {
 				Catalogo catalogo = catalogos.get(i);
-				if(catalogo.getOrden() == null) {
+				if (isNotValid(catalogo.getOrden())) {
 					return new ResponseEntity<CatalogoTipo>(HttpStatus.BAD_REQUEST);
 				}
-				if(catalogo.getNombre() == null || catalogo.getNombre().isEmpty()) {
+				if (isNotValid(TIPO_VARIABLE, Catalogo.SIZE_NOMBRE, catalogo.getNombre())) {
 					return new ResponseEntity<CatalogoTipo>(HttpStatus.BAD_REQUEST);
 				}
-				if(catalogo.getDescripcion() == null || catalogo.getDescripcion().isEmpty()) {
+				if (catalogo.getDescripcion() == null || catalogo.getDescripcion().isEmpty()) {
 					return new ResponseEntity<CatalogoTipo>(HttpStatus.BAD_REQUEST);
 				}
-				if(catalogo.getNombreCompleto() == null || catalogo.getNombreCompleto().isEmpty()) {
+				if (catalogo.getNombreCompleto() == null || catalogo.getNombreCompleto().isEmpty()) {
 					return new ResponseEntity<CatalogoTipo>(HttpStatus.BAD_REQUEST);
 				}
 			}
-			for (int i = 0; i < catalogos.size(); i++ ) {
+			for (int i = 0; i < catalogos.size(); i++) {
 				Catalogo catalogoA = catalogos.get(i);
 				for (int j = i + 1; j < catalogos.size(); j++) {
 					Catalogo catalogoB = catalogos.get(j);
-					if(catalogoA.getNombre().equalsIgnoreCase(catalogoB.getNombre())) {
+					if (catalogoA.getNombre().equalsIgnoreCase(catalogoB.getNombre())) {
 						return new ResponseEntity<CatalogoTipo>(HttpStatus.CONFLICT);
 					}
 				}
 			}
 		}
 		catalogoTipo = catalogoTipoService.save(catalogoTipo);
-		if(catalogos != null) {	
-			for (int i = 0; i < catalogos.size(); i++ ) {
+		if (catalogos != null) {
+			for (int i = 0; i < catalogos.size(); i++) {
 				Catalogo catalogo = catalogos.get(i);
 				catalogo.setCatalogoTipo(catalogoTipo);
 				catalogo = catalogoService.save(catalogo);
 			}
 		}
 		catalogoTipo.setCatalogos(catalogos);
-		return new ResponseEntity<CatalogoTipo>(catalogoTipo,HttpStatus.OK);
+		return new ResponseEntity<CatalogoTipo>(catalogoTipo, HttpStatus.OK);
 	}
 	
 	@ApiOperation(value = "Persiste la entidad del catalogo a un tipo de catalogo. ")

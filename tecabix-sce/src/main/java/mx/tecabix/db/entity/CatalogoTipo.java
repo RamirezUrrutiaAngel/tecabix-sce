@@ -48,6 +48,10 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 public class CatalogoTipo implements Serializable{
 
 	private static final long serialVersionUID = -4174323806062618433L;
+	
+	public static final short SIZE_NOMBRE = 45;
+	public static final short SIZE_DESCRIPCION = 250;
+	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_catalogo_tipo", unique = true, nullable = false)
