@@ -17,6 +17,7 @@
  */
 package mx.tecabix.service.controller.v01;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,6 +41,7 @@ import mx.tecabix.db.service.CatalogoService;
 import mx.tecabix.db.service.CatalogoTipoService;
 import mx.tecabix.db.service.SesionService;
 import mx.tecabix.service.Auth;
+import mx.tecabix.service.SingletonUtil;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -52,6 +54,8 @@ public class CatalogoControllerV01 extends Auth{
 	private static final String CATALOGO = "CATALOGO";
 	
 	@Autowired
+	private SingletonUtil singletonUtil;
+	@Autowired
 	private CatalogoService catalogoService;
 	@Autowired
 	private CatalogoTipoService catalogoTipoService;
@@ -62,7 +66,8 @@ public class CatalogoControllerV01 extends Auth{
 	@PostMapping("saveCatalogoTipo")
 	public ResponseEntity<CatalogoTipo> saveCatalogoTipo(@RequestParam(value = "token") UUID token,
 			@RequestBody CatalogoTipo catalogoTipo) {
-		if (isNotAuthorized(token, CATALOGO)) {
+		Sesion sesion = getSessionIfIsAuthorized(token, CATALOGO);
+		if (isNotValid(sesion)) {
 			return new ResponseEntity<CatalogoTipo>(HttpStatus.UNAUTHORIZED);
 		}
 		if (isNotValid(TIPO_VARIABLE, CatalogoTipo.SIZE_NOMBRE, catalogoTipo.getNombre())) {
@@ -104,10 +109,18 @@ public class CatalogoControllerV01 extends Auth{
 				}
 			}
 		}
+		catalogoTipo.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+		catalogoTipo.setFechaDeModificacion(LocalDateTime.now());
+		catalogoTipo.setEstatus(singletonUtil.getActivo());
+		catalogoTipo.setClave(UUID.randomUUID());
 		catalogoTipo = catalogoTipoService.save(catalogoTipo);
 		if (catalogos != null) {
 			for (int i = 0; i < catalogos.size(); i++) {
 				Catalogo catalogo = catalogos.get(i);
+				catalogo.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+				catalogo.setFechaDeModificacion(LocalDateTime.now());
+				catalogo.setEstatus(singletonUtil.getActivo());
+				catalogo.setClave(UUID.randomUUID());
 				catalogo.setCatalogoTipo(catalogoTipo);
 				catalogo = catalogoService.save(catalogo);
 			}
@@ -120,10 +133,10 @@ public class CatalogoControllerV01 extends Auth{
 	@PostMapping("saveCatalogo")
 	public ResponseEntity<Catalogo> saveCatalogo(@RequestParam(value = "token") UUID token, @RequestBody Catalogo catalogo){
 		
-		if(isNotAuthorized(token, CATALOGO)) {
+		Sesion sesion = getSessionIfIsAuthorized(token, CATALOGO);
+		if(isNotValid(sesion)) {
 			return new ResponseEntity<Catalogo>(HttpStatus.UNAUTHORIZED);
 		}
-		
 		if(catalogo.getId() != null ) {
 			return new ResponseEntity<Catalogo>(HttpStatus.BAD_REQUEST);
 		}
@@ -146,6 +159,10 @@ public class CatalogoControllerV01 extends Auth{
 		if(!optionalCatalogo.isPresent()) {
 			return new ResponseEntity<Catalogo>(HttpStatus.NOT_FOUND);
 		}
+		catalogo.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+		catalogo.setFechaDeModificacion(LocalDateTime.now());
+		catalogo.setEstatus(singletonUtil.getActivo());
+		catalogo.setClave(UUID.randomUUID());
 		catalogo.setCatalogoTipo(optionalCatalogo.get());
 		catalogo = catalogoService.save(catalogo);
 		return new ResponseEntity<Catalogo>(catalogo,HttpStatus.OK);
@@ -155,14 +172,14 @@ public class CatalogoControllerV01 extends Auth{
 	@PutMapping("updateCatalogo")
 	public ResponseEntity<Catalogo> updateCatalogo(@RequestParam(value = "token") UUID token, @RequestBody Catalogo catalogo){
 		
-		if(isNotAuthorized(token, CATALOGO)) {
+		Sesion sesion = getSessionIfIsAuthorized(token, CATALOGO);
+		if(isNotValid(sesion)) {
 			return new ResponseEntity<Catalogo>(HttpStatus.UNAUTHORIZED);
 		}
-		
-		if(catalogo.getId() != null ) {
+		if(isNotValid(catalogo.getId())) {
 			return new ResponseEntity<Catalogo>(HttpStatus.BAD_REQUEST);
 		}
-		if(catalogo.getOrden() == null) {
+		if(isNotValid(catalogo.getOrden())) {
 			return new ResponseEntity<Catalogo>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(TIPO_VARIABLE, Catalogo.SIZE_NOMBRE, catalogo.getNombre())) {
@@ -177,11 +194,16 @@ public class CatalogoControllerV01 extends Auth{
 		if(catalogo.getCatalogoTipo() == null || catalogo.getCatalogoTipo().getId() == null) {
 			return new ResponseEntity<Catalogo>(HttpStatus.BAD_REQUEST);
 		}
-		Optional<CatalogoTipo> optionalCatalogo = catalogoTipoService.findById(catalogo.getCatalogoTipo().getId());
+		Optional<Catalogo> optionalCatalogo = catalogoService.findById(catalogo.getId());
 		if(!optionalCatalogo.isPresent()) {
 			return new ResponseEntity<Catalogo>(HttpStatus.NOT_FOUND);
 		}
-		catalogo.setCatalogoTipo(optionalCatalogo.get());
+		Catalogo catalogoAux = optionalCatalogo.get();
+		catalogoAux.setNombre(catalogo.getNombre());
+		catalogoAux.setDescripcion(catalogo.getDescripcion());
+		catalogo = catalogoAux;
+		catalogo.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+		catalogo.setFechaDeModificacion(LocalDateTime.now());
 		catalogo = catalogoService.update(catalogo);
 		return new ResponseEntity<Catalogo>(catalogo,HttpStatus.OK);
 	}
@@ -190,22 +212,27 @@ public class CatalogoControllerV01 extends Auth{
 	@ApiOperation(value = "Actualiza la entidad tipo catalogo. ")
 	@PutMapping("updateCatalogoTipo")
 	public ResponseEntity<CatalogoTipo> updateCatalogoTipo(@RequestParam(value = "token") UUID token, @RequestBody CatalogoTipo catalogoTipo){
-		if(isNotAuthorized(token, CATALOGO)) {
+		Sesion sesion = getSessionIfIsAuthorized(token, CATALOGO);
+		if(isNotValid(sesion)) {
 			return new ResponseEntity<CatalogoTipo>(HttpStatus.UNAUTHORIZED);
 		}
-		if(isNotValid(catalogoTipo.getId())) {
+		if(isNotValid(catalogoTipo.getClave())) {
 			return new ResponseEntity<CatalogoTipo>(HttpStatus.BAD_REQUEST);
 		}if(isNotValid(TIPO_VARIABLE, CatalogoTipo.SIZE_NOMBRE, catalogoTipo.getNombre())) {
 			return new ResponseEntity<CatalogoTipo>(HttpStatus.BAD_REQUEST);
 		}if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, CatalogoTipo.SIZE_DESCRIPCION, catalogoTipo.getDescripcion())) {
 			return new ResponseEntity<CatalogoTipo>(HttpStatus.BAD_REQUEST);
 		}
-		Optional<CatalogoTipo> optionalCatalogoTipo = catalogoTipoService.findByNombre(catalogoTipo.getNombre());
+		Optional<CatalogoTipo> optionalCatalogoTipo = catalogoTipoService.findByClave(catalogoTipo.getClave());
 		if(!optionalCatalogoTipo.isPresent()) {
 			return new ResponseEntity<CatalogoTipo>(HttpStatus.NOT_FOUND);
 		}
-		List<Catalogo> catalogos = optionalCatalogoTipo.get().getCatalogos();
-		catalogoTipo.setCatalogos(catalogos);
+		CatalogoTipo catalogoTipoAux = optionalCatalogoTipo.get();
+		catalogoTipoAux.setNombre(catalogoTipo.getNombre());
+		catalogoTipoAux.setDescripcion(catalogoTipo.getDescripcion());
+		catalogoTipo = catalogoTipoAux;
+		catalogoTipo.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+		catalogoTipo.setFechaDeModificacion(LocalDateTime.now());
 		catalogoTipo = catalogoTipoService.update(catalogoTipo);
 		return new ResponseEntity<CatalogoTipo>(catalogoTipo,HttpStatus.OK);
 	}
@@ -247,5 +274,4 @@ public class CatalogoControllerV01 extends Auth{
 		Catalogo body = optionalCatalogo.get();
 		return new ResponseEntity<Catalogo>(body,HttpStatus.OK);
 	}
-
 }
