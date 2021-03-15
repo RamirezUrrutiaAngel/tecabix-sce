@@ -242,7 +242,7 @@ public class SesionControllerV01 extends Auth {
 		sesionAux.setIdUsuarioModificado(sesion.getUsuario().getId());
 		sesionAux.setEstatus(singletonUtil.getEliminado());
 		sesionAux = sesionService.update(sesion);
-		return new ResponseEntity<Sesion>(sesion,HttpStatus.NOT_FOUND);
+		return new ResponseEntity<Sesion>(sesion,HttpStatus.OK);
 	}
 	
 	

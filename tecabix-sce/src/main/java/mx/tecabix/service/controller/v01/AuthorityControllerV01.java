@@ -240,8 +240,8 @@ public class AuthorityControllerV01 extends Auth{
 	}
 	
 	@ApiOperation(value = "Actualiza la entidad del Authority con sus correspondientes sub Authority" ,
-			notes  = "El Id del Authority principal es obligatorio, en el sub Authority al proporcionar"
-			+ " el id se indica que se va actualizar dicho Authority, "
+			notes  = "La clave del Authority principal es obligatorio, en el sub Authority al proporcionar"
+			+ " la clave se indica que se va actualizar dicho Authority, "
 			+ "si no se le proporciona se le considera un nuevo sub Authority.\n"
 			+ "Los Authority ya guardado que no se especifiquen en la petición serán eliminados.")
 	@PutMapping()
