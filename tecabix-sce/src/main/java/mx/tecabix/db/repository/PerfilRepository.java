@@ -34,7 +34,8 @@ public interface PerfilRepository extends JpaRepository<Perfil, Long>{
 	
 	Perfil findByKey(Long id);
 	Page<Perfil> findAll(Long idEscuela, Pageable pageable);
-	Page<Perfil> findAllByNombre(Long idEscuela, String nombre, Pageable pageable);
+	Page<Perfil> findByLikeNombre(Long idEscuela, String nombre, Pageable pageable);
+	Page<Perfil> findByLikeDescripcion(Long idEscuela, String descripcion, Pageable pageable);
 	Perfil findByNombre(Long idEscuela, String nombre);
 	Optional<Perfil> findByClave(UUID uuid);
 	

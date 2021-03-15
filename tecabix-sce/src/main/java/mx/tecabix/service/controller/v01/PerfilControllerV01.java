@@ -25,6 +25,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -36,15 +37,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.ApiOperation;
 import mx.tecabix.db.entity.Authority;
-import mx.tecabix.db.entity.Catalogo;
 import mx.tecabix.db.entity.Perfil;
 import mx.tecabix.db.entity.Sesion;
-import mx.tecabix.db.entity.Usuario;
 import mx.tecabix.db.service.AuthorityService;
-import mx.tecabix.db.service.CatalogoService;
 import mx.tecabix.db.service.PerfilService;
 import mx.tecabix.service.Auth;
+import mx.tecabix.service.SingletonUtil;
 import mx.tecabix.service.page.PerfilPage;
 /**
  * 
@@ -56,76 +56,76 @@ import mx.tecabix.service.page.PerfilPage;
 public class PerfilControllerV01 extends Auth{
 
 	@Autowired
+	private SingletonUtil singletonUtil;
+	@Autowired
 	private PerfilService perfilService;
 	@Autowired 
 	private AuthorityService authorityService;
-	@Autowired
-	private CatalogoService catalogoService;
 	
 	private final String PERFIL = "PERFIL";
 	private final String PERFIL_CREAR = "PERFIL_CREAR";
 	private final String PERFIL_EDITAR = "PERFIL_EDITAR";
 	private final String PERFIL_ELIMINAR = "PERFIL_ELIMINAR";
 	
-	private final String ESTATUS = "ESTATUS";
-	private final String ACTIVO = "ACTIVO";
-	private final String ELIMINADO = "ELIMINADO";
-	
-	@GetMapping
-	public ResponseEntity<Perfil> get(@RequestParam(value="token") UUID token) {
-		Sesion sesion = getSessionIfIsAuthorized(token);
-		if(sesion == null){
-			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
-		}
-		Usuario usuario = sesion.getUsuario();
-		if(usuario == null) {
-			return new ResponseEntity<Perfil>(HttpStatus.NOT_FOUND);
-		}
-		Perfil perfil = usuario.getPerfil();
-		if(perfil == null) {
-			return new ResponseEntity<Perfil>(HttpStatus.NOT_FOUND);
-		}
-		return new ResponseEntity<Perfil>(perfil,HttpStatus.OK);
-	}
-	
-	@GetMapping("findAll")
-	public ResponseEntity<PerfilPage> findAll(@RequestParam(value="token") UUID token, byte elements, short page) {
-		
+	/**
+	 * 
+	 * @param by:		NOMBRE, DESCRIPCION
+	 * @param order:	ASC, DESC
+	 * 
+	 */
+	@ApiOperation(value = "Obtiene todo los perfiles paginado.", 
+			notes = "<b>by:</b> NOMBRE, DESCRIPCION<br/><b>order:</b> ASC, DESC")
+	@GetMapping()
+	public ResponseEntity<PerfilPage> find(
+			@RequestParam(value="token") UUID token,
+			@RequestParam(value="search", required = false) String search,
+			@RequestParam(value="by", defaultValue = "NOMBRE") String by,
+			@RequestParam(value="order", defaultValue = "ASC") String order,
+			@RequestParam(value="elements") byte elements,
+			@RequestParam(value="page") short page) {
+
 		Sesion sesion = getSessionIfIsAuthorized(token, PERFIL);
 		if(sesion == null){
 			return new ResponseEntity<PerfilPage>(HttpStatus.UNAUTHORIZED);
 		}
-		
-		Page<Perfil> response = perfilService.findAll(sesion.getLicencia().getPlantel().getIdEscuela(), elements, page);
-		PerfilPage body = new PerfilPage(response);
-		return new ResponseEntity<PerfilPage>(body, HttpStatus.OK);
-	}
-	
-	@GetMapping("findAllByNombre")
-	public ResponseEntity<PerfilPage> findAllByNombre(@RequestParam(value="token") UUID token, @RequestParam(value="nombre") String nombre, byte elements, short page) {
-		
-		Sesion sesion = getSessionIfIsAuthorized(token, PERFIL);
-		if(sesion == null){
-			return new ResponseEntity<PerfilPage>(HttpStatus.UNAUTHORIZED);
+		Page<Perfil> response = null;
+		Sort sort;
+		if(order.equalsIgnoreCase("ASC")) {
+			sort = Sort.by(Sort.Direction.ASC, by.toLowerCase());
+		}else if(order.equalsIgnoreCase("DESC")) {
+			sort = Sort.by(Sort.Direction.DESC, by.toLowerCase());
+		}else {
+			return new ResponseEntity<PerfilPage>(HttpStatus.BAD_REQUEST);
 		}
-		
-		Page<Perfil> response = perfilService.findAllbyNombre(sesion.getLicencia().getPlantel().getIdEscuela(), nombre, elements, page);
+		long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
+		if(search == null || search.isEmpty()) {
+			response = perfilService.findAll(idEscuela, elements, page, sort);
+		}else {
+			StringBuilder text = new StringBuilder("%").append(search).append("%");
+			if(by.equalsIgnoreCase("NOMBRE")) {
+				response = perfilService.findByLikeNombre(idEscuela, text.toString(), elements, page, sort);
+			}else if(by.equalsIgnoreCase("DESCRIPCION")) {
+				response = perfilService.findByLikeDescripcion(idEscuela, text.toString(), elements, page, sort);
+			}else {
+				return new ResponseEntity<PerfilPage>(HttpStatus.BAD_REQUEST);
+			}
+		}
 		PerfilPage body = new PerfilPage(response);
 		return new ResponseEntity<PerfilPage>(body, HttpStatus.OK);
 	}
 	
+	@ApiOperation(value = "Persiste la entidad del Perfil con sus correspondientes Authority. ")
 	@PostMapping
 	public ResponseEntity<Perfil> save(@RequestParam(value="token") UUID token,@RequestBody Perfil perfil){
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, PERFIL_CREAR);
-		if(sesion == null){
+		if(isValid(sesion)){
 			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
 		}
-		
-		if(perfil.getDescripcion() == null || perfil.getDescripcion().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Perfil.SIZE_DESCRIPCION, perfil.getDescripcion())) {
 			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 		}
-		if(perfil.getNombre() == null || perfil.getNombre().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Perfil.SIZE_NOMBRE, perfil.getNombre())) {
 			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 		}
 		if((perfilService.findByNombre(sesion.getLicencia().getPlantel().getIdEscuela(), perfil.getNombre()))!=null) {
@@ -136,7 +136,7 @@ public class PerfilControllerV01 extends Auth{
 		List<Authority> listAux = new ArrayList<Authority>();
 		if(list != null) {
 			for (Authority authority : list) {
-				Optional<Authority> authOptional = authorityService.findById(authority.getId());
+				Optional<Authority> authOptional = authorityService.findByClave(authority.getClave());
 				if(!authOptional.isPresent()) {
 					return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 				}else {
@@ -145,44 +145,39 @@ public class PerfilControllerV01 extends Auth{
 			}
 			perfil.setAuthorities(listAux);
 		}
-		Optional<Catalogo> optionalCatalogoActivo = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO);
-		if(!optionalCatalogoActivo.isPresent()) {
-			return new ResponseEntity<Perfil>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		final Catalogo CAT_ACTIVO = optionalCatalogoActivo.get();
 		
 		perfil.setIdEscuela(sesion.getLicencia().getPlantel().getIdEscuela());
-		perfil.setEstatus(CAT_ACTIVO);
+		perfil.setEstatus(singletonUtil.getActivo());
 		perfil.setIdUsuarioModificado(sesion.getUsuario().getId());
 		perfil.setFechaDeModificacion(LocalDateTime.now());
 		perfilService.save(perfil);
 		return new ResponseEntity<Perfil>(perfil,HttpStatus.OK);
 	}
 	
+	@ApiOperation(value = "Actualiza la entidad del perfil.")
 	@PutMapping
 	public ResponseEntity<Perfil> update(@RequestParam(value="token") UUID token,@RequestBody Perfil perfil){
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, PERFIL_EDITAR);
-		if(sesion == null){
+		if(isNotValid(sesion)){
 			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
 		}
-		
-		if(perfil.getId() == null) {
+		if(isNotValid(perfil.getClave())) {
 			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 		}
-		if(perfil.getDescripcion() == null || perfil.getDescripcion().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Perfil.SIZE_DESCRIPCION, perfil.getDescripcion())) {
 			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 		}
-		if(perfil.getNombre() == null || perfil.getNombre().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Perfil.SIZE_NOMBRE, perfil.getNombre())) {
 			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 		}
-		Optional<Perfil> perfilAuxOptional = perfilService.findById(perfil.getId());
+		Optional<Perfil> perfilAuxOptional = perfilService.findByClave(perfil.getClave());
 		if(!perfilAuxOptional.isPresent()) {
-			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Perfil>(HttpStatus.NOT_FOUND);
 		}
 		Perfil perfilAux = perfilAuxOptional.get();
 		if(perfilAux.getIdEscuela().longValue() != sesion.getLicencia().getPlantel().getIdEscuela().longValue()) {
-			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Perfil>(HttpStatus.NOT_FOUND);
 		}
 		
 		Perfil perfilExistente = perfilService.findByNombre(sesion.getLicencia().getPlantel().getIdEscuela(), perfil.getNombre());
@@ -204,15 +199,17 @@ public class PerfilControllerV01 extends Auth{
 		perfilService.update(perfilAux);
 		return new ResponseEntity<Perfil>(perfilAux,HttpStatus.OK);
 	}
+	
+	@ApiOperation(value = "Elimina la entidad del perfil.")
 	@DeleteMapping
-	public ResponseEntity<?> delete(@RequestParam(value="token") UUID token,@RequestParam Long idPerfil){
+	public ResponseEntity<?> delete(@RequestParam(value="token") UUID token,@RequestParam UUID clave){
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, PERFIL_ELIMINAR);
 		if(sesion == null){
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 
-		Optional<Perfil> perfilOptional = perfilService.findById(idPerfil);
+		Optional<Perfil> perfilOptional = perfilService.findByClave(clave);
 		
 		if(!perfilOptional.isPresent() ) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -221,18 +218,11 @@ public class PerfilControllerV01 extends Auth{
 		if(perfil.getIdEscuela().longValue() != sesion.getLicencia().getPlantel().getIdEscuela().longValue()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		Optional<Catalogo> optionalCatalogoEliminado = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
-		if(!optionalCatalogoEliminado.isPresent()) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		final Catalogo CAT_ELIMINADO = optionalCatalogoEliminado.get();
-		
-		perfil.setEstatus(CAT_ELIMINADO);
+		perfil.setEstatus(singletonUtil.getEliminado());
 		perfil.setIdUsuarioModificado(sesion.getUsuario().getId());
 		perfil.setFechaDeModificacion(LocalDateTime.now());
 		perfil = perfilService.update(perfil);
 		perfilService.deleteById(perfil.getId());
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
-	
 }

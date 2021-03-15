@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 
 import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.Perfil;
@@ -32,7 +33,8 @@ import mx.tecabix.db.entity.Perfil;
 public interface PerfilService extends GenericSevice<Perfil, Long>{
 
 	Perfil findByNombre(Long idEscuela, String nombre);
-	Page<Perfil> findAll(Long idEscuela, int elements, int page);
-	Page<Perfil> findAllbyNombre(Long idEscuela, String nombre, int elements, int page);
+	Page<Perfil> findAll(Long idEscuela, int elements, int page, Sort sort);
+	Page<Perfil> findByLikeNombre(Long idEscuela, String nombre, int elements, int page, Sort sort);
+	Page<Perfil> findByLikeDescripcion(Long idEscuela, String descripcion, int elements, int page, Sort sort);
 	Optional<Perfil> findByClave(UUID uuid);
 }

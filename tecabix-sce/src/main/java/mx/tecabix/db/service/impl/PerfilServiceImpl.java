@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.GenericSeviceImpl;
@@ -50,16 +51,16 @@ public class PerfilServiceImpl extends GenericSeviceImpl<Perfil, Long> implement
 	}
 
 	@Override
-	public Page<Perfil> findAll(Long idEscuela, int elements, int page) {
-		Pageable pageable = PageRequest.of(page, elements);
+	public Page<Perfil> findAll(Long idEscuela, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort);
 		Page<Perfil> perfiles = perfilRepository.findAll(idEscuela, pageable);
 		return perfiles;
 	}
 
 	@Override
-	public Page<Perfil> findAllbyNombre(Long idEscuela, String nombre, int elements, int page) {
-		Pageable pageable = PageRequest.of(page, elements);
-		Page<Perfil> perfiles = perfilRepository.findAllByNombre(idEscuela,nombre, pageable);
+	public Page<Perfil> findByLikeNombre(Long idEscuela, String nombre, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort);
+		Page<Perfil> perfiles = perfilRepository.findByLikeNombre(idEscuela, nombre, pageable);
 		return perfiles;
 	}
 
@@ -73,5 +74,12 @@ public class PerfilServiceImpl extends GenericSeviceImpl<Perfil, Long> implement
 	public Optional<Perfil> findByClave(UUID uuid) {
 		Optional<Perfil> result = perfilRepository.findByClave(uuid);
 		return result;
+	}
+
+	@Override
+	public Page<Perfil> findByLikeDescripcion(Long idEscuela, String descripcion, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort);
+		Page<Perfil> perfiles = perfilRepository.findByLikeDescripcion(idEscuela, descripcion, pageable);
+		return perfiles;
 	}	
 }

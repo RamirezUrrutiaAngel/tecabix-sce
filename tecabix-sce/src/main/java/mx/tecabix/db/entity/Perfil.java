@@ -50,14 +50,19 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @Table(name = "perfil")
 @NamedQueries({
 	@NamedQuery(name = "Perfil.findByKey",query = "SELECT p FROM Perfil p WHERE p.id = ?1 AND p.estatus.nombre = 'ACTIVO' "),
-	@NamedQuery(name = "Perfil.findAll",query = "SELECT p FROM Perfil p WHERE p.idEscuela = ?1 AND p.estatus.nombre = 'ACTIVO' ORDER BY p.nombre"),
-	@NamedQuery(name = "Perfil.findAllByNombre",query = "SELECT p FROM Perfil p WHERE p.estatus.nombre = 'ACTIVO' AND p.idEscuela = ?1 AND p.nombre LIKE ?2 ORDER BY p.nombre"),
+	@NamedQuery(name = "Perfil.findAll",query = "SELECT p FROM Perfil p WHERE p.idEscuela = ?1 AND p.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Perfil.findByLikeNombre",query = "SELECT p FROM Perfil p WHERE p.estatus.nombre = 'ACTIVO' AND p.idEscuela = ?1 AND UPPER(p.nombre) LIKE UPPER(?2) "),
+	@NamedQuery(name = "Perfil.findByLikeDescripcion",query = "SELECT p FROM Perfil p WHERE p.estatus.nombre = 'ACTIVO' AND p.idEscuela = ?1 AND UPPER(p.descripcion) LIKE UPPER(?2) "),
 	@NamedQuery(name = "Perfil.findByNombre",query = "SELECT p FROM Perfil p WHERE p.estatus.nombre = 'ACTIVO' AND p.idEscuela = ?1 AND p.nombre = ?2 ")
 
 })
 public class Perfil implements Serializable{
 
 	private static final long serialVersionUID = 1945352087628007583L;
+	
+	public static final short SIZE_NOMBRE = 45;
+	public static final short SIZE_DESCRIPCION = 500;
+	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_perfil", unique = true, nullable = false)
