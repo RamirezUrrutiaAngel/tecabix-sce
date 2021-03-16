@@ -119,7 +119,7 @@ public class PerfilControllerV01 extends Auth{
 	public ResponseEntity<Perfil> save(@RequestParam(value="token") UUID token,@RequestBody Perfil perfil){
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, PERFIL_CREAR);
-		if(isValid(sesion)){
+		if(isNotValid(sesion)){
 			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Perfil.SIZE_DESCRIPCION, perfil.getDescripcion())) {
@@ -131,7 +131,6 @@ public class PerfilControllerV01 extends Auth{
 		if((perfilService.findByNombre(sesion.getLicencia().getPlantel().getIdEscuela(), perfil.getNombre()))!=null) {
 			return new ResponseEntity<Perfil>(HttpStatus.NOT_ACCEPTABLE);
 		}
-		perfil.setIdEscuela(sesion.getLicencia().getPlantel().getIdEscuela());
 		List<Authority> list = perfil.getAuthorities();
 		List<Authority> listAux = new ArrayList<Authority>();
 		if(list != null) {
@@ -150,6 +149,7 @@ public class PerfilControllerV01 extends Auth{
 		perfil.setEstatus(singletonUtil.getActivo());
 		perfil.setIdUsuarioModificado(sesion.getUsuario().getId());
 		perfil.setFechaDeModificacion(LocalDateTime.now());
+		perfil.setClave(UUID.randomUUID());
 		perfilService.save(perfil);
 		return new ResponseEntity<Perfil>(perfil,HttpStatus.OK);
 	}
