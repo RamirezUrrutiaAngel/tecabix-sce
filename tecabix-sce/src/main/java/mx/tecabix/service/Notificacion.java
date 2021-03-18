@@ -96,7 +96,7 @@ public class Notificacion extends Encrypt {
 			String FILE_MESSAGE		= "INF_FILE_MESSAGE";
 			String SEED				= "SEED";
 			Properties properties = new Properties();
-			FileReader fileReader = new FileReader(this.getConfiguracionEmailFile());
+			FileReader fileReader = new FileReader(getConfiguracionEmailFile());
 			properties.load(fileReader);
 			SEED				= properties.getProperty(SEED);
 			REMITENTE			= properties.getProperty(REMITENTE);
@@ -286,8 +286,9 @@ public class Notificacion extends Encrypt {
 		}
 	}
 
-	protected String getConfiguracionEmailFile() {
-		return configuracionEmailFile;
+	protected File getConfiguracionEmailFile() {
+		File file = new File(this.configuracionEmailFile);
+		return file.getAbsoluteFile();
 	}
 	
 }

@@ -79,7 +79,7 @@ public class LogControllerV01 extends Auth{
 	private void postConstruct() {
 		try {
 			if(this.getConfiguracionEmailFile() != null) {
-				if(!this.getConfiguracionEmailFile().isEmpty()) {
+				if(!this.getConfiguracionEmailFile().exists()) {
 					String REMITENTE 		= "LOG_REMITENTE";
 					String SUBJECT			= "LOG_SUBJECT";
 					String TO				= "LOG_TO";
