@@ -128,7 +128,9 @@ public class PerfilControllerV01 extends Auth{
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Perfil.SIZE_NOMBRE, perfil.getNombre())) {
 			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 		}
-		if((perfilService.findByNombre(sesion.getLicencia().getPlantel().getIdEscuela(), perfil.getNombre()))!=null) {
+		
+		Page<Perfil> pagePerfil = perfilService.findByNombre(sesion.getLicencia().getPlantel().getIdEscuela(), perfil.getNombre(),Integer.MAX_VALUE,0);
+		if(!pagePerfil.isEmpty()) {
 			return new ResponseEntity<Perfil>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		List<Authority> list = perfil.getAuthorities();
@@ -180,20 +182,32 @@ public class PerfilControllerV01 extends Auth{
 			return new ResponseEntity<Perfil>(HttpStatus.NOT_FOUND);
 		}
 		
-		Perfil perfilExistente = perfilService.findByNombre(sesion.getLicencia().getPlantel().getIdEscuela(), perfil.getNombre());
-		if(perfilExistente != null && perfilExistente.getId().longValue() != perfil.getId()) {
-			return new ResponseEntity<Perfil>(HttpStatus.NOT_ACCEPTABLE);
-		}
-		
-		List<Authority> list = perfil.getAuthorities();
-		if(list != null) {
-			for (Authority authority : list) {
-				if(!authorityService.findById(authority.getId()).isPresent())return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
+		Page<Perfil> pagePerfil = perfilService.findByNombre(sesion.getLicencia().getPlantel().getIdEscuela(), perfil.getNombre(),Integer.MAX_VALUE,0);
+		for (Perfil perfilExistente : pagePerfil) {
+			if(perfilExistente != null && !perfilExistente.equals(perfil)) {
+				return new ResponseEntity<Perfil>(HttpStatus.NOT_ACCEPTABLE);
 			}
+		}
+		List<Authority> list = perfil.getAuthorities();
+		List<Authority> authorityList = new ArrayList<Authority>();
+		if(list != null) {
+			
+			for (int i = 0; i < list.size() ; i++) {
+				Authority authority = list.get(i);
+				if(authority.getClave() == null) {
+					return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
+				}
+				Optional<Authority> optionalAuthority = authorityService.findByClave(authority.getClave());
+				if(!optionalAuthority.isPresent()) {
+					return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
+				}
+				authority = optionalAuthority.get();
+				authorityList.add(authority);
+			}
+			perfilAux.setAuthorities(authorityList);
 		}
 		perfilAux.setNombre(perfil.getNombre());
 		perfilAux.setDescripcion(perfil.getDescripcion());
-		perfilAux.setAuthorities(list);
 		perfilAux.setIdUsuarioModificado(sesion.getUsuario().getId());
 		perfilAux.setFechaDeModificacion(LocalDateTime.now());
 		perfilService.update(perfilAux);

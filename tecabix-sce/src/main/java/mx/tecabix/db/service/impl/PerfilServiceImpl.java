@@ -65,8 +65,9 @@ public class PerfilServiceImpl extends GenericSeviceImpl<Perfil, Long> implement
 	}
 
 	@Override
-	public Perfil findByNombre(Long idEscuela, String nombre) {
-		Perfil perfil = perfilRepository.findByNombre(idEscuela, nombre);
+	public Page<Perfil> findByNombre(Long idEscuela, String nombre, int elements, int page) {
+		Pageable pageable = PageRequest.of(page, elements);
+		Page<Perfil> perfil = perfilRepository.findByNombre(idEscuela, nombre, pageable);
 		return perfil;
 	}
 
