@@ -5,3 +5,6 @@ tecabix-sce/.settings/org.eclipse.core.resources.prefs
 tecabix-sce/.project
 tecabix-sce/.classpath
 tecabix-sce/target/*
+tecabix-sce/.settings/org.springframework.ide.eclipse.prefs
+tecabix-sce/configuracion.email.properties
+
