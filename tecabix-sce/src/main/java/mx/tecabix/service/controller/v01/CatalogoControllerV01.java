@@ -39,7 +39,6 @@ import mx.tecabix.db.entity.CatalogoTipo;
 import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.service.CatalogoService;
 import mx.tecabix.db.service.CatalogoTipoService;
-import mx.tecabix.db.service.SesionService;
 import mx.tecabix.service.Auth;
 import mx.tecabix.service.SingletonUtil;
 /**
@@ -59,8 +58,6 @@ public class CatalogoControllerV01 extends Auth{
 	private CatalogoService catalogoService;
 	@Autowired
 	private CatalogoTipoService catalogoTipoService;
-	@Autowired
-	private SesionService sesionService;
 	
 	@ApiOperation(value = "Persiste la entidad del tipo del catalogo con sus correspondientes catalogos. ")
 	@PostMapping("saveCatalogoTipo")
@@ -243,7 +240,7 @@ public class CatalogoControllerV01 extends Auth{
 			@RequestParam(value="catalogoTipoNombre") String catalogoTipoNombre,
 			@RequestParam(value="token") UUID token) {
 		
-		Sesion sesion = sesionService.findByToken(token);
+		Sesion sesion = getSessionIfIsAuthorized(token);
 		if(sesion == null) {
 			return new ResponseEntity<CatalogoTipo>(HttpStatus.UNAUTHORIZED);
 		}
@@ -263,7 +260,7 @@ public class CatalogoControllerV01 extends Auth{
 			@RequestParam(value="nombre") String nombre,
 			@RequestParam(value="token") UUID token) {
 		
-		Sesion sesion = sesionService.findByToken(token);
+		Sesion sesion = getSessionIfIsAuthorized(token);
 		if(sesion == null) {
 			return new ResponseEntity<Catalogo>(HttpStatus.UNAUTHORIZED);
 		}

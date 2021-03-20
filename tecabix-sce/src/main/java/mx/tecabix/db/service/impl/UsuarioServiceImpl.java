@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.GenericSeviceImpl;
@@ -50,26 +51,35 @@ public class UsuarioServiceImpl extends GenericSeviceImpl<Usuario, Long> impleme
 	}
 	
 	@Override
-	public Usuario findByNombre(String nombre) {
-		Usuario usr = usuarioRepository.findByNombre(nombre);
-		return usr;
+	public Optional<Usuario> findByNombre(String nombre) {
+		return usuarioRepository.findByNombre(nombre);
 	}
 
 	@Override
-	public Usuario findByNameRegardlessOfStatus(String nombre) {
-		Usuario usr = usuarioRepository.findByNameRegardlessOfStatus(nombre);
-		return usr;
-	}
-
-	@Override
-	public Page<Usuario> findByPerfil(Long idPerfil, int elements, int page) {
-		Pageable pageable = PageRequest.of(page, elements);
-		Page<Usuario> entitys = usuarioRepository.findByPerfil(idPerfil, pageable);
-		return entitys;
+	public Optional<Usuario> findByNameRegardlessOfStatus(String nombre) {
+		return usuarioRepository.findByNameRegardlessOfStatus(nombre);
 	}
 
 	@Override
 	public Optional<Usuario> findByClave(UUID uuid) {
 		return usuarioRepository.findByClave(uuid);
+	}
+
+	@Override
+	public Page<Usuario> findByLikeNombre(String nombre, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort);
+		return usuarioRepository.findByLikeNombre(nombre, pageable);
+	}
+
+	@Override
+	public Page<Usuario> findByLikeCorreo(String correo, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort);
+		return usuarioRepository.findByLikeNombre(correo, pageable);
+	}
+
+	@Override
+	public Page<Usuario> findByLikePerfil(String perfil, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort);
+		return usuarioRepository.findByLikeNombre(perfil, pageable);
 	}
 }

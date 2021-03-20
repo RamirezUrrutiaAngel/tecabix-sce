@@ -98,10 +98,11 @@ public class SesionControllerV01 extends Auth {
 		if(licencia == null) {
 			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND); 
 		}
-		Usuario usuario = usuarioService.findByNombre(usuarioName);
-		if(usuario == null) {
+		Optional<Usuario> optionalUsuario = usuarioService.findByNombre(usuarioName);
+		if(!optionalUsuario.isPresent()) {
 			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);
 		}
+		Usuario usuario = optionalUsuario.get();
 		Optional<Suscripcion> optionalSuscripcion = suscripcionService.findByIdEscuelaAndValid(licencia.getPlantel().getIdEscuela());
 		if(!optionalSuscripcion.isPresent()) {
 			return new ResponseEntity<Sesion>(HttpStatus.LOCKED);

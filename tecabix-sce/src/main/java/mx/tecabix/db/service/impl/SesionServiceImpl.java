@@ -87,11 +87,12 @@ public class SesionServiceImpl extends GenericSeviceImpl<Sesion, Long> implement
 	}
 
 	@Override
-	public Sesion findByToken(UUID keyToken) {
+	public Optional<Sesion> findByToken(UUID keyToken) {
 		synchronized (LOG) {
 			try {
-				Sesion response = sesionRepository.findByToken(keyToken);
-				if(response != null) {
+				Optional<Sesion> optionalSesion  = sesionRepository.findByToken(keyToken);
+				if(!optionalSesion.isPresent()) {
+					Sesion response = optionalSesion.get();
 					LocalDateTime hoy = LocalDateTime.now();
 					if(response.getLicencia().getServicio().getTipo().getNombre().equals("WEB")) {
 						if(response.getVencimiento().isBefore(hoy)) {
@@ -99,7 +100,7 @@ public class SesionServiceImpl extends GenericSeviceImpl<Sesion, Long> implement
 							Optional<Suscripcion> optionalSuscripsion = suscripcionService.findByIdEscuelaAndValid(idEscuela);
 							if(!optionalSuscripsion.isPresent()) {
 								LOG.warn("SUSCRIPCION CADUCADA PARA EL ID "+idEscuela);
-								return null;
+								return Optional.empty();
 							}
 							LocalDateTime vencimiento = LocalDateTime.of(hoy.toLocalDate(),LocalTime.of(23, 59));
 							response.setVencimiento(vencimiento);
@@ -110,12 +111,12 @@ public class SesionServiceImpl extends GenericSeviceImpl<Sesion, Long> implement
 					numeroDePeticionesRestante -= 1;
 					response.setPeticionesRestantes(numeroDePeticionesRestante);
 					response = sesionRepository.save(response);
-					return response;
+					return optionalSesion;
 				}
-				return response;
+				return optionalSesion;
 			} catch (Exception e) {
 				LOG.error("Excepcion en findByToken", e.getCause());
-				return null;
+				return  Optional.empty();
 			}	
 		}
 	}

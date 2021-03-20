@@ -22,6 +22,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -33,16 +35,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.ApiOperation;
 import mx.tecabix.db.entity.Catalogo;
 import mx.tecabix.db.entity.Persona;
 import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.entity.Usuario;
 import mx.tecabix.db.entity.UsuarioPersona;
-import mx.tecabix.db.service.CatalogoService;
 import mx.tecabix.db.service.PersonaService;
 import mx.tecabix.db.service.UsuarioPersonaService;
 import mx.tecabix.db.service.UsuarioService;
 import mx.tecabix.service.Auth;
+import mx.tecabix.service.SingletonUtil;
+import mx.tecabix.service.page.UsuarioPage;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -53,10 +57,10 @@ import mx.tecabix.service.Auth;
 public class UsuarioControllerV01 extends Auth {
 	
 	@Autowired
-	private UsuarioService usuarioService;
+	private SingletonUtil singletonUtil;
 	
 	@Autowired
-	private CatalogoService catalogoService;
+	private UsuarioService usuarioService;
 	
 	@Autowired 
 	private PersonaService personaService;
@@ -64,31 +68,71 @@ public class UsuarioControllerV01 extends Auth {
 	@Autowired
 	private UsuarioPersonaService usuarioPersonaService;
 	
-	
-	private final String ACTIVO = "ACTIVO";
-	private final String ESTATUS = "ESTATUS";
+	private final String USUARIO ="USUARIO";
 	private final String USUARIO_CREAR ="USUARIO_CREAR";
 	private final String USUARIO_EDITAR ="USUARIO_EDITAR";
-		
+	/**
+	 * 
+	 * @param by:		NOMBRE, CORREO, PERFIL
+	 * @param order:	ASC, DESC
+	 * 
+	 */
+	@ApiOperation(value = "Obtiene todo los authority paginado.", 
+			notes = "<b>by:</b> NOMBRE, DESCRIPCION<br/><b>order:</b> ASC, DESC")
 	@GetMapping
-	public ResponseEntity<Usuario> get(@RequestParam(value="key") UUID token) {
+	public ResponseEntity<UsuarioPage> find(
+			@RequestParam(value="token") UUID token,
+			@RequestParam(value="search", required = false) String search,
+			@RequestParam(value="by", defaultValue = "NOMBRE") String by,
+			@RequestParam(value="order", defaultValue = "ASC") String order,
+			@RequestParam(value="elements") byte elements,
+			@RequestParam(value="page") short page) {
 		
-		Sesion sesion = getSessionIfIsAuthorized(token);
+		Sesion sesion = getSessionIfIsAuthorized(token,USUARIO);
 		if(sesion == null) {
-			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<UsuarioPage>(HttpStatus.UNAUTHORIZED);
 		}
-		
-		return new ResponseEntity<Usuario>(sesion.getUsuario(), HttpStatus.OK);
+		Page<Usuario> usuarios = null;
+		Sort sort;
+		if(order.equalsIgnoreCase("ASC")) {
+			sort = Sort.by(Sort.Direction.ASC, by.toLowerCase());
+		}else if(order.equalsIgnoreCase("DESC")) {
+			sort = Sort.by(Sort.Direction.DESC, by.toLowerCase());
+		}else {
+			return new ResponseEntity<UsuarioPage>(HttpStatus.BAD_REQUEST);
+		}
+		if(search == null || search.isEmpty()) {
+			usuarios = usuarioService.findAll(elements, page, sort);
+		}else {
+			StringBuilder text = new StringBuilder("%").append(search).append("%");
+			if(by.equalsIgnoreCase("NOMBRE")) {
+				usuarios = usuarioService.findByLikeNombre(text.toString(), elements, page, sort);
+			}else if(by.equalsIgnoreCase("CORREO")) {
+				usuarios = usuarioService.findByLikeCorreo(text.toString(), elements, page, sort);
+			}else if(by.equalsIgnoreCase("PERFIL")) {
+				usuarios = usuarioService.findByLikePerfil(text.toString(), elements, page, sort);
+			}else {
+				new ResponseEntity<UsuarioPage>(HttpStatus.BAD_REQUEST);
+			}
+		}
+		UsuarioPage usuarioPage = new UsuarioPage(usuarios);
+		return new ResponseEntity<UsuarioPage>(usuarioPage,HttpStatus.OK);
 	}
 	
-	@GetMapping("findIfIsExist")
-	public ResponseEntity<Boolean> findByNameRegardlessOfStatus(@RequestParam(value="nombre") String nombre){
-		
-		Usuario usr = usuarioService.findByNameRegardlessOfStatus(nombre);
-		if(usr == null) {
-			return new ResponseEntity<Boolean>(false,HttpStatus.ACCEPTED);
+	@GetMapping("is-username-accepted")
+	public ResponseEntity<?> exists(@RequestParam(value="token") UUID token,@RequestParam(value="username") String usuario){
+		Sesion sesion = getSessionIfIsAuthorized(token,USUARIO);
+		if(sesion == null) {
+			return new ResponseEntity<UsuarioPage>(HttpStatus.UNAUTHORIZED);
 		}
-		return new ResponseEntity<Boolean>(true, HttpStatus.OK);
+		if(isNotValid(TIPO_VARIABLE, Usuario.SIZE_NOMBRE, usuario)) {
+			return new ResponseEntity<Boolean>(HttpStatus.NOT_ACCEPTABLE);
+		}
+		Optional<Usuario> optionalUsuario = usuarioService.findByNameRegardlessOfStatus(usuario);
+		if(!optionalUsuario.isPresent()) {
+			return new ResponseEntity<Boolean>(HttpStatus.ACCEPTED);
+		}
+		return new ResponseEntity<Boolean>(HttpStatus.NOT_ACCEPTABLE);
 	}
 	
 	@PostMapping()
@@ -97,58 +141,54 @@ public class UsuarioControllerV01 extends Auth {
 		if(sesion == null) {
 			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
 		}
-		
 		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		if(usuario.getCorreo() == null || usuario.getCorreo().isEmpty()) {
+		if(isNotValid(TIPO_EMAIL, Usuario.SIZE_CORREO, usuario.getCorreo())) {
 			return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
 		}
-		if(usuario.getNombre() == null || usuario.getNombre().isEmpty()) {
+		if(isNotValid(TIPO_VARIABLE, Usuario.SIZE_NOMBRE, usuario.getNombre())) {
 			return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
 		}
-		if(usuario.getPassword() == null || usuario.getPassword().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, TIPO_ALFA, usuario.getPassword())) {
 			return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
 		}
 		if(usuario.getNombre().length()>8) {
 			return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
 		}
-		if(usuario.getUsuarioPersona() == null || usuario.getUsuarioPersona().getPersona() == null || usuario.getUsuarioPersona().getPersona().getId() == null) {
+		if(isNotValid(usuario.getUsuarioPersona())) {
 			return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
 		}
-		Optional<Persona> personaOptional = personaService.findById(usuario.getUsuarioPersona().getPersona().getId());
+		if(isNotValid(usuario.getUsuarioPersona().getClave())) {
+			return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
+		}
+		Optional<Persona> personaOptional = personaService.findByClave(usuario.getUsuarioPersona().getPersona().getClave());
 		if(!personaOptional.isPresent()) {
 			return new ResponseEntity<Usuario>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Persona persona = personaOptional.get();
-		if( !persona.getEstatus().getNombre().equals(ACTIVO) || persona.getUsuarioPersona()!=null) {
+		Catalogo activo = singletonUtil.getActivo();
+		if( !persona.getEstatus().getNombre().equals(activo) || persona.getUsuarioPersona()!=null) {
 			return new ResponseEntity<Usuario>(HttpStatus.NOT_ACCEPTABLE);
 		}
-		
 		if(usuarioService.findByNameRegardlessOfStatus(usuario.getNombre())!= null) {
 			return new ResponseEntity<Usuario>(HttpStatus.CONFLICT);
 		}
-		Optional<Catalogo> optionalCatalogoActivo = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO);
-		if(!optionalCatalogoActivo.isPresent()) {
-			return new ResponseEntity<Usuario>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		final Catalogo catalogoActivo = optionalCatalogoActivo.get();
-		
 		usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
 		usuario.setFechaDeModificacion(LocalDateTime.now());
 		usuario.setIdUsuarioModificado(sesion.getUsuario().getId());
-		usuario.setEstatus(catalogoActivo);
+		usuario.setEstatus(activo);
 		usuario = usuarioService.save(usuario);
 		UsuarioPersona usuarioPersona = new UsuarioPersona();
 		usuarioPersona.setUsuario(usuario);
 		usuarioPersona.setPersona(persona);
 		usuarioPersona.setFechaDeModificacion(LocalDateTime.now());
 		usuarioPersona.setIdUsuarioModificado(sesion.getUsuario().getId());
-		usuarioPersona.setEstatus(catalogoActivo);
+		usuarioPersona.setEstatus(activo);
 		usuarioPersona = usuarioPersonaService.save(usuarioPersona);
 		return new ResponseEntity<Usuario>(usuario,HttpStatus.OK);
 	}
 	
-	@PutMapping
-	public ResponseEntity<Usuario> update(@RequestBody Usuario usuario, @RequestParam(value="token") UUID token) {
+	@PutMapping("this")
+	public ResponseEntity<Usuario> updateThis(@RequestBody Usuario usuario, @RequestParam(value="token") UUID token) {
 		Sesion sesion = getSessionIfIsAuthorized(token,USUARIO_CREAR);
 		if(sesion == null) {
 			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
@@ -160,31 +200,29 @@ public class UsuarioControllerV01 extends Auth {
 			BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 			usr.setPassword(passwordEncoder.encode(usuario.getPassword()));
 		}
-		
 		usr = usuarioService.save(usr);
 		return new ResponseEntity<Usuario>(usr,HttpStatus.OK);
 	}
 	
-	@PutMapping("update-usuario")
-	public ResponseEntity<Usuario> updateUsuario(@RequestBody Usuario usuario, @RequestParam(value="token") UUID token) {
+	@PutMapping()
+	public ResponseEntity<Usuario> update(@RequestBody Usuario usuario, @RequestParam(value="token") UUID token) {
 		Sesion sesion = getSessionIfIsAuthorized(token,USUARIO_EDITAR);
 		if(sesion == null) {
 			return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
 		}
-		if(usuario.getId() == null || usuario.getCorreo() == null || usuario.getCorreo().isEmpty()) {
+		if(isNotValid(usuario.getClave())) {
 			return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
 		}
-		Optional<Usuario> usuarioUpdateOptional = usuarioService.findById(usuario.getId());
+		if(isNotValid(usuario.getCorreo())) {
+			return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
+		}
+		Optional<Usuario> usuarioUpdateOptional = usuarioService.findByClave(usuario.getClave());
 		
 		if(!usuarioUpdateOptional.isPresent()) {
 			return new ResponseEntity<Usuario>(HttpStatus.NOT_FOUND);
 		}
-		Usuario usuarioUpdate= usuarioUpdateOptional.get();
-		if(usuarioUpdate == null || usuarioUpdate.getUsuarioPersona() == null) {
-			return new ResponseEntity<Usuario>(HttpStatus.NOT_FOUND);
-		}
-		
-		if(usuarioUpdate.getUsuarioPersona() == null || usuarioUpdate.getUsuarioPersona().getPersona().getIdEscuela() == null) {
+		Usuario usuarioUpdate = usuarioUpdateOptional.get();
+		if(isNotValid(usuarioUpdate.getUsuarioPersona())) {
 			return new ResponseEntity<Usuario>(HttpStatus.NOT_FOUND);
 		}
 		if(!sesion.getLicencia().getPlantel().getIdEscuela().equals(usuarioUpdate.getUsuarioPersona().getPersona().getIdEscuela())) {
@@ -196,7 +234,6 @@ public class UsuarioControllerV01 extends Auth {
 			BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 			usuarioUpdate.setPassword(passwordEncoder.encode(usuario.getPassword()));
 		}
-		
 		usuarioUpdate = usuarioService.save(usuarioUpdate);
 		return new ResponseEntity<Usuario>(usuarioUpdate,HttpStatus.OK);
 	}

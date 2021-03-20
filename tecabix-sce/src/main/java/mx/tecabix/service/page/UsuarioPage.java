@@ -15,27 +15,40 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.db.service;
+package mx.tecabix.service.page;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.io.Serializable;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 
-import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.Usuario;
+import mx.tecabix.service.PageGeneric;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface UsuarioService extends GenericSevice<Usuario, Long>{
+public class UsuarioPage extends PageGeneric implements Serializable {
+
+	private static final long serialVersionUID = -2341083279491424447L;
 	
-	Page<Usuario> findByLikeNombre(String nombre, int elements, int page, Sort sort);
-	Page<Usuario> findByLikeCorreo(String correo, int elements, int page, Sort sort);
-	Page<Usuario> findByLikePerfil(String perfil, int elements, int page, Sort sort);
-	Optional<Usuario> findByNameRegardlessOfStatus(String nombre);
-	Optional<Usuario> findByNombre(String nombre);
-	Optional<Usuario> findByClave(UUID uuid);
+	private List<Usuario> data;
+
+	public UsuarioPage() {
+		super();
+	}
+
+	public UsuarioPage(Page<Usuario> data) {
+		super(data);
+		this.data = data.getContent();
+	}
+
+	public List<Usuario> getData() {
+		return data;
+	}
+
+	public void setData(List<Usuario> data) {
+		this.data = data;
+	}
 }

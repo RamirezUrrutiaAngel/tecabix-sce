@@ -32,8 +32,10 @@ import mx.tecabix.db.entity.Usuario;
  */
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
-	Usuario findByNombre(String nombre);
-	Usuario findByNameRegardlessOfStatus(String nombre);
-	Page<Usuario> findByPerfil(Long idPerfil, Pageable pageable);
+	Page<Usuario> findByLikeNombre(String nombre, Pageable pageable);
+	Page<Usuario> findByLikeCorreo(String correo, Pageable pageable);
+	Page<Usuario> findByLikePerfil(String perfil, Pageable pageable);
+	Optional<Usuario> findByNombre(String nombre);
+	Optional<Usuario> findByNameRegardlessOfStatus(String nombre);
 	Optional<Usuario> findByClave(UUID uuid);
 }

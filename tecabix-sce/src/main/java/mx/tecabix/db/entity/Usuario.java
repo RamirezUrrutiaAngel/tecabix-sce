@@ -47,13 +47,19 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @Entity
 @Table(name = "usuario")
 @NamedQueries({
-	@NamedQuery(name = "Usuario.findByPerfil",query = "SELECT u FROM Usuario u WHERE u.perfil.id = ?1"),
-    @NamedQuery(name = "Usuario.findByNombre",query = "SELECT u FROM Usuario u WHERE u.nombre = ?1 AND u.estatus.nombre = 'ACTIVO'"),
+	@NamedQuery(name = "Usuario.findByLikeNombre",query = "SELECT u FROM Usuario u WHERE UPPER(u.nombre) LIKE UPPER(?1) AND u.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Usuario.findByLikeCorreo",query = "SELECT u FROM Usuario u WHERE UPPER(u.correo) LIKE UPPER(?1) AND u.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Usuario.findByLikePerfil",query = "SELECT u FROM Usuario u WHERE UPPER(u.perfil.nombre) LIKE UPPER(?1) AND u.estatus.nombre = 'ACTIVO' "),
+    @NamedQuery(name = "Usuario.findByNombre",query = "SELECT u FROM Usuario u WHERE u.perfil = ?1 AND u.estatus.nombre = 'ACTIVO'"),
     @NamedQuery(name = "Usuario.findByNameRegardlessOfStatus",query = "SELECT u FROM Usuario u WHERE upper(u.nombre) =  upper(?1)")
 })
 public class Usuario implements Serializable{
 
 	private static final long serialVersionUID = 8367658930410205355L;
+	
+	public static final short SIZE_NOMBRE = 45;
+	public static final short SIZE_CORREO = 45;
+	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_usuario", unique = true, nullable = false)

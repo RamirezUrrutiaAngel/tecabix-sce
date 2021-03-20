@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.RestController;
 import mx.tecabix.db.entity.Estado;
 import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.service.EstadoService;
-import mx.tecabix.db.service.SesionService;
 import mx.tecabix.service.Auth;
 /**
  * 
@@ -44,13 +43,10 @@ public class EstadoControllerV01 extends Auth{
 	
 	@Autowired
 	private EstadoService estadoService;
-
-	@Autowired
-	private SesionService sesionService;
 	
 	@GetMapping("all")
 	public ResponseEntity<List<Estado>> all(@RequestParam(value="token") UUID token) {
-		Sesion sesion = sesionService.findByToken(token);
+		Sesion sesion = getSessionIfIsAuthorized(token);
 		if(sesion == null) {
 			return new ResponseEntity<List<Estado>>(HttpStatus.UNAUTHORIZED);
 		}
@@ -64,7 +60,7 @@ public class EstadoControllerV01 extends Auth{
 	// INICIO DE SERVICIO NO PROTEGIDO CON AUTENTIFICACION
 	@GetMapping("all-join-municipio")
 	public ResponseEntity<List<Estado>> allJoinMunicipio(@RequestParam(value="token") UUID token) {
-		Sesion sesion = sesionService.findByToken(token);
+		Sesion sesion = getSessionIfIsAuthorized(token);
 		if(sesion == null) {
 			return new ResponseEntity<List<Estado>>(HttpStatus.UNAUTHORIZED);
 		}

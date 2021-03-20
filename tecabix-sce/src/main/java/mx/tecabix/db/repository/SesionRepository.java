@@ -42,7 +42,7 @@ public interface SesionRepository extends JpaRepository<Sesion, Long>{
 	Page<Sesion> findByNow(Long idLicencia,Pageable pageable);
 	Page<Sesion> findByUsuarioAndNow(Long idLicencia,Long idUsuari, Pageable pageable);
 	
-	Sesion findByToken(UUID keyToken);
+	Optional<Sesion> findByToken(UUID keyToken);
 	Optional<Sesion> findByClave(UUID uuid);
 	
 }

@@ -20,6 +20,7 @@ package mx.tecabix.service;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -64,16 +65,18 @@ public class Auth extends Notificacion{
 				return false;
 			}
 		}
-		Sesion sesion = sesionService.findByToken(token);
+		Optional<Sesion> optioonalSesion = sesionService.findByToken(token);
 		String usuarioName = auth.getName();
-		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null) {
+		Optional<Usuario> OptionalUsuario = usuarioService.findByNombre(usuarioName);
+		if(!optioonalSesion.isPresent()) {
 			return false;
 		}
-		if(usr == null) {
+		if(!OptionalUsuario.isPresent()) {
 			return false;
 		}
-		if(sesion.getUsuario().getId().longValue() != usr.getId().longValue()) {
+		Sesion sesion = optioonalSesion.get();
+		Usuario usuario = OptionalUsuario.get();
+		if(sesion.getUsuario().getId().longValue() != usuario.getId().longValue()) {
 			return false;
 		}
 		return true;
@@ -90,16 +93,18 @@ public class Auth extends Notificacion{
 				return null;
 			}
 		}
-		Sesion sesion = sesionService.findByToken(token);
+		Optional<Sesion> optioonalSesion = sesionService.findByToken(token);
 		String usuarioName = auth.getName();
-		Usuario usr = usuarioService.findByNombre(usuarioName);
-		if(sesion == null) {
+		Optional<Usuario> OptionalUsuario = usuarioService.findByNombre(usuarioName);
+		if(!optioonalSesion.isPresent()) {
 			return null;
 		}
-		if(usr == null) {
+		if(!OptionalUsuario.isPresent()) {
 			return null;
 		}
-		if(sesion.getUsuario().getId().longValue() != usr.getId().longValue()) {
+		Sesion sesion = optioonalSesion.get();
+		Usuario usuario = OptionalUsuario.get();
+		if(sesion.getUsuario().getId().longValue() != usuario.getId().longValue()) {
 			return null;
 		}
 		return sesion;
