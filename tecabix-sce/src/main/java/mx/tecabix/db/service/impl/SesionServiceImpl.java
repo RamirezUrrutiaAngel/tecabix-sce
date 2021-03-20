@@ -91,7 +91,7 @@ public class SesionServiceImpl extends GenericSeviceImpl<Sesion, Long> implement
 		synchronized (LOG) {
 			try {
 				Optional<Sesion> optionalSesion  = sesionRepository.findByToken(keyToken);
-				if(!optionalSesion.isPresent()) {
+				if(optionalSesion.isPresent()) {
 					Sesion response = optionalSesion.get();
 					LocalDateTime hoy = LocalDateTime.now();
 					if(response.getLicencia().getServicio().getTipo().getNombre().equals("WEB")) {
