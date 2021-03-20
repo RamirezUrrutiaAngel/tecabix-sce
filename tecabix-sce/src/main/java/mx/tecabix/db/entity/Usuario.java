@@ -50,7 +50,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 	@NamedQuery(name = "Usuario.findByLikeNombre",query = "SELECT u FROM Usuario u WHERE UPPER(u.nombre) LIKE UPPER(?1) AND u.estatus.nombre = 'ACTIVO' "),
 	@NamedQuery(name = "Usuario.findByLikeCorreo",query = "SELECT u FROM Usuario u WHERE UPPER(u.correo) LIKE UPPER(?1) AND u.estatus.nombre = 'ACTIVO' "),
 	@NamedQuery(name = "Usuario.findByLikePerfil",query = "SELECT u FROM Usuario u WHERE UPPER(u.perfil.nombre) LIKE UPPER(?1) AND u.estatus.nombre = 'ACTIVO' "),
-    @NamedQuery(name = "Usuario.findByNombre",query = "SELECT u FROM Usuario u WHERE u.perfil = ?1 AND u.estatus.nombre = 'ACTIVO'"),
+    @NamedQuery(name = "Usuario.findByNombre",query = "SELECT u FROM Usuario u WHERE u.nombre = ?1 AND u.estatus.nombre = 'ACTIVO'"),
     @NamedQuery(name = "Usuario.findByNameRegardlessOfStatus",query = "SELECT u FROM Usuario u WHERE upper(u.nombre) =  upper(?1)")
 })
 public class Usuario implements Serializable{
