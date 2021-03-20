@@ -51,9 +51,9 @@ public class ConfiguracionServiceImpl extends GenericSeviceImpl<Configuracion, L
 	}
 	
 	@Override
-	public Page<Configuracion> findByIdEscuela(long id, int elements, int page) {
+	public Page<Configuracion> findByIdEmpresa(long id, int elements, int page) {
 		Pageable pageable = PageRequest.of(page, elements);
-		Page<Configuracion> entitys = configuracionRepository.findByIdEscuela(id, pageable);
+		Page<Configuracion> entitys = configuracionRepository.findByIdEmpresa(id, pageable);
 		return entitys;
 	}
 
@@ -65,8 +65,8 @@ public class ConfiguracionServiceImpl extends GenericSeviceImpl<Configuracion, L
 	}
 
 	@Override
-	public Optional<Configuracion> findByIdEscuelaAndNombre(long idEscuela, String nombre) {
-		Optional<Configuracion> result = configuracionRepository.findByIdEscuelaAndNombre(idEscuela, nombre);
+	public Optional<Configuracion> findByIdEmpresaAndNombre(long idEmpresa, String nombre) {
+		Optional<Configuracion> result = configuracionRepository.findByIdEmpresaAndNombre(idEmpresa, nombre);
 		return result;
 	}
 

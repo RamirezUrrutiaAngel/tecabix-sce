@@ -29,7 +29,7 @@ import mx.tecabix.db.entity.PerfilAuthority;
 public interface PerfilAuthorityService extends GenericSevice<PerfilAuthority, Long>{
 
 	Page<PerfilAuthority> findByPerfil(Long idPerfil);
-	Page<PerfilAuthority> findByAuthority(Integer idAAuthority);
+	Page<PerfilAuthority> findByAuthority(Integer idAuthority);
 	Page<PerfilAuthority> findByPerfil(Long idPerfil, int elements, int page);
-	Page<PerfilAuthority> findByAuthority(Integer idAAuthority, int elements, int page);
+	Page<PerfilAuthority> findByAuthority(Integer idAuthority, int elements, int page);
 }

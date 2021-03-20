@@ -32,9 +32,9 @@ import mx.tecabix.db.entity.Perfil;
  */
 public interface PerfilService extends GenericSevice<Perfil, Long>{
 
-	Page<Perfil> findByNombre(Long idEscuela, String nombre, int elements, int page);
-	Page<Perfil> findAll(Long idEscuela, int elements, int page, Sort sort);
-	Page<Perfil> findByLikeNombre(Long idEscuela, String nombre, int elements, int page, Sort sort);
-	Page<Perfil> findByLikeDescripcion(Long idEscuela, String descripcion, int elements, int page, Sort sort);
+	Page<Perfil> findByNombre(Long idEmpresa, String nombre, int elements, int page);
+	Page<Perfil> findAll(Long idEmpresa, int elements, int page, Sort sort);
+	Page<Perfil> findByLikeNombre(Long idEmpresa, String nombre, int elements, int page, Sort sort);
+	Page<Perfil> findByLikeDescripcion(Long idEmpresa, String descripcion, int elements, int page, Sort sort);
 	Optional<Perfil> findByClave(UUID uuid);
 }

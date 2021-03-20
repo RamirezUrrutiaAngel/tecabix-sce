@@ -31,7 +31,7 @@ import mx.tecabix.db.entity.Plantel;
  */
 public interface PlantelService extends GenericSevice<Plantel, Long>{
 
-	Page<Plantel> findByIdEscuela(Long idEmpresa,  int elements, int page);
-	Optional<Plantel> findByIdEscuelaAndNombre(Long idEmpresa, String nombre);
+	Page<Plantel> findByIdEmpresa(Long idEmpresa,  int elements, int page);
+	Optional<Plantel> findByIdEmpresaAndNombre(Long idEmpresa, String nombre);
 	Optional<Plantel> findByClave(UUID uuid);
 }

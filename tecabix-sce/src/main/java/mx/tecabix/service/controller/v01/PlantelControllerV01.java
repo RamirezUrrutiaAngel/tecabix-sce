@@ -77,8 +77,8 @@ public class PlantelControllerV01 extends Auth{
 		if(sesion == null){
 			return new ResponseEntity<Page<Plantel>>(HttpStatus.UNAUTHORIZED);
 		}
-		Long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
-		Page<Plantel> body = plantelService.findByIdEscuela(idEscuela, elements, page);
+		Long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		Page<Plantel> body = plantelService.findByIdEmpresa(idEmpresa, elements, page);
 		return new ResponseEntity<Page<Plantel>>(body, HttpStatus.OK);
 	}
 	
@@ -88,7 +88,7 @@ public class PlantelControllerV01 extends Auth{
 		if(sesion == null){
 			return new ResponseEntity<Plantel>(HttpStatus.UNAUTHORIZED);
 		}
-		Long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
+		Long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
 		if(plantel.getNombre() == null || plantel.getNombre().isEmpty()) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
@@ -129,11 +129,11 @@ public class PlantelControllerV01 extends Auth{
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Trabajador gerente = optionalTrabajador.get();
-		if(!gerente.getIdEscuela().equals(idEscuela)) {
+		if(!gerente.getIdEmpresa().equals(idEmpresa)) {
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		plantel.setGerente(gerente);
-		Optional<Plantel> optionalPlantel = plantelService.findByIdEscuelaAndNombre(idEscuela, plantel.getNombre());
+		Optional<Plantel> optionalPlantel = plantelService.findByIdEmpresaAndNombre(idEmpresa, plantel.getNombre());
 		if(optionalPlantel.isPresent()) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_GATEWAY);
 		}
@@ -149,7 +149,7 @@ public class PlantelControllerV01 extends Auth{
 		if(sesion == null){
 			return new ResponseEntity<Plantel>(HttpStatus.UNAUTHORIZED);
 		}
-		Long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
+		Long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
 		if(plantel.getId() == null) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
@@ -157,7 +157,7 @@ public class PlantelControllerV01 extends Auth{
 		if(!optionalPlantel.isPresent()) {
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_FOUND);
 		}
-		if(!optionalPlantel.get().getIdEscuela().equals(idEscuela)) {
+		if(!optionalPlantel.get().getIdEmpresa().equals(idEmpresa)) {
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_FOUND);
 		}
 		if(plantel.getNombre() == null || plantel.getNombre().isEmpty()) {
@@ -200,11 +200,11 @@ public class PlantelControllerV01 extends Auth{
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Trabajador gerente = optionalTrabajador.get();
-		if(!gerente.getIdEscuela().equals(idEscuela)) {
+		if(!gerente.getIdEmpresa().equals(idEmpresa)) {
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		plantel.setGerente(gerente);
-		Optional<Plantel> optionalPlantel2 = plantelService.findByIdEscuelaAndNombre(idEscuela, plantel.getNombre());
+		Optional<Plantel> optionalPlantel2 = plantelService.findByIdEmpresaAndNombre(idEmpresa, plantel.getNombre());
 		if(optionalPlantel2.isPresent()) {
 			if(!optionalPlantel2.get().getId().equals(plantel.getId())) {
 				return new ResponseEntity<Plantel>(HttpStatus.BAD_GATEWAY);

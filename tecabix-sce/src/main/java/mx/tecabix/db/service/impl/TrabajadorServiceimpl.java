@@ -63,16 +63,16 @@ public class TrabajadorServiceimpl extends GenericSeviceImpl<Trabajador, Long> i
 	}
 
 	@Override
-	public Page<Trabajador> findAll(Long idEscuela,int elements, int page) {
+	public Page<Trabajador> findAll(Long idEmpresa,int elements, int page) {
 		Pageable pageable = PageRequest.of(page, elements);
-		Page<Trabajador> entitys = trabajadorRepository.findAll(idEscuela, pageable);
+		Page<Trabajador> entitys = trabajadorRepository.findAll(idEmpresa, pageable);
 		return entitys;
 	}
 
 	@Override
-	public Page<Trabajador> findAllByNombre(Long idEscuela, String nombre, int elements, int page) {
+	public Page<Trabajador> findAllByNombre(Long idEmpresa, String nombre, int elements, int page) {
 		Pageable pageable = PageRequest.of(page, elements);
-		Page<Trabajador> entitys = trabajadorRepository.findAllByNombre(idEscuela,nombre, pageable);
+		Page<Trabajador> entitys = trabajadorRepository.findAllByNombre(idEmpresa,nombre, pageable);
 		return entitys;
 	}
 

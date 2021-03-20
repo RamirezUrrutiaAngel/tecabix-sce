@@ -52,9 +52,9 @@ public class PerfilAuthorityServiceImpl extends GenericSeviceImpl<PerfilAuthorit
 		return result;
 	}
 	@Override
-	public Page<PerfilAuthority> findByAuthority(Integer idAAuthority) {
+	public Page<PerfilAuthority> findByAuthority(Integer idAuthority) {
 		byte ZERO = 0; 
-		Page<PerfilAuthority> result = findByAuthority(idAAuthority, Integer.MAX_VALUE, ZERO);
+		Page<PerfilAuthority> result = findByAuthority(idAuthority, Integer.MAX_VALUE, ZERO);
 		return result;
 	}
 	@Override

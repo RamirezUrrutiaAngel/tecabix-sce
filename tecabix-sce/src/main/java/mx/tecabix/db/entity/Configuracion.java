@@ -45,9 +45,9 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @Entity()
 @Table(name = "configuracion")
 @NamedQueries({
-    @NamedQuery(name = "Configuracion.findByIdEscuela",query = "SELECT c FROM Configuracion c WHERE c.estatus.nombre = 'ACTIVO' AND c.idEscuela = ?1 "),
+    @NamedQuery(name = "Configuracion.findByIdEmpresa",query = "SELECT c FROM Configuracion c WHERE c.estatus.nombre = 'ACTIVO' AND c.idEmpresa = ?1 "),
     @NamedQuery(name = "Configuracion.findByNombre",query = "SELECT c FROM Configuracion c WHERE c.estatus.nombre = 'ACTIVO' AND c.tipo.nombre = ?1 "),
-    @NamedQuery(name = "Configuracion.findByIdEscuelaAndNombre",query = "SELECT c FROM Configuracion c WHERE c.estatus.nombre = 'ACTIVO' AND c.idEscuela = ?1 AND c.tipo.nombre = ?2 ")
+    @NamedQuery(name = "Configuracion.findByIdEmpresaAndNombre",query = "SELECT c FROM Configuracion c WHERE c.estatus.nombre = 'ACTIVO' AND c.idEmpresa = ?1 AND c.tipo.nombre = ?2 ")
 })
 public class Configuracion implements Serializable{
 
@@ -58,8 +58,9 @@ public class Configuracion implements Serializable{
 	@SequenceGenerator(name = "configuracion_id_configuracion_gen", sequenceName = "tecabix_sce.configuracion_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "configuracion_id_configuracion_gen")
 	private Long id;
-	@Column(name = "id_escuela")
-    private Long idEscuela;
+	@Column(name = "id_empresa")
+	@JsonProperty(access = Access.WRITE_ONLY)
+    private Long idEmpresa;
 	@ManyToOne
     @JoinColumn(name = "id_tipo")
     private Catalogo tipo;
@@ -81,11 +82,11 @@ public class Configuracion implements Serializable{
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public Long getIdEscuela() {
-		return idEscuela;
+	public Long getIdEmpresa() {
+		return idEmpresa;
 	}
-	public void setIdEscuela(Long idEscuela) {
-		this.idEscuela = idEscuela;
+	public void setIdEmpresa(Long idEmpresa) {
+		this.idEmpresa = idEmpresa;
 	}
 	public Catalogo getTipo() {
 		return tipo;

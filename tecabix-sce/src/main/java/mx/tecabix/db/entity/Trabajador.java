@@ -48,8 +48,8 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 	@NamedQuery(name = "Trabajador.findByKey",query = "SELECT t FROM Trabajador t WHERE t.id = ?1 AND t.estatus.nombre = 'ACTIVO' "),
 	@NamedQuery(name = "Trabajador.findByKeyAndPendiente",query = "SELECT t FROM Trabajador t WHERE t.id = ?1 AND t.estatus.nombre = 'PENDIENTE' "),
 	
-	@NamedQuery(name = "Trabajador.findAll",query = "SELECT t FROM Trabajador t WHERE t.idEscuela = ?1 AND t.estatus.nombre = 'ACTIVO' ORDER BY t.personaFisica.apellidoPaterno"),
-	@NamedQuery(name = "Trabajador.findAllByNombre",query = "SELECT t FROM Trabajador t WHERE t.idEscuela = ?1 AND t.estatus.nombre = 'ACTIVO' AND t.personaFisica.nombre LIKE ?2 ORDER BY t.personaFisica.nombre"),
+	@NamedQuery(name = "Trabajador.findAll",query = "SELECT t FROM Trabajador t WHERE t.idEmpresa = ?1 AND t.estatus.nombre = 'ACTIVO' ORDER BY t.personaFisica.apellidoPaterno"),
+	@NamedQuery(name = "Trabajador.findAllByNombre",query = "SELECT t FROM Trabajador t WHERE t.idEmpresa = ?1 AND t.estatus.nombre = 'ACTIVO' AND t.personaFisica.nombre LIKE ?2 ORDER BY t.personaFisica.nombre"),
 
 	@NamedQuery(name = "Trabajador.findByUsuario",query = "SELECT t FROM Trabajador t WHERE t.personaFisica.presona.usuarioPersona.usuario.nombre = ?1 AND t.estatus.nombre = 'ACTIVO' ")
 
@@ -80,8 +80,9 @@ public class Trabajador implements Serializable{
 	private Trabajador jefe;
 	@Column(name = "url_imagen")
 	private String urlImagen;
-	@Column(name = "id_escuela")
-	private Long idEscuela;
+	@JsonProperty(access = Access.WRITE_ONLY)
+	@Column(name = "id_empresa")
+	private Long idEmpresa;
 	@Column(name = "id_usuario_modificado")
 	@JsonProperty(access = Access.WRITE_ONLY)
     private Long idUsuarioModificado;
@@ -136,11 +137,11 @@ public class Trabajador implements Serializable{
 	public void setUrlImagen(String urlImagen) {
 		this.urlImagen = urlImagen;
 	}
-	public Long getIdEscuela() {
-		return idEscuela;
+	public Long getIdEmpresa() {
+		return idEmpresa;
 	}
-	public void setIdEscuela(Long idEscuela) {
-		this.idEscuela = idEscuela;
+	public void setIdEmpresa(Long idEmpresa) {
+		this.idEmpresa = idEmpresa;
 	}
 	public Long getIdUsuarioModificado() {
 		return idUsuarioModificado;

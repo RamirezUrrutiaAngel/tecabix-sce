@@ -33,10 +33,10 @@ import mx.tecabix.db.entity.Perfil;
 public interface PerfilRepository extends JpaRepository<Perfil, Long>{
 	
 	Perfil findByKey(Long id);
-	Page<Perfil> findAll(Long idEscuela, Pageable pageable);
-	Page<Perfil> findByLikeNombre(Long idEscuela, String nombre, Pageable pageable);
-	Page<Perfil> findByLikeDescripcion(Long idEscuela, String descripcion, Pageable pageable);
-	Page<Perfil> findByNombre(Long idEscuela, String nombre, Pageable pageable);
+	Page<Perfil> findAll(Long idEmpresa, Pageable pageable);
+	Page<Perfil> findByLikeNombre(Long idEmpresa, String nombre, Pageable pageable);
+	Page<Perfil> findByLikeDescripcion(Long idEmpresa, String descripcion, Pageable pageable);
+	Page<Perfil> findByNombre(Long idEmpresa, String nombre, Pageable pageable);
 	Optional<Perfil> findByClave(UUID uuid);
 	
 }

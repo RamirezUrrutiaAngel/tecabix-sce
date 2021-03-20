@@ -30,8 +30,8 @@ import mx.tecabix.db.entity.Configuracion;
  * 
  */
 public interface ConfiguracionService extends GenericSevice<Configuracion, Long> {
-	Page<Configuracion> findByIdEscuela(long id,int elements, int page);
+	Page<Configuracion> findByIdEmpresa(long id,int elements, int page);
 	Page<Configuracion> findByNombre(String nombre,int elements, int page);
-	Optional<Configuracion> findByIdEscuelaAndNombre(long idEscuela, String nombre);
+	Optional<Configuracion> findByIdEmpresaAndNombre(long idEmpresa, String nombre);
 	Optional<Configuracion> findByClave(UUID uuid);
 }

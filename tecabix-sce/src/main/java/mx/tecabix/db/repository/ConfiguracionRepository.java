@@ -32,8 +32,8 @@ import mx.tecabix.db.entity.Configuracion;
  */
 public interface ConfiguracionRepository extends JpaRepository<Configuracion, Long>{
 
-	Page<Configuracion> findByIdEscuela(long id,Pageable pegable);
+	Page<Configuracion> findByIdEmpresa(long id,Pageable pegable);
 	Page<Configuracion> findByNombre(String nombre,Pageable pegable);
-	Optional<Configuracion> findByIdEscuelaAndNombre(long idEscuela, String nombre);
+	Optional<Configuracion> findByIdEmpresaAndNombre(long idEmpresa, String nombre);
 	Optional<Configuracion> findByClave(UUID uuid);
 }

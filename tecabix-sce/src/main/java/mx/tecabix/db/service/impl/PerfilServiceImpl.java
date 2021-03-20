@@ -51,23 +51,23 @@ public class PerfilServiceImpl extends GenericSeviceImpl<Perfil, Long> implement
 	}
 
 	@Override
-	public Page<Perfil> findAll(Long idEscuela, int elements, int page, Sort sort) {
+	public Page<Perfil> findAll(Long idEmpresa, int elements, int page, Sort sort) {
 		Pageable pageable = PageRequest.of(page, elements, sort);
-		Page<Perfil> perfiles = perfilRepository.findAll(idEscuela, pageable);
+		Page<Perfil> perfiles = perfilRepository.findAll(idEmpresa, pageable);
 		return perfiles;
 	}
 
 	@Override
-	public Page<Perfil> findByLikeNombre(Long idEscuela, String nombre, int elements, int page, Sort sort) {
+	public Page<Perfil> findByLikeNombre(Long idEmpresa, String nombre, int elements, int page, Sort sort) {
 		Pageable pageable = PageRequest.of(page, elements, sort);
-		Page<Perfil> perfiles = perfilRepository.findByLikeNombre(idEscuela, nombre, pageable);
+		Page<Perfil> perfiles = perfilRepository.findByLikeNombre(idEmpresa, nombre, pageable);
 		return perfiles;
 	}
 
 	@Override
-	public Page<Perfil> findByNombre(Long idEscuela, String nombre, int elements, int page) {
+	public Page<Perfil> findByNombre(Long idEmpresa, String nombre, int elements, int page) {
 		Pageable pageable = PageRequest.of(page, elements);
-		Page<Perfil> perfil = perfilRepository.findByNombre(idEscuela, nombre, pageable);
+		Page<Perfil> perfil = perfilRepository.findByNombre(idEmpresa, nombre, pageable);
 		return perfil;
 	}
 
@@ -78,9 +78,9 @@ public class PerfilServiceImpl extends GenericSeviceImpl<Perfil, Long> implement
 	}
 
 	@Override
-	public Page<Perfil> findByLikeDescripcion(Long idEscuela, String descripcion, int elements, int page, Sort sort) {
+	public Page<Perfil> findByLikeDescripcion(Long idEmpresa, String descripcion, int elements, int page, Sort sort) {
 		Pageable pageable = PageRequest.of(page, elements, sort);
-		Page<Perfil> perfiles = perfilRepository.findByLikeDescripcion(idEscuela, descripcion, pageable);
+		Page<Perfil> perfiles = perfilRepository.findByLikeDescripcion(idEmpresa, descripcion, pageable);
 		return perfiles;
 	}	
 }

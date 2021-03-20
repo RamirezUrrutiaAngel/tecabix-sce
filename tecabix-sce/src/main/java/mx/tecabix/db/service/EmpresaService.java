@@ -21,14 +21,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 import mx.tecabix.db.GenericSevice;
-import mx.tecabix.db.entity.Escuela;
+import mx.tecabix.db.entity.Empresa;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface EscuelaService extends GenericSevice<Escuela, Long>{
+public interface EmpresaService extends GenericSevice<Empresa, Long>{
 
-	Optional<Escuela> findByNameRegardlessOfStatus(String nombre);
-	Optional<Escuela> findByClave(UUID uuid);
+	Optional<Empresa> findByNameRegardlessOfStatus(String nombre);
+	Optional<Empresa> findByClave(UUID uuid);
 }

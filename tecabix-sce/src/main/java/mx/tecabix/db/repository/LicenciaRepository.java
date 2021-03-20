@@ -34,8 +34,8 @@ public interface LicenciaRepository extends JpaRepository<Licencia, Long>{
 
 	Licencia findByToken(UUID key);
 	Page<Licencia> findAll(Pageable pageable);
-	Page<Licencia> findByIdEscuela(Long idEscuela, Pageable pageable);
-	Page<Licencia> findByIdEscuelaAndServicio(Long idEscuela, Integer idServicio, Pageable pageable);
+	Page<Licencia> findByIdEmpresa(Long idEmpresa, Pageable pageable);
+	Page<Licencia> findByIdEmpresaAndServicio(Long idEmpresa, Integer idServicio, Pageable pageable);
 	Optional<Licencia> findByClave(UUID uuid);
 	
 }

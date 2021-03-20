@@ -45,7 +45,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @Entity
 @Table(name = "puesto")
 @NamedQueries({
-	@NamedQuery(name = "Puesto.findByIdEscuela",query = "SELECT p FROM Puesto p WHERE p.estatus.nombre = 'ACTIVO' AND p.departamento.idEscuela = ?1 ")
+	@NamedQuery(name = "Puesto.findByIdEmpresa",query = "SELECT p FROM Puesto p WHERE p.estatus.nombre = 'ACTIVO' AND p.departamento.idEmpresa = ?1 ")
 })
 public class Puesto implements Serializable{
 

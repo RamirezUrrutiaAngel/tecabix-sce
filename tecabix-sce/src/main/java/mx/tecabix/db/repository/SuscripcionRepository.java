@@ -29,8 +29,8 @@ import mx.tecabix.db.entity.Suscripcion;
  */
 public interface SuscripcionRepository extends JpaRepository<Suscripcion, Long>{
 
-	Optional<Suscripcion> findByIdEscuela(Long idEscuela);
-	Optional<Suscripcion> findByIdEscuelaAndValid(Long idEscuela);
+	Optional<Suscripcion> findByIdEmpresa(Long idEmpresa);
+	Optional<Suscripcion> findByIdEmpresaAndValid(Long idEmpresa);
 	Optional<Suscripcion> findByClave(UUID uuid);
 	
 }

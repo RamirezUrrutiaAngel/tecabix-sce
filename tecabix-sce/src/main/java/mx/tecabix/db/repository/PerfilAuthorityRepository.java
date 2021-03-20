@@ -29,5 +29,5 @@ import mx.tecabix.db.entity.PerfilAuthority;
  */
 public interface PerfilAuthorityRepository extends JpaRepository<PerfilAuthority, Long>{
 	Page<PerfilAuthority> findByPerfil(Long idPerfil,Pageable pageable);
-	Page<PerfilAuthority> findByAuthority(Integer idAAuthority,Pageable pageable);
+	Page<PerfilAuthority> findByAuthority(Integer idAuthority,Pageable pageable);
 }

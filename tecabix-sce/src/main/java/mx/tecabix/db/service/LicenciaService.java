@@ -33,7 +33,7 @@ public interface LicenciaService extends GenericSevice<Licencia, Long>{
 	
 	Licencia findByToken(UUID key);
 	Page<Licencia> findAll(int elements, int page);
-	Page<Licencia> findByIdEscuela(Long idEscuela, int elements, int page);
-	Page<Licencia> findByIdEscuelaAndServicio(Long idEscuela, Integer idServicio, int elements, int page);
+	Page<Licencia> findByIdEmpresa(Long idEmpresa, int elements, int page);
+	Page<Licencia> findByIdEmpresaAndServicio(Long idEmpresa, Integer idServicio, int elements, int page);
 	Optional<Licencia> findByClave(UUID uuid);
 }

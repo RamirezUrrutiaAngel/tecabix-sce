@@ -34,7 +34,7 @@ public interface TrabajadorService  extends GenericSevice<Trabajador, Long>{
 	Optional<Trabajador> findByKey(Long id);
 	Optional<Trabajador> findByIdAndPendiente(Long id);
 	Optional<Trabajador> findByUsuario(String usuario);
-	Page<Trabajador> findAll(Long idEscuelam, int elements, int page);
-	Page<Trabajador> findAllByNombre(Long idEscuela,String nombre, int elements, int page);
+	Page<Trabajador> findAll(Long idEmpresa, int elements, int page);
+	Page<Trabajador> findAllByNombre(Long idEmpresa,String nombre, int elements, int page);
 	Optional<Trabajador> findByClave(UUID uuid);
 }

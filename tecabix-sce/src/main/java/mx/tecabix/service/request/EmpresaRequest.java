@@ -20,20 +20,19 @@ package mx.tecabix.service.request;
 import java.util.List;
 
 import mx.tecabix.db.entity.Contacto;
-import mx.tecabix.db.entity.Escuela;
+import mx.tecabix.db.entity.Empresa;
 import mx.tecabix.db.entity.Trabajador;
 
 public class EmpresaRequest {
 
-	private Escuela escuela;
+	private Empresa empresa;
 	private Trabajador trabajador;
 	List<Contacto> contactos;
-	
-	public Escuela getEscuela() {
-		return escuela;
+	public Empresa getEmpresa() {
+		return empresa;
 	}
-	public void setEscuela(Escuela escuela) {
-		this.escuela = escuela;
+	public void setEmpresa(Empresa empresa) {
+		this.empresa = empresa;
 	}
 	public Trabajador getTrabajador() {
 		return trabajador;
@@ -47,6 +46,4 @@ public class EmpresaRequest {
 	public void setContactos(List<Contacto> contactos) {
 		this.contactos = contactos;
 	}
-	
-	
 }

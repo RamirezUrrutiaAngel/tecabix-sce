@@ -66,9 +66,9 @@ public class SesionServiceImpl extends GenericSeviceImpl<Sesion, Long> implement
 	}
 
 	@Override
-	public Page<Sesion> findByActive(Long idEscuela, int elements, int page) {
+	public Page<Sesion> findByActive(Long idEmpresa, int elements, int page) {
 		Pageable pageable = PageRequest.of(page, elements);
-		Page<Sesion> response = sesionRepository.findByActive(idEscuela,pageable);
+		Page<Sesion> response = sesionRepository.findByActive(idEmpresa,pageable);
 		return response;
 	}
 	
@@ -96,10 +96,10 @@ public class SesionServiceImpl extends GenericSeviceImpl<Sesion, Long> implement
 					LocalDateTime hoy = LocalDateTime.now();
 					if(response.getLicencia().getServicio().getTipo().getNombre().equals("WEB")) {
 						if(response.getVencimiento().isBefore(hoy)) {
-							Long idEscuela = response.getLicencia().getPlantel().getIdEscuela();
-							Optional<Suscripcion> optionalSuscripsion = suscripcionService.findByIdEscuelaAndValid(idEscuela);
+							Long idEmpresa = response.getLicencia().getPlantel().getIdEmpresa();
+							Optional<Suscripcion> optionalSuscripsion = suscripcionService.findByIdEmpresaAndValid(idEmpresa);
 							if(!optionalSuscripsion.isPresent()) {
-								LOG.warn("SUSCRIPCION CADUCADA PARA EL ID "+idEscuela);
+								LOG.warn("SUSCRIPCION CADUCADA PARA EL ID "+idEmpresa);
 								return Optional.empty();
 							}
 							LocalDateTime vencimiento = LocalDateTime.of(hoy.toLocalDate(),LocalTime.of(23, 59));
@@ -141,20 +141,20 @@ public class SesionServiceImpl extends GenericSeviceImpl<Sesion, Long> implement
 	}
 
 	@Override
-	public Page<Sesion> findByActiveAndLikeUsuario(Long idEscuela, String usuario, int elements, int page) {
+	public Page<Sesion> findByActiveAndLikeUsuario(Long idEmpresa, String usuario, int elements, int page) {
 		Pageable pageable = PageRequest.of(page, elements);
-		return sesionRepository.findByActiveAndLikeUsuario(idEscuela, usuario, pageable);
+		return sesionRepository.findByActiveAndLikeUsuario(idEmpresa, usuario, pageable);
 	}
 
 	@Override
-	public Page<Sesion> findByActiveAndLikeLicencia(Long idEscuela, String licencia, int elements, int page) {
+	public Page<Sesion> findByActiveAndLikeLicencia(Long idEmpresa, String licencia, int elements, int page) {
 		Pageable pageable = PageRequest.of(page, elements);
-		return sesionRepository.findByActiveAndLikeLicencia(idEscuela, licencia, pageable);
+		return sesionRepository.findByActiveAndLikeLicencia(idEmpresa, licencia, pageable);
 	}
 
 	@Override
-	public Page<Sesion> findByActiveAndLikeServicio(Long idEscuela, String servicio, int elements, int page) {
+	public Page<Sesion> findByActiveAndLikeServicio(Long idEmpresa, String servicio, int elements, int page) {
 		Pageable pageable = PageRequest.of(page, elements);
-		return sesionRepository.findByActiveAndLikeServicio(idEscuela, servicio, pageable);
+		return sesionRepository.findByActiveAndLikeServicio(idEmpresa, servicio, pageable);
 	}
 }

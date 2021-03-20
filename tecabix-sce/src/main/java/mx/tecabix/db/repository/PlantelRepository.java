@@ -32,7 +32,7 @@ import mx.tecabix.db.entity.Plantel;
  */
 public interface PlantelRepository extends JpaRepository<Plantel, Long>{
 
-	Page<Plantel> findByIdEscuela(Long idEmpresa,  Pageable pageable);
-	Optional<Plantel> findByIdEscuelaAndNombre(Long idEmpresa, String nombre);
+	Page<Plantel> findByIdEmpresa(Long idEmpresa,  Pageable pageable);
+	Optional<Plantel> findByIdEmpresaAndNombre(Long idEmpresa, String nombre);
 	Optional<Plantel> findByClave(UUID uuid);
 }

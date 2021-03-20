@@ -47,10 +47,10 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @Entity()
 @Table(name = "sesion")
 @NamedQueries({
-    @NamedQuery(name = "Sesion.findByActive",query = "SELECT s FROM Sesion s WHERE s.licencia.plantel.idEscuela = ?1 AND vencimiento > NOW() AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' "),
-    @NamedQuery(name = "Sesion.findByActiveAndLikeUsuario",query = "SELECT s FROM Sesion s WHERE s.licencia.plantel.idEscuela = ?1 AND vencimiento > NOW() AND peticionesRestantes > 0 AND UPPER(s.usuario.nombre) LIKE UPPER(?2) AND s.estatus.nombre = 'ACTIVO' "),
-    @NamedQuery(name = "Sesion.findByActiveAndLikeLicencia",query = "SELECT s FROM Sesion s WHERE s.licencia.plantel.idEscuela = ?1 AND vencimiento > NOW() AND peticionesRestantes > 0 AND UPPER(s.licencia.nombre) LIKE UPPER(?2) AND s.estatus.nombre = 'ACTIVO' "),
-    @NamedQuery(name = "Sesion.findByActiveAndLikeServicio",query = "SELECT s FROM Sesion s WHERE s.licencia.plantel.idEscuela = ?1 AND vencimiento > NOW() AND peticionesRestantes > 0 AND UPPER(s.licencia.servicio.nombre) LIKE UPPER(?2) AND s.estatus.nombre = 'ACTIVO' "),
+    @NamedQuery(name = "Sesion.findByActive",query = "SELECT s FROM Sesion s WHERE s.licencia.plantel.idEmpresa = ?1 AND vencimiento > NOW() AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' "),
+    @NamedQuery(name = "Sesion.findByActiveAndLikeUsuario",query = "SELECT s FROM Sesion s WHERE s.licencia.plantel.idEmpresa = ?1 AND vencimiento > NOW() AND peticionesRestantes > 0 AND UPPER(s.usuario.nombre) LIKE UPPER(?2) AND s.estatus.nombre = 'ACTIVO' "),
+    @NamedQuery(name = "Sesion.findByActiveAndLikeLicencia",query = "SELECT s FROM Sesion s WHERE s.licencia.plantel.idEmpresa = ?1 AND vencimiento > NOW() AND peticionesRestantes > 0 AND UPPER(s.licencia.nombre) LIKE UPPER(?2) AND s.estatus.nombre = 'ACTIVO' "),
+    @NamedQuery(name = "Sesion.findByActiveAndLikeServicio",query = "SELECT s FROM Sesion s WHERE s.licencia.plantel.idEmpresa = ?1 AND vencimiento > NOW() AND peticionesRestantes > 0 AND UPPER(s.licencia.servicio.nombre) LIKE UPPER(?2) AND s.estatus.nombre = 'ACTIVO' "),
     @NamedQuery(name = "Sesion.findByLicenciaAndActive",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND vencimiento > NOW() AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' "),
     @NamedQuery(name = "Sesion.findByUsuarioAndActive",query = "SELECT s FROM Sesion s WHERE s.licencia.id = ?1 AND s.usuario.id = ?2 AND vencimiento > NOW() AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' "),
     @NamedQuery(name = "Sesion.findByToken",query = "SELECT s FROM Sesion s WHERE s.clave = ?1 AND peticionesRestantes > 0 AND s.estatus.nombre = 'ACTIVO' AND ( s.licencia.servicio.tipo.nombre = 'WEB' OR s.vencimiento > NOW() )"),

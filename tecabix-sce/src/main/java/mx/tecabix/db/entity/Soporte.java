@@ -55,8 +55,9 @@ public class Soporte implements Serializable{
 	@SequenceGenerator(name = "soporte_id_soporte_gen", sequenceName = "tecabix_sce.soporte_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "soporte_id_soporte_gen")
     private Long id;
-    @Column(name = "id_escuela")
-    private Long idEscuela;
+	@JsonProperty(access = Access.WRITE_ONLY)
+    @Column(name = "id_empresa")
+    private Long idEmpresa;
     @ManyToOne
     @JoinColumn(name = "id_tipo")
     private Catalogo tipo;
@@ -82,11 +83,11 @@ public class Soporte implements Serializable{
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public Long getIdEscuela() {
-		return idEscuela;
+	public Long getIdEmpresa() {
+		return idEmpresa;
 	}
-	public void setIdEscuela(Long idEscuela) {
-		this.idEscuela = idEscuela;
+	public void setIdEmpresa(Long idEmpresa) {
+		this.idEmpresa = idEmpresa;
 	}
 	public Catalogo getTipo() {
 		return tipo;

@@ -78,8 +78,8 @@ public class DepartamentoControllerV01 extends Auth{
 		if(sesion == null) {
 			return new ResponseEntity<Page<Departamento>>(HttpStatus.UNAUTHORIZED);
 		}
-		long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
-		Page<Departamento> response = departamentoService.findByIdEscuela(idEscuela, elements, page);
+		long IdEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		Page<Departamento> response = departamentoService.findByIdEmpresa(IdEmpresa, elements, page);
 		return new ResponseEntity<Page<Departamento>>(response,HttpStatus.OK);
 	}
 	
@@ -93,7 +93,7 @@ public class DepartamentoControllerV01 extends Auth{
 		if(sesion == null) {
 			return new ResponseEntity<Departamento>(HttpStatus.UNAUTHORIZED);
 		}
-		long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
+		long IdEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
 		if(departamento.getNombre() == null || departamento.getNombre().isEmpty()) {
 			return new ResponseEntity<Departamento>(HttpStatus.BAD_REQUEST);
 		}
@@ -109,7 +109,7 @@ public class DepartamentoControllerV01 extends Auth{
 		departamento.setEstatus(CAT_ACTIVO);
 		departamento.setFechaDeModificacion(LocalDateTime.now());
 		departamento.setIdUsuarioModificado(sesion.getUsuario().getId());
-		departamento.setIdEscuela(idEscuela);
+		departamento.setIdEmpresa(IdEmpresa);
 		departamento = departamentoService.save(departamento);
 		return new ResponseEntity<Departamento>(departamento,HttpStatus.OK);
 	}
@@ -124,7 +124,7 @@ public class DepartamentoControllerV01 extends Auth{
 		if(sesion == null) {
 			return new ResponseEntity<Departamento>(HttpStatus.UNAUTHORIZED);
 		}
-		long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
+		long IdEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
 		if(departamento.getId() == null ) {
 			return new ResponseEntity<Departamento>(HttpStatus.BAD_REQUEST);
 		}
@@ -139,7 +139,7 @@ public class DepartamentoControllerV01 extends Auth{
 			return new ResponseEntity<Departamento>(HttpStatus.NOT_FOUND);
 		}
 		Departamento body = optionalDepartamento.get();
-		if(!body.getIdEscuela().equals(idEscuela)) {
+		if(!body.getIdEmpresa().equals(IdEmpresa)) {
 			return new ResponseEntity<Departamento>(HttpStatus.NOT_FOUND);
 		}
 		body.setNombre(departamento.getNombre());
@@ -164,9 +164,9 @@ public class DepartamentoControllerV01 extends Auth{
 		if(!optionalDepartamento.isPresent()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
+		long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
 		Departamento response = optionalDepartamento.get();
-		if(!response.getIdEscuela().equals(idEscuela)) {
+		if(!response.getIdEmpresa().equals(idEmpresa)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		departamentoService.deleteById(optionalDepartamento.get().getId());

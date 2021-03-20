@@ -35,7 +35,7 @@ public interface TrabajadorRepository extends JpaRepository<Trabajador, Long>{
 	Optional<Trabajador> findByKey(Long id);
 	Optional<Trabajador> findByKeyAndPendiente(Long id);
 	Optional<Trabajador> findByUsuario(String usuario);
-	Page<Trabajador> findAll(Long idEscuela, Pageable pageable);
-	Page<Trabajador> findAllByNombre(Long idEscuela,String nombre, Pageable pageable);
+	Page<Trabajador> findAll(Long idEmpresa, Pageable pageable);
+	Page<Trabajador> findAllByNombre(Long idEmpresa,String nombre, Pageable pageable);
 	Optional<Trabajador> findByClave(UUID uuid);
 }

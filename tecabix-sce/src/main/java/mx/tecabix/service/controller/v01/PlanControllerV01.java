@@ -74,8 +74,8 @@ public class PlanControllerV01 extends Auth {
 		if(sesion == null){
 			return new ResponseEntity<Plan>(HttpStatus.UNAUTHORIZED);
 		}
-		long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
-		Optional<Suscripcion> optionalSuscripcion = suscripcionService.findByIdEscuela(idEscuela);
+		long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		Optional<Suscripcion> optionalSuscripcion = suscripcionService.findByIdEmpresa(idEmpresa);
 		if(!optionalSuscripcion.isPresent()) {
 			return new ResponseEntity<Plan>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}

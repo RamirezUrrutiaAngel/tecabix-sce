@@ -32,10 +32,10 @@ import mx.tecabix.db.entity.Sesion;
  */
 public interface SesionRepository extends JpaRepository<Sesion, Long>{
 	
-	Page<Sesion> findByActive(Long idEscuela,Pageable pageable);
-	Page<Sesion> findByActiveAndLikeUsuario(Long idEscuela,String usuario,Pageable pageable);
-	Page<Sesion> findByActiveAndLikeLicencia(Long idEscuela, String licencia,Pageable pageable);
-	Page<Sesion> findByActiveAndLikeServicio(Long idEscuela, String servicio,Pageable pageable);
+	Page<Sesion> findByActive(Long idEmpresa,Pageable pageable);
+	Page<Sesion> findByActiveAndLikeUsuario(Long idEmpresa,String usuario,Pageable pageable);
+	Page<Sesion> findByActiveAndLikeLicencia(Long idEmpresa, String licencia,Pageable pageable);
+	Page<Sesion> findByActiveAndLikeServicio(Long idEmpresa, String servicio,Pageable pageable);
 	Page<Sesion> findByLicenciaAndActive(Long idLicencia,Pageable pageable);
 	Page<Sesion> findByUsuarioAndActive(Long idLicencia,Long idUsuario,Pageable pageable);
 	

@@ -51,15 +51,15 @@ public class PlantelServiceImpl extends GenericSeviceImpl<Plantel, Long> impleme
 	}
 
 	@Override
-	public Page<Plantel> findByIdEscuela(Long idEmpresa, int elements, int page) {
+	public Page<Plantel> findByIdEmpresa(Long idEmpresa, int elements, int page) {
 		Pageable pageable = PageRequest.of(page, elements);
-		Page<Plantel> result = plantelRepository.findByIdEscuela(idEmpresa, pageable);
+		Page<Plantel> result = plantelRepository.findByIdEmpresa(idEmpresa, pageable);
 		return result;
 	}
 
 	@Override
-	public Optional<Plantel> findByIdEscuelaAndNombre(Long idEmpresa, String nombre) {
-		Optional<Plantel> result = plantelRepository.findByIdEscuelaAndNombre(idEmpresa, nombre);
+	public Optional<Plantel> findByIdEmpresaAndNombre(Long idEmpresa, String nombre) {
+		Optional<Plantel> result = plantelRepository.findByIdEmpresaAndNombre(idEmpresa, nombre);
 		return result;
 	}
 

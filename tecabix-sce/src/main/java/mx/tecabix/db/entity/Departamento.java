@@ -45,7 +45,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @Entity()
 @Table(name = "departamento")
 @NamedQueries({
-	@NamedQuery(name = "Departamento.findByIdEscuela",query = "SELECT d FROM Departamento d WHERE d.estatus.nombre = 'ACTIVO' AND d.idEscuela = ?1 ")
+	@NamedQuery(name = "Departamento.findByIdEmpresa",query = "SELECT d FROM Departamento d WHERE d.estatus.nombre = 'ACTIVO' AND d.idEmpresa = ?1 ")
 })
 public class Departamento implements Serializable{
 	
@@ -60,8 +60,9 @@ public class Departamento implements Serializable{
 	private String nombre;
 	@Column(name = "descripcion")
 	private String descripcion;
-	@Column(name = "id_escuela")
-	private Long idEscuela;
+	@JsonProperty(access = Access.WRITE_ONLY)
+	@Column(name = "id_empresa")
+	private Long idEmpresa;
 	@Column(name = "id_usuario_modificado")
     private Long idUsuarioModificado;
     @Column(name = "fecha_modificado")
@@ -90,11 +91,11 @@ public class Departamento implements Serializable{
 	public void setDescripcion(String descripcion) {
 		this.descripcion = descripcion;
 	}
-	public Long getIdEscuela() {
-		return idEscuela;
+	public Long getIdEmpresa() {
+		return idEmpresa;
 	}
-	public void setIdEscuela(Long idEscuela) {
-		this.idEscuela = idEscuela;
+	public void setIdEmpresa(Long idEmpresa) {
+		this.idEmpresa = idEmpresa;
 	}
 	public Long getIdUsuarioModificado() {
 		return idUsuarioModificado;

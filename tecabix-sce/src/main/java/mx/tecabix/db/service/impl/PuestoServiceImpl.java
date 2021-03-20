@@ -46,9 +46,9 @@ public class PuestoServiceImpl extends GenericSeviceImpl<Puesto, Long> implement
 		
 	}
 	@Override
-	public Page<Puesto> findByIdEscuela(Long idEscuela, int elements, int page) {
+	public Page<Puesto> findByIdEmpresa(Long idEmpresa, int elements, int page) {
 		Pageable pageable = PageRequest.of(page, elements);
-		Page<Puesto> puestos = puestoRepository.findByIdEscuela(idEscuela, pageable);
+		Page<Puesto> puestos = puestoRepository.findByIdEmpresa(idEmpresa, pageable);
 		return puestos;
 	}
 	@Override

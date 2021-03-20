@@ -32,6 +32,6 @@ import mx.tecabix.db.entity.Puesto;
  */
 public interface PuestoRepository extends JpaRepository<Puesto, Long>{
 
-	Page<Puesto> findByIdEscuela(Long idEscuela, Pageable pageable);
+	Page<Puesto> findByIdEmpresa(Long idEmpresa, Pageable pageable);
 	Optional<Puesto> findByClave(UUID uuid);
 }

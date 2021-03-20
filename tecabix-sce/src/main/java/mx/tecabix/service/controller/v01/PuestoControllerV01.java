@@ -92,8 +92,8 @@ public class PuestoControllerV01 extends Auth{
 		if(sesion == null) {
 			return new ResponseEntity<Page<Puesto>>(HttpStatus.UNAUTHORIZED);
 		}
-		Long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
-		Page<Puesto> puestos = puestoService.findByIdEscuela(idEscuela, elements, page);
+		Long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		Page<Puesto> puestos = puestoService.findByIdEmpresa(idEmpresa, elements, page);
 		return new ResponseEntity<Page<Puesto>>(puestos,HttpStatus.OK);
 	}
 	
@@ -120,7 +120,7 @@ public class PuestoControllerV01 extends Auth{
 			return new ResponseEntity<Puesto>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Departamento departamento = optionalDepartamento.get();
-		if(!departamento.getIdEscuela().equals(sesion.getLicencia().getPlantel().getIdEscuela())) {
+		if(!departamento.getIdEmpresa().equals(sesion.getLicencia().getPlantel().getIdEmpresa())) {
 			return new ResponseEntity<Puesto>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Optional<Catalogo> optionalCatalogoActivo = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO);
@@ -165,11 +165,11 @@ public class PuestoControllerV01 extends Auth{
 		if(!optionalPuesto.isPresent()) {
 			return new ResponseEntity<Puesto>(HttpStatus.NOT_FOUND);
 		}
-		if(!optionalPuesto.get().getDepartamento().getIdEscuela().equals(sesion.getLicencia().getPlantel().getIdEscuela())) {
+		if(!optionalPuesto.get().getDepartamento().getIdEmpresa().equals(sesion.getLicencia().getPlantel().getIdEmpresa())) {
 			return new ResponseEntity<Puesto>(HttpStatus.NOT_FOUND);
 		}
 		Departamento departamento = optionalDepartamento.get();
-		if(!departamento.getIdEscuela().equals(sesion.getLicencia().getPlantel().getIdEscuela())) {
+		if(!departamento.getIdEmpresa().equals(sesion.getLicencia().getPlantel().getIdEmpresa())) {
 			return new ResponseEntity<Puesto>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Optional<Catalogo> optionalCatalogoActivo = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO);

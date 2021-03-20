@@ -48,14 +48,14 @@ public class SuscripcionServiceImpl extends GenericSeviceImpl<Suscripcion, Long>
 	}
 
 	@Override
-	public Optional<Suscripcion> findByIdEscuela(Long idEscuela) {
-		Optional<Suscripcion> result = suscripcionRepository.findByIdEscuela(idEscuela);
+	public Optional<Suscripcion> findByIdEmpresa(Long idEmpresa) {
+		Optional<Suscripcion> result = suscripcionRepository.findByIdEmpresa(idEmpresa);
 		return result;
 	}
 	
 	@Override
-	public Optional<Suscripcion> findByIdEscuelaAndValid(Long idEscuela) {
-		Optional<Suscripcion> result = suscripcionRepository.findByIdEscuelaAndValid(idEscuela);
+	public Optional<Suscripcion> findByIdEmpresaAndValid(Long idEmpresa) {
+		Optional<Suscripcion> result = suscripcionRepository.findByIdEmpresaAndValid(idEmpresa);
 		return result;
 	}
 

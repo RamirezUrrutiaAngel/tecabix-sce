@@ -50,10 +50,10 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @Table(name = "perfil")
 @NamedQueries({
 	@NamedQuery(name = "Perfil.findByKey",query = "SELECT p FROM Perfil p WHERE p.id = ?1 AND p.estatus.nombre = 'ACTIVO' "),
-	@NamedQuery(name = "Perfil.findAll",query = "SELECT p FROM Perfil p WHERE p.idEscuela = ?1 AND p.estatus.nombre = 'ACTIVO' "),
-	@NamedQuery(name = "Perfil.findByLikeNombre",query = "SELECT p FROM Perfil p WHERE p.estatus.nombre = 'ACTIVO' AND p.idEscuela = ?1 AND UPPER(p.nombre) LIKE UPPER(?2) "),
-	@NamedQuery(name = "Perfil.findByLikeDescripcion",query = "SELECT p FROM Perfil p WHERE p.estatus.nombre = 'ACTIVO' AND p.idEscuela = ?1 AND UPPER(p.descripcion) LIKE UPPER(?2) "),
-	@NamedQuery(name = "Perfil.findByNombre",query = "SELECT p FROM Perfil p WHERE p.estatus.nombre = 'ACTIVO' AND p.idEscuela = ?1 AND p.nombre = ?2 ")
+	@NamedQuery(name = "Perfil.findAll",query = "SELECT p FROM Perfil p WHERE p.idEmpresa = ?1 AND p.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Perfil.findByLikeNombre",query = "SELECT p FROM Perfil p WHERE p.estatus.nombre = 'ACTIVO' AND p.idEmpresa = ?1 AND UPPER(p.nombre) LIKE UPPER(?2) "),
+	@NamedQuery(name = "Perfil.findByLikeDescripcion",query = "SELECT p FROM Perfil p WHERE p.estatus.nombre = 'ACTIVO' AND p.idEmpresa = ?1 AND UPPER(p.descripcion) LIKE UPPER(?2) "),
+	@NamedQuery(name = "Perfil.findByNombre",query = "SELECT p FROM Perfil p WHERE p.estatus.nombre = 'ACTIVO' AND p.idEmpresa = ?1 AND p.nombre = ?2 ")
 
 })
 public class Perfil implements Serializable{
@@ -73,9 +73,9 @@ public class Perfil implements Serializable{
     private String nombre;
     @Column(name = "descripcion")
     private String descripcion;
-    @Column(name = "id_escuela")
+    @Column(name = "id_empresa")
     @JsonProperty(access = Access.WRITE_ONLY)
-    private Long idEscuela;
+    private Long idEmpresa;
     @Column(name = "id_usuario_modificado")
     @JsonProperty(access = Access.WRITE_ONLY)
     private Long idUsuarioModificado;
@@ -113,11 +113,11 @@ public class Perfil implements Serializable{
 	public void setDescripcion(String descripcion) {
 		this.descripcion = descripcion;
 	}
-	public Long getIdEscuela() {
-		return idEscuela;
+	public Long getIdEmpresa() {
+		return idEmpresa;
 	}
-	public void setIdEscuela(Long idEscuela) {
-		this.idEscuela = idEscuela;
+	public void setIdEmpresa(Long idEmpresa) {
+		this.idEmpresa = idEmpresa;
 	}
 	public Long getIdUsuarioModificado() {
 		return idUsuarioModificado;

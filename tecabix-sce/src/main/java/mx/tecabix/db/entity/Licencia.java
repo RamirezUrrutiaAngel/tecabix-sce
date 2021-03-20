@@ -46,8 +46,8 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @Table(name = "licencia")
 @NamedQueries({
     @NamedQuery(name = "Licencia.findByToken",query = "SELECT l FROM Licencia l WHERE l.clave = ?1 AND l.estatus.nombre = 'ACTIVO' "),
-    @NamedQuery(name = "Licencia.findByIdEscuela",query = "SELECT l FROM Licencia l WHERE l.plantel.idEscuela = ?1 AND l.estatus.nombre = 'ACTIVO' "),
-    @NamedQuery(name = "Licencia.findByIdEscuelaAndServicio",query = "SELECT l FROM Licencia l WHERE l.plantel.idEscuela = ?1 AND l.servicio.id = ?2 AND l.estatus.nombre = 'ACTIVO' "),
+    @NamedQuery(name = "Licencia.findByIdEmpresa",query = "SELECT l FROM Licencia l WHERE l.plantel.idEmpresa = ?1 AND l.estatus.nombre = 'ACTIVO' "),
+    @NamedQuery(name = "Licencia.findByIdEmpresaAndServicio",query = "SELECT l FROM Licencia l WHERE l.plantel.idEmpresa = ?1 AND l.servicio.id = ?2 AND l.estatus.nombre = 'ACTIVO' "),
     @NamedQuery(name = "Licencia.findAll",query = "SELECT l FROM Licencia l WHERE l.estatus.nombre = 'ACTIVO' ")
 })
 public class Licencia implements Serializable{

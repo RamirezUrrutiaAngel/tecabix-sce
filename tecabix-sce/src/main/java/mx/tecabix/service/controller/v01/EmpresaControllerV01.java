@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import mx.tecabix.db.entity.Catalogo;
 import mx.tecabix.db.entity.Direccion;
-import mx.tecabix.db.entity.Escuela;
+import mx.tecabix.db.entity.Empresa;
 import mx.tecabix.db.entity.Municipio;
 import mx.tecabix.db.entity.Persona;
 import mx.tecabix.db.entity.PersonaFisica;
@@ -49,7 +49,7 @@ import mx.tecabix.db.service.DireccionService;
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-import mx.tecabix.db.service.EscuelaService;
+import mx.tecabix.db.service.EmpresaService;
 import mx.tecabix.db.service.MunicipioService;
 import mx.tecabix.db.service.PersonaFisicaService;
 import mx.tecabix.db.service.PersonaService;
@@ -64,11 +64,11 @@ import mx.tecabix.service.request.EmpresaRequest;
  * 
  */
 @RestController
-@RequestMapping("escuela/v1")
-public class EscuelaControllerV01 extends Auth{
+@RequestMapping("empresa/v1")
+public class EmpresaControllerV01 extends Auth{
 	
-	private String ROOT_ESCUELA = "ROOT_ESCUELA";
-	private String ROOT_ESCUELA_CREAR = "ROOT_ESCUELA_CREAR";
+	private String ROOT_EMPRESA = "ROOT_EMPRESA";
+	private String ROOT_EMPRESA_CREAR = "ROOT_EMPRESA_CREAR";
 	
 	private final String ACTIVO = "ACTIVO";
 	private final String ESTATUS = "ESTATUS";
@@ -80,7 +80,7 @@ public class EscuelaControllerV01 extends Auth{
 	private final String SEXO = "SEXO";
 
 	@Autowired
-	private EscuelaService escuelaService;
+	private EmpresaService empresaService;
 	
 	@Autowired
 	private CatalogoService catalogoService;
@@ -101,139 +101,139 @@ public class EscuelaControllerV01 extends Auth{
 	
 	
 	@GetMapping
-	public ResponseEntity<Escuela> get(@RequestParam(value="token") UUID token){
+	public ResponseEntity<Empresa> get(@RequestParam(value="token") UUID token){
 		Sesion sesion = getSessionIfIsAuthorized(token);
 		if(sesion == null){
-			return new ResponseEntity<Escuela>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<Empresa>(HttpStatus.UNAUTHORIZED);
 		}
-		Optional<Escuela> escuelaOptional = escuelaService.findById(sesion.getLicencia().getPlantel().getIdEscuela());
-		if(!escuelaOptional.isPresent()){
-			return new ResponseEntity<Escuela>(HttpStatus.NOT_FOUND);
+		Optional<Empresa> empresaOptional = empresaService.findById(sesion.getLicencia().getPlantel().getIdEmpresa());
+		if(!empresaOptional.isPresent()){
+			return new ResponseEntity<Empresa>(HttpStatus.NOT_FOUND);
 		}
-		Escuela body = escuelaOptional.get();
-		return new ResponseEntity<Escuela>(body, HttpStatus.OK);
+		Empresa body = empresaOptional.get();
+		return new ResponseEntity<Empresa>(body, HttpStatus.OK);
 	}
 	
 	@GetMapping("findByNameRegardlessOfStatus")
-	public ResponseEntity<Escuela> findByNameRegardlessOfStatus(@RequestParam(value="token") UUID token, String nombre){
-		Sesion sesion = getSessionIfIsAuthorized(token, ROOT_ESCUELA);
+	public ResponseEntity<Empresa> findByNameRegardlessOfStatus(@RequestParam(value="token") UUID token, String nombre){
+		Sesion sesion = getSessionIfIsAuthorized(token, ROOT_EMPRESA);
 		if(sesion == null){
-			return new ResponseEntity<Escuela>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<Empresa>(HttpStatus.UNAUTHORIZED);
 		}
-		Optional<Escuela> escuelaOptional = escuelaService.findByNameRegardlessOfStatus(nombre);
-		if(!escuelaOptional.isPresent()){
-			return new ResponseEntity<Escuela>(HttpStatus.NOT_FOUND);
+		Optional<Empresa> empresaOptional = empresaService.findByNameRegardlessOfStatus(nombre);
+		if(!empresaOptional.isPresent()){
+			return new ResponseEntity<Empresa>(HttpStatus.NOT_FOUND);
 		}
-		Escuela body = escuelaOptional.get();
-		return new ResponseEntity<Escuela>(body, HttpStatus.OK);
+		Empresa body = empresaOptional.get();
+		return new ResponseEntity<Empresa>(body, HttpStatus.OK);
 	}
 	
 	@PostMapping("save")
-	private ResponseEntity<Escuela> save(@RequestParam(value="token") UUID token, @RequestBody EmpresaRequest empresaRequest){
-		Sesion sesion = getSessionIfIsAuthorized(token, ROOT_ESCUELA_CREAR);
+	private ResponseEntity<Empresa> save(@RequestParam(value="token") UUID token, @RequestBody EmpresaRequest empresaRequest){
+		Sesion sesion = getSessionIfIsAuthorized(token, ROOT_EMPRESA_CREAR);
 		if(sesion == null) {
-			return new ResponseEntity<Escuela>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<Empresa>(HttpStatus.UNAUTHORIZED);
 		}
 		Trabajador trabajador = empresaRequest.getTrabajador();
-		Escuela escuela = empresaRequest.getEscuela();
+		Empresa empresa = empresaRequest.getEmpresa();
 				
 		if(trabajador == null) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(trabajador.getCURP() == null || trabajador.getCURP().isEmpty()) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(trabajador.getJefe() == null || trabajador.getJefe().getId() == null) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(trabajador.getPuesto() == null || trabajador.getPuesto().getId() == null) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(trabajador.getPersonaFisica() == null) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(trabajador.getPersonaFisica().getPresona() == null) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(trabajador.getPersonaFisica().getPresona().getUsuarioPersona() == null) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(trabajador.getPersonaFisica().getPresona().getUsuarioPersona().getUsuario() == null) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		Usuario usuario = trabajador.getPersonaFisica().getPresona().getUsuarioPersona().getUsuario();
 		
-		if(escuela == null) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+		if(empresa == null) {
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		
-		if(escuela.getRfc() == null || escuela.getRfc().isEmpty()) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+		if(empresa.getRfc() == null || empresa.getRfc().isEmpty()) {
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
-		if(escuela.getNombre() == null || escuela.getNombre().isEmpty()) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+		if(empresa.getNombre() == null || empresa.getNombre().isEmpty()) {
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
-		if(escuela.getFundada() == null) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+		if(empresa.getFundada() == null) {
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		
 		PersonaFisica personaFisicaCEO = trabajador.getPersonaFisica();
 		if(personaFisicaCEO == null ) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(personaFisicaCEO.getNombre() == null || personaFisicaCEO.getNombre().isEmpty()) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(personaFisicaCEO.getSexo() == null || personaFisicaCEO.getSexo().getNombre() == null || personaFisicaCEO.getSexo().getNombre().isEmpty()) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(personaFisicaCEO.getFechaNacimiento() == null) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(personaFisicaCEO.getApellidoMaterno() == null || personaFisicaCEO.getApellidoMaterno().isEmpty()) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(personaFisicaCEO.getApellidoPaterno() == null || personaFisicaCEO.getApellidoPaterno().isEmpty()) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		Direccion direccionCEO = personaFisicaCEO.getDireccion();
 		if(direccionCEO == null ) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(direccionCEO.getCalle() == null || direccionCEO.getCalle().isEmpty()) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(direccionCEO.getCodigoPostal() == null || direccionCEO.getCodigoPostal().isEmpty()) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(direccionCEO.getAsentamiento() == null || direccionCEO.getAsentamiento().isEmpty()) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(direccionCEO.getNumExt() == null || direccionCEO.getAsentamiento().isEmpty()) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(direccionCEO.getMunicipio() == null || direccionCEO.getMunicipio().getId() == null ) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		
-		Direccion direccionInstitucional = escuela.getDireccion();
+		Direccion direccionInstitucional = empresa.getDireccion();
 		if(direccionInstitucional == null ) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(direccionInstitucional.getCalle() == null || direccionInstitucional.getCalle().isEmpty()) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(direccionInstitucional.getCodigoPostal() == null || direccionInstitucional.getCodigoPostal().isEmpty()) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(direccionInstitucional.getAsentamiento() == null || direccionInstitucional.getAsentamiento().isEmpty()) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(direccionInstitucional.getNumExt() == null || direccionInstitucional.getAsentamiento().isEmpty()) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(direccionInstitucional.getMunicipio() == null || direccionInstitucional.getMunicipio().getId() == null ) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		
 		Optional<Catalogo> optionalCataloPendiente = catalogoService.findByTipoAndNombre(ESTATUS, PENDIENTE);
@@ -241,13 +241,13 @@ public class EscuelaControllerV01 extends Auth{
 		Optional<Catalogo> optiolanCatalogoSexo = catalogoService.findByTipoAndNombre(SEXO, personaFisicaCEO.getSexo().getNombre());
 		
 		if(!optiolanCatalogoSexo.isPresent()) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(!optionalCatalogoTipoPersona.isPresent()){
-			return new ResponseEntity<Escuela>(HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<Empresa>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		if(!optionalCataloPendiente.isPresent()){
-			return new ResponseEntity<Escuela>(HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<Empresa>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		final Catalogo CAT_SEXO = optiolanCatalogoSexo.get();
 		final Catalogo CAT_PENDIENTE = optionalCataloPendiente.get();
@@ -255,43 +255,43 @@ public class EscuelaControllerV01 extends Auth{
 		
 		Optional<Municipio> municipioOptional = municipioService.findById(direccionCEO.getMunicipio().getId());
 		if(!municipioOptional.isPresent()) {
-			return new ResponseEntity<Escuela>(HttpStatus.NOT_ACCEPTABLE);
+			return new ResponseEntity<Empresa>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Municipio municipioCEO = municipioOptional.get();
 		municipioOptional = municipioService.findById(direccionInstitucional.getMunicipio().getId());
 		if(!municipioOptional.isPresent()) {
-			return new ResponseEntity<Escuela>(HttpStatus.NOT_ACCEPTABLE);
+			return new ResponseEntity<Empresa>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Municipio municipioInstitucional = municipioOptional.get();
 		
 		Optional<Trabajador> opcionalTrabajador = trabajadorService.findByKey(trabajador.getJefe().getId());
 		if(!opcionalTrabajador.isPresent()) {
-			return new ResponseEntity<Escuela>(HttpStatus.NOT_ACCEPTABLE);
+			return new ResponseEntity<Empresa>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		
 		if(usuario.getCorreo() == null || usuario.getCorreo().isEmpty()) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(usuario.getNombre() == null || usuario.getNombre().isEmpty()) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(usuario.getPassword() == null || usuario.getPassword().isEmpty()) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		if(usuario.getNombre().length()>8) {
-			return new ResponseEntity<Escuela>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
 		
 		if(usuarioService.findByNameRegardlessOfStatus(usuario.getNombre())!= null) {
-			return new ResponseEntity<Escuela>(HttpStatus.CONFLICT);
+			return new ResponseEntity<Empresa>(HttpStatus.CONFLICT);
 		}
 		
-		if(escuelaService.findByNameRegardlessOfStatus(escuela.getNombre()).isPresent()) {
-			return new ResponseEntity<Escuela>(HttpStatus.CONFLICT);
+		if(empresaService.findByNameRegardlessOfStatus(empresa.getNombre()).isPresent()) {
+			return new ResponseEntity<Empresa>(HttpStatus.CONFLICT);
 		}
 		Optional<Catalogo> optionalCatalogoActivo = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO);
 		if(!optionalCatalogoActivo.isPresent()) {
-			return new ResponseEntity<Escuela>(HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<Empresa>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		final Catalogo catalogoActivo = optionalCatalogoActivo.get();
 		
@@ -329,14 +329,14 @@ public class EscuelaControllerV01 extends Auth{
 		usuarioPersona.setEstatus(catalogoActivo);
 		usuarioPersona = usuarioPersonaService.save(usuarioPersona);
 		
-		escuela.setPresona(persona);
-		escuela.setIdUsuarioModificado(sesion.getUsuario().getId());
-		escuela.setFechaDeModificacion(LocalDateTime.now());
-		escuela.setEstatus(CAT_PENDIENTE);
-		escuela = escuelaService.save(escuela);
+		empresa.setPresona(persona);
+		empresa.setIdUsuarioModificado(sesion.getUsuario().getId());
+		empresa.setFechaDeModificacion(LocalDateTime.now());
+		empresa.setEstatus(CAT_PENDIENTE);
+		empresa = empresaService.save(empresa);
 		
-		persona.setIdEscuela(escuela.getId());
-		escuelaService.update(escuela);
+		persona.setIdEmpresa(empresa.getId());
+		empresaService.update(empresa);
 
 		personaFisicaCEO.setPresona(persona);
 		personaFisicaCEO.setDireccion(direccionCEO);
@@ -349,10 +349,10 @@ public class EscuelaControllerV01 extends Auth{
 		trabajador.setEstatus(CAT_PENDIENTE);
 		trabajador.setFechaDeModificacion(LocalDateTime.now());
 		trabajador.setIdUsuarioModificado(sesion.getUsuario().getId());
-		trabajador.setIdEscuela(escuela.getId());
+		trabajador.setIdEmpresa(empresa.getId());
 		trabajador.setJefe(null);
 		trabajador.setPersonaFisica(personaFisicaCEO);
 		trabajador = trabajadorService.save(trabajador);
-		return new ResponseEntity<Escuela>(escuela, HttpStatus.OK);
+		return new ResponseEntity<Empresa>(empresa, HttpStatus.OK);
 	}
 }

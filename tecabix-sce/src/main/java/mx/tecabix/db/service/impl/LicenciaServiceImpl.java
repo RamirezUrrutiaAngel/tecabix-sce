@@ -64,9 +64,9 @@ public class LicenciaServiceImpl extends GenericSeviceImpl<Licencia, Long> imple
 	}
 
 	@Override
-	public Page<Licencia> findByIdEscuela(Long idEscuela, int elements, int page) {
+	public Page<Licencia> findByIdEmpresa(Long idEmpresa, int elements, int page) {
 		Pageable pageable = PageRequest.of(page, elements);
-		Page<Licencia> result = licenciaRepository.findByIdEscuela(idEscuela, pageable);
+		Page<Licencia> result = licenciaRepository.findByIdEmpresa(idEmpresa, pageable);
 		return result;
 	}
 
@@ -76,9 +76,9 @@ public class LicenciaServiceImpl extends GenericSeviceImpl<Licencia, Long> imple
 	}
 
 	@Override
-	public Page<Licencia> findByIdEscuelaAndServicio(Long idEscuela, Integer idServicio, int elements, int page) {
+	public Page<Licencia> findByIdEmpresaAndServicio(Long idEmpresa, Integer idServicio, int elements, int page) {
 		Pageable pageable = PageRequest.of(page, elements);
-		Page<Licencia> result = licenciaRepository.findByIdEscuelaAndServicio(idEscuela, idServicio, pageable);
+		Page<Licencia> result = licenciaRepository.findByIdEmpresaAndServicio(idEmpresa, idServicio, pageable);
 		return result;
 	}
 

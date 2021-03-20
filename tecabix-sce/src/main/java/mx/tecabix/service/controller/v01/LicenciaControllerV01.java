@@ -88,8 +88,8 @@ public class LicenciaControllerV01 extends Auth{
 		if(sesion == null) {
 			return new ResponseEntity<Page<Licencia>>(HttpStatus.UNAUTHORIZED);
 		}
-		Long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
-		Page<Licencia> response = licenciaService.findByIdEscuela(idEscuela, elements, page);
+		Long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		Page<Licencia> response = licenciaService.findByIdEmpresa(idEmpresa, elements, page);
 		return new ResponseEntity<Page<Licencia>>(response, HttpStatus.OK);
 	}
 	
@@ -106,17 +106,17 @@ public class LicenciaControllerV01 extends Auth{
 		return new ResponseEntity<Page<Licencia>>(response, HttpStatus.OK);
 	}
 	
-	@GetMapping("findByIdEscuela")
-	public ResponseEntity<Page<Licencia>> findByIdEscuela(
+	@GetMapping("findByIdEmpresa")
+	public ResponseEntity<Page<Licencia>> findByIdEmpresa(
 			@RequestParam(value="token") UUID token,
-			@RequestParam(value="idEscuela") Long idEscuela,
+			@RequestParam(value="IdEmpresa") Long idEmpresa,
 			@RequestParam(value="elements") byte elements,
 			@RequestParam(value="page") short page) {
 		
 		if(isNotAuthorized(token, ROOT_LICENCIA)) {
 			return new ResponseEntity<Page<Licencia>>(HttpStatus.UNAUTHORIZED);
 		}
-		Page<Licencia> response = licenciaService.findByIdEscuela(idEscuela, elements, page);
+		Page<Licencia> response = licenciaService.findByIdEmpresa(idEmpresa, elements, page);
 		return new ResponseEntity<Page<Licencia>>(response, HttpStatus.OK);
 	}
 	
@@ -145,10 +145,10 @@ public class LicenciaControllerV01 extends Auth{
 		Servicio servicioTipo = optionalServicio.get();
 		Plantel plantel = sesion.getLicencia().getPlantel();
 		
-		Long idEscuela = plantel.getIdEscuela();
+		Long idEmpresa = plantel.getIdEmpresa();
 		
-		Page<Licencia> licencias = licenciaService.findByIdEscuelaAndServicio(idEscuela, servicioTipo.getId(), Integer.MAX_VALUE, ZERO);
-		Optional<Suscripcion> optionalSuscripcion =  suscripcionService.findByIdEscuelaAndValid(idEscuela);
+		Page<Licencia> licencias = licenciaService.findByIdEmpresaAndServicio(idEmpresa, servicioTipo.getId(), Integer.MAX_VALUE, ZERO);
+		Optional<Suscripcion> optionalSuscripcion =  suscripcionService.findByIdEmpresaAndValid(idEmpresa);
 		if(!optionalSuscripcion.isPresent()) {
 			return new ResponseEntity<Licencia>(HttpStatus.LOCKED);
 		}

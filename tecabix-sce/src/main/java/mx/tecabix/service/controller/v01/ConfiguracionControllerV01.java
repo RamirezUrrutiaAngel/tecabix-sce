@@ -39,12 +39,12 @@ import io.swagger.annotations.ApiOperation;
 import mx.tecabix.db.entity.Catalogo;
 import mx.tecabix.db.entity.CatalogoTipo;
 import mx.tecabix.db.entity.Configuracion;
-import mx.tecabix.db.entity.Escuela;
+import mx.tecabix.db.entity.Empresa;
 import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.service.CatalogoService;
 import mx.tecabix.db.service.CatalogoTipoService;
 import mx.tecabix.db.service.ConfiguracionService;
-import mx.tecabix.db.service.EscuelaService;
+import mx.tecabix.db.service.EmpresaService;
 import mx.tecabix.service.Auth;
 /**
  * 
@@ -58,7 +58,7 @@ public class ConfiguracionControllerV01 extends Auth{
 	@Autowired
 	private ConfiguracionService configuracionService;
 	@Autowired
-	private EscuelaService escuelaService;
+	private EmpresaService empresaService;
 	@Autowired
 	private CatalogoService catalogoService;
 	@Autowired
@@ -81,7 +81,7 @@ public class ConfiguracionControllerV01 extends Auth{
 		if(sesion == null) {
 			return new ResponseEntity<Page<Configuracion>>(HttpStatus.UNAUTHORIZED);
 		}
-		Page<Configuracion> configuraciones = configuracionService.findByIdEscuela(sesion.getLicencia().getPlantel().getIdEscuela(), elements, page);
+		Page<Configuracion> configuraciones = configuracionService.findByIdEmpresa(sesion.getLicencia().getPlantel().getIdEmpresa(), elements, page);
 		return new ResponseEntity<Page<Configuracion>>(configuraciones,HttpStatus.OK);
 	}
 	
@@ -93,7 +93,7 @@ public class ConfiguracionControllerV01 extends Auth{
 		if(sesion == null) {
 			return new ResponseEntity<Configuracion>(HttpStatus.UNAUTHORIZED);
 		}
-		Optional<Configuracion> optionalConfiguracion = configuracionService.findByIdEscuelaAndNombre(sesion.getLicencia().getPlantel().getIdEscuela(), nombre);
+		Optional<Configuracion> optionalConfiguracion = configuracionService.findByIdEmpresaAndNombre(sesion.getLicencia().getPlantel().getIdEmpresa(), nombre);
 		if(!optionalConfiguracion.isPresent()) {
 			return new ResponseEntity<Configuracion>(HttpStatus.NOT_FOUND);
 		}
@@ -153,16 +153,16 @@ public class ConfiguracionControllerV01 extends Auth{
 		
 		catalogo.setCatalogoTipo(optionalCatalogoTipo.get());
 		catalogo = catalogoService.save(catalogo);
-		List<Escuela> escuelas = escuelaService.findAll();
+		List<Empresa> empresas = empresaService.findAll();
 		List<Configuracion> configuracions = new ArrayList<Configuracion>();
-		if(escuelas != null) {
-			for (int i = 0; i < escuelas.size(); i++) {
-				Escuela escuela = escuelas.get(i);
+		if(empresas != null) {
+			for (int i = 0; i < empresas.size(); i++) {
+				Empresa empresa = empresas.get(i);
 				Configuracion configuracion = new Configuracion();
 				configuracion.setEstatus(CAT_ACTIVO);
 				configuracion.setFechaDeModificacion(LocalDateTime.now());
 				configuracion.setIdUsuarioModificado(sesion.getUsuario().getId());
-				configuracion.setIdEscuela(escuela.getId());
+				configuracion.setIdEmpresa(empresa.getId());
 				configuracion.setTipo(catalogo);
 				configuracion.setValor(valorDefault);
 				configuracion = configuracionService.save(configuracion);
@@ -212,7 +212,7 @@ public class ConfiguracionControllerV01 extends Auth{
 		if(configuracion.getTipo() == null || configuracion.getTipo().getNombre() == null) {
 			return new ResponseEntity<Configuracion>(HttpStatus.BAD_REQUEST);
 		}
-		if(configuracion.getIdEscuela() == null) {
+		if(configuracion.getIdEmpresa() == null) {
 			return new ResponseEntity<Configuracion>(HttpStatus.BAD_REQUEST);
 		}
 		if(configuracion.getValor() == null || configuracion.getValor().isEmpty()){
@@ -248,8 +248,8 @@ public class ConfiguracionControllerV01 extends Auth{
 		if(sesion == null) {
 			return new ResponseEntity<Configuracion>(HttpStatus.UNAUTHORIZED);
 		}
-		Long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
-		Optional<Configuracion> optionalConfiguracion = configuracionService.findByIdEscuelaAndNombre(idEscuela, nombre);
+		Long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		Optional<Configuracion> optionalConfiguracion = configuracionService.findByIdEmpresaAndNombre(idEmpresa, nombre);
 		if(!optionalConfiguracion.isPresent()) {
 			return new ResponseEntity<Configuracion>(HttpStatus.NOT_FOUND);
 		}

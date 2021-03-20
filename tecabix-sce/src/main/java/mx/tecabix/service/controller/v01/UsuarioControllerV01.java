@@ -225,7 +225,7 @@ public class UsuarioControllerV01 extends Auth {
 		if(isNotValid(usuarioUpdate.getUsuarioPersona())) {
 			return new ResponseEntity<Usuario>(HttpStatus.NOT_FOUND);
 		}
-		if(!sesion.getLicencia().getPlantel().getIdEscuela().equals(usuarioUpdate.getUsuarioPersona().getPersona().getIdEscuela())) {
+		if(!sesion.getLicencia().getPlantel().getIdEmpresa().equals(usuarioUpdate.getUsuarioPersona().getPersona().getIdEmpresa())) {
 			return new ResponseEntity<Usuario>(HttpStatus.NOT_FOUND);
 		}
 		usuarioUpdate.setFechaDeModificacion(LocalDateTime.now());

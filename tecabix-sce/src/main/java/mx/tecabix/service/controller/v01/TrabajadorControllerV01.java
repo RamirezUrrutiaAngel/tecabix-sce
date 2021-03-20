@@ -124,7 +124,7 @@ public class TrabajadorControllerV01 extends Auth{
 			return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
 		}
 		
-		Page<Trabajador> trabajador =  trabajadorService.findAll(sesion.getLicencia().getPlantel().getIdEscuela(),elements, page);
+		Page<Trabajador> trabajador =  trabajadorService.findAll(sesion.getLicencia().getPlantel().getIdEmpresa(),elements, page);
 		return new ResponseEntity<Page<Trabajador>>(trabajador,HttpStatus.OK);
 	}
 	
@@ -138,7 +138,7 @@ public class TrabajadorControllerV01 extends Auth{
 		if(sesion == null) {
 			return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
 		}
-		Page<Trabajador> trabajador =  trabajadorService.findAllByNombre(sesion.getLicencia().getPlantel().getIdEscuela(),nombre,elements, page);
+		Page<Trabajador> trabajador =  trabajadorService.findAllByNombre(sesion.getLicencia().getPlantel().getIdEmpresa(),nombre,elements, page);
 		return new ResponseEntity<Page<Trabajador>>(trabajador,HttpStatus.OK);
 	}
 	
@@ -244,7 +244,7 @@ public class TrabajadorControllerV01 extends Auth{
 			Optional<Plantel> optionalPlantel = plantelService.findById(plantel.getId());
 			if(optionalPlantel.isPresent()) {
 				plantel = optionalPlantel.get();
-				if(!plantel.getIdEscuela().equals(sesion.getLicencia().getPlantel().getIdEscuela())) {
+				if(!plantel.getIdEmpresa().equals(sesion.getLicencia().getPlantel().getIdEmpresa())) {
 					plantel = null;
 				}
 			}else {
@@ -275,7 +275,7 @@ public class TrabajadorControllerV01 extends Auth{
 		trabajador.setEstatus(CAT_PENDIENTE);
 		trabajador.setFechaDeModificacion(LocalDateTime.now());
 		trabajador.setIdUsuarioModificado(sesion.getUsuario().getId());
-		trabajador.setIdEscuela(sesion.getLicencia().getPlantel().getIdEscuela());
+		trabajador.setIdEmpresa(sesion.getLicencia().getPlantel().getIdEmpresa());
 		trabajador.setJefe(jefe);
 		trabajador.setPersonaFisica(persona);
 		trabajador.setPlantel(plantel);
@@ -313,9 +313,9 @@ public class TrabajadorControllerV01 extends Auth{
 		}
 
 		Trabajador trabajador = opcionalTrabajador.get();
-		Long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
+		Long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
 		
-		if(trabajador.getIdEscuela().longValue() != idEscuela.longValue()) {
+		if(trabajador.getIdEmpresa().longValue() != idEmpresa.longValue()) {
 			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		PersonaFisica personaFisica = trabajador.getPersonaFisica();
@@ -357,8 +357,8 @@ public class TrabajadorControllerV01 extends Auth{
 		
 		Trabajador trabajador = opcionalTrabajador.get();
 		
-		Long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
-		if(trabajador.getIdEscuela().longValue() != idEscuela.longValue()) {
+		Long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		if(trabajador.getIdEmpresa().longValue() != idEmpresa.longValue()) {
 			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		PersonaFisica personaFisica = trabajador.getPersonaFisica();

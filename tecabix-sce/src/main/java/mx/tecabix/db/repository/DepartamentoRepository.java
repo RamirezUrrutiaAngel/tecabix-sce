@@ -32,6 +32,6 @@ import mx.tecabix.db.entity.Departamento;
  */
 public interface DepartamentoRepository extends JpaRepository<Departamento, Long>{
 
-	Page<Departamento> findByIdEscuela(Long idEscuela, Pageable pageable);
+	Page<Departamento> findByIdEmpresa(Long idEmpresa, Pageable pageable);
 	Optional<Departamento> findByClave(UUID uuid);
 }

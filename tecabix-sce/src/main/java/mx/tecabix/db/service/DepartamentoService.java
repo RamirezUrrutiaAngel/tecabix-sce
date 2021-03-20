@@ -31,6 +31,6 @@ import mx.tecabix.db.entity.Departamento;
  */
 public interface DepartamentoService extends GenericSevice<Departamento, Long>{
 
-	Page<Departamento> findByIdEscuela(Long idEscuela, int elements, int page);
+	Page<Departamento> findByIdEmpresa(Long idEmpresa, int elements, int page);
 	Optional<Departamento> findByClave(UUID uuid);
 }

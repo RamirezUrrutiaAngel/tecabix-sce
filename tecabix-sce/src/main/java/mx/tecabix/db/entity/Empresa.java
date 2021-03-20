@@ -46,9 +46,9 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @Entity
 @Table(name = "persona_moral")
 @NamedQueries({
-    @NamedQuery(name = "Escuela.findByNameRegardlessOfStatus",query = "SELECT e FROM Escuela e WHERE upper(e.nombre) =  upper(?1)")
+    @NamedQuery(name = "Empresa.findByNameRegardlessOfStatus",query = "SELECT e FROM Empresa e WHERE upper(e.nombre) =  upper(?1)")
 })
-public class Escuela implements Serializable {
+public class Empresa implements Serializable {
 
 	private static final long serialVersionUID = 4047413230691680424L;
 	@Id

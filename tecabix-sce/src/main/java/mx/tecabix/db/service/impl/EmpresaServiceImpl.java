@@ -26,19 +26,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.GenericSeviceImpl;
-import mx.tecabix.db.entity.Escuela;
-import mx.tecabix.db.repository.EscuelaRepository;
-import mx.tecabix.db.service.EscuelaService;
+import mx.tecabix.db.entity.Empresa;
+import mx.tecabix.db.repository.EmpresaRepository;
+import mx.tecabix.db.service.EmpresaService;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
 @Service
-public class EscuelaServiceImpl extends GenericSeviceImpl<Escuela, Long>implements EscuelaService{
+public class EmpresaServiceImpl extends GenericSeviceImpl<Empresa, Long>implements EmpresaService{
 
 	@Autowired
-	private EscuelaRepository empresaRespository;
+	private EmpresaRepository empresaRespository;
 
 	@PostConstruct
 	@Override
@@ -48,14 +48,14 @@ public class EscuelaServiceImpl extends GenericSeviceImpl<Escuela, Long>implemen
 	}
 
 	@Override
-	public Optional<Escuela> findByNameRegardlessOfStatus(String nombre) {
-		Optional<Escuela> result = empresaRespository.findByNameRegardlessOfStatus(nombre);
+	public Optional<Empresa> findByNameRegardlessOfStatus(String nombre) {
+		Optional<Empresa> result = empresaRespository.findByNameRegardlessOfStatus(nombre);
 		return result;
 	}
 
 	@Override
-	public Optional<Escuela> findByClave(UUID uuid) {
-		Optional<Escuela> result = empresaRespository.findByClave(uuid);
+	public Optional<Empresa> findByClave(UUID uuid) {
+		Optional<Empresa> result = empresaRespository.findByClave(uuid);
 		return result;
 	}
 

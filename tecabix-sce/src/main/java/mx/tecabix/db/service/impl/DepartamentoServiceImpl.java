@@ -51,9 +51,9 @@ public class DepartamentoServiceImpl extends GenericSeviceImpl<Departamento, Lon
 	}
 
 	@Override
-	public Page<Departamento> findByIdEscuela(Long idEscuela, int elements, int page) {
+	public Page<Departamento> findByIdEmpresa(Long idEmpresa, int elements, int page) {
 		Pageable pageable = PageRequest.of(page, elements);
-		Page<Departamento> response = departamentoRepository.findByIdEscuela(idEscuela, pageable);
+		Page<Departamento> response = departamentoRepository.findByIdEmpresa(idEmpresa, pageable);
 		return response;
 	}
 

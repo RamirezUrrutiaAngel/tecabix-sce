@@ -31,6 +31,6 @@ import mx.tecabix.db.entity.Puesto;
  */
 public interface PuestoService extends GenericSevice<Puesto, Long>{
 
-	Page<Puesto> findByIdEscuela(Long idEscuela, int elements, int page);
+	Page<Puesto> findByIdEmpresa(Long idEmpresa, int elements, int page);
 	Optional<Puesto> findByClave(UUID uuid);
 }

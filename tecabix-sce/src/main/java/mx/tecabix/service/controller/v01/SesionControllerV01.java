@@ -103,7 +103,7 @@ public class SesionControllerV01 extends Auth {
 			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);
 		}
 		Usuario usuario = optionalUsuario.get();
-		Optional<Suscripcion> optionalSuscripcion = suscripcionService.findByIdEscuelaAndValid(licencia.getPlantel().getIdEscuela());
+		Optional<Suscripcion> optionalSuscripcion = suscripcionService.findByIdEmpresaAndValid(licencia.getPlantel().getIdEmpresa());
 		if(!optionalSuscripcion.isPresent()) {
 			return new ResponseEntity<Sesion>(HttpStatus.LOCKED);
 		}
@@ -216,7 +216,7 @@ public class SesionControllerV01 extends Auth {
 			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
 		}
 		Sesion sesionAux = sesionOptional.get();
-		if(!sesionAux.getLicencia().getPlantel().getIdEscuela().equals(sesion.getLicencia().getPlantel().getIdEscuela())) {
+		if(!sesionAux.getLicencia().getPlantel().getIdEmpresa().equals(sesion.getLicencia().getPlantel().getIdEmpresa())) {
 			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
 		}
 		sesionAux.setFechaDeModificacion(LocalDateTime.now());
@@ -260,17 +260,17 @@ public class SesionControllerV01 extends Auth {
 			return new ResponseEntity<SesionPage>(HttpStatus.NOT_FOUND);
 		}
 		Page<Sesion> response = null;
-		long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
+		long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
 		if(search == null || search.isEmpty()) {
-			response = sesionService.findByActive(idEscuela, elements, page);
+			response = sesionService.findByActive(idEmpresa, elements, page);
 		}else {
 			StringBuilder text = new StringBuilder("%").append(search).append("%");
 			if(by.equalsIgnoreCase("USUARIO")) {
-				response = sesionService.findByActiveAndLikeUsuario(idEscuela, text.toString(), elements, page);
+				response = sesionService.findByActiveAndLikeUsuario(idEmpresa, text.toString(), elements, page);
 			}else if(by.equalsIgnoreCase("LICENCIA")) {
-				response = sesionService.findByActiveAndLikeLicencia(idEscuela, text.toString(), elements, page);
+				response = sesionService.findByActiveAndLikeLicencia(idEmpresa, text.toString(), elements, page);
 			}else if(by.equalsIgnoreCase("SERVICIO")) {
-				response = sesionService.findByActiveAndLikeServicio(idEscuela, text.toString(), elements, page);
+				response = sesionService.findByActiveAndLikeServicio(idEmpresa, text.toString(), elements, page);
 			}else {
 				return new ResponseEntity<SesionPage>(HttpStatus.BAD_REQUEST);
 			}

@@ -46,10 +46,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import mx.tecabix.db.entity.Contacto;
 import mx.tecabix.db.entity.Correo;
-import mx.tecabix.db.entity.Escuela;
+import mx.tecabix.db.entity.Empresa;
 import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.service.CorreoService;
-import mx.tecabix.db.service.EscuelaService;
+import mx.tecabix.db.service.EmpresaService;
 import mx.tecabix.service.Auth;
 /**
  * 
@@ -61,7 +61,7 @@ import mx.tecabix.service.Auth;
 public class LogControllerV01 extends Auth{
 	
 	@Autowired
-	private EscuelaService escuelaService;
+	private EmpresaService empresaService;
 	@Autowired
 	private CorreoService correoService;
 	
@@ -157,14 +157,14 @@ public class LogControllerV01 extends Auth{
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		Optional<Escuela> optionalEscuela = escuelaService.findById(sesion.getLicencia().getPlantel().getIdEscuela());
-		if(!optionalEscuela.isPresent()) {
+		Optional<Empresa> empresaOptional = empresaService.findById(sesion.getLicencia().getPlantel().getIdEmpresa());
+		if(!empresaOptional.isPresent()) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		List<Contacto> contactos = optionalEscuela.get().getPresona().getContactos();
+		List<Contacto> contactos = empresaOptional.get().getPresona().getContactos();
 		StringBuilder mensaje = new StringBuilder(LocalDateTime.now()+"\n")
-		.append("EMPRESARIAL:    ").append(optionalEscuela.get().getNombre()).append("\n")
-		.append("EMPRESARIAL ID: ").append(sesion.getLicencia().getPlantel().getIdEscuela()).append("\n");
+		.append("EMPRESARIAL:    ").append(empresaOptional.get().getNombre()).append("\n")
+		.append("EMPRESARIAL ID: ").append(sesion.getLicencia().getPlantel().getIdEmpresa()).append("\n");
 		if(contactos != null) {
 			for (Contacto contacto : contactos) {
 				if(contacto == null || contacto.getTipo() == null || contacto.getValor() == null) {
@@ -190,7 +190,7 @@ public class LogControllerV01 extends Auth{
 		cuerpo = mensaje.toString();
 		
 		try {
-			File file = new File(LOG_DIR,sesion.getLicencia().getPlantel().getIdEscuela().toString());
+			File file = new File(LOG_DIR,sesion.getLicencia().getPlantel().getIdEmpresa().toString());
 			
 			FileWriter fw = new FileWriter(file, true);
 			fw.write(cuerpo);

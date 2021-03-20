@@ -46,8 +46,8 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @Entity()
 @Table(name = "suscripcion")
 @NamedQueries({
-	@NamedQuery(name = "Suscripcion.findByIdEscuela", query = "SELECT s FROM Suscripcion s WHERE s.escuela.id = ?1"),
-	@NamedQuery(name = "Suscripcion.findByIdEscuelaAndValid", query = "SELECT s FROM Suscripcion s WHERE s.escuela.id = ?1 AND s.vencimiento > NOW() AND s.estatus.nombre = 'ACTIVO' ")
+	@NamedQuery(name = "Suscripcion.findByIdEmpresa", query = "SELECT s FROM Suscripcion s WHERE s.empresa.id = ?1"),
+	@NamedQuery(name = "Suscripcion.findByIdEmpresaAndValid", query = "SELECT s FROM Suscripcion s WHERE s.empresa.id = ?1 AND s.vencimiento > NOW() AND s.estatus.nombre = 'ACTIVO' ")
 })
 public class Suscripcion implements Serializable{
 
@@ -62,8 +62,8 @@ public class Suscripcion implements Serializable{
     @JoinColumn(name = "id_plan")
 	private Plan plan;
 	@ManyToOne
-    @JoinColumn(name = "id_escuela")
-	private Escuela escuela;
+    @JoinColumn(name = "id_empresa")
+	private Empresa empresa;
 	@Column(name = "vencimiento")
 	private LocalDate vencimiento;
     @Column(name = "id_usuario_modificado")
@@ -88,11 +88,11 @@ public class Suscripcion implements Serializable{
 	public void setPlan(Plan plan) {
 		this.plan = plan;
 	}
-	public Escuela getEscuela() {
-		return escuela;
+	public Empresa getEmpresa() {
+		return empresa;
 	}
-	public void setEscuela(Escuela escuela) {
-		this.escuela = escuela;
+	public void setEmpresa(Empresa empresa) {
+		this.empresa = empresa;
 	}
 	public LocalDate getVencimiento() {
 		return vencimiento;

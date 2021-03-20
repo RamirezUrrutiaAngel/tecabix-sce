@@ -97,15 +97,15 @@ public class PerfilControllerV01 extends Auth{
 		}else {
 			return new ResponseEntity<PerfilPage>(HttpStatus.BAD_REQUEST);
 		}
-		long idEscuela = sesion.getLicencia().getPlantel().getIdEscuela();
+		long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
 		if(search == null || search.isEmpty()) {
-			response = perfilService.findAll(idEscuela, elements, page, sort);
+			response = perfilService.findAll(idEmpresa, elements, page, sort);
 		}else {
 			StringBuilder text = new StringBuilder("%").append(search).append("%");
 			if(by.equalsIgnoreCase("NOMBRE")) {
-				response = perfilService.findByLikeNombre(idEscuela, text.toString(), elements, page, sort);
+				response = perfilService.findByLikeNombre(idEmpresa, text.toString(), elements, page, sort);
 			}else if(by.equalsIgnoreCase("DESCRIPCION")) {
-				response = perfilService.findByLikeDescripcion(idEscuela, text.toString(), elements, page, sort);
+				response = perfilService.findByLikeDescripcion(idEmpresa, text.toString(), elements, page, sort);
 			}else {
 				return new ResponseEntity<PerfilPage>(HttpStatus.BAD_REQUEST);
 			}
@@ -129,7 +129,7 @@ public class PerfilControllerV01 extends Auth{
 			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 		}
 		
-		Page<Perfil> pagePerfil = perfilService.findByNombre(sesion.getLicencia().getPlantel().getIdEscuela(), perfil.getNombre(),Integer.MAX_VALUE,0);
+		Page<Perfil> pagePerfil = perfilService.findByNombre(sesion.getLicencia().getPlantel().getIdEmpresa(), perfil.getNombre(),Integer.MAX_VALUE,0);
 		if(!pagePerfil.isEmpty()) {
 			return new ResponseEntity<Perfil>(HttpStatus.NOT_ACCEPTABLE);
 		}
@@ -147,7 +147,7 @@ public class PerfilControllerV01 extends Auth{
 			perfil.setAuthorities(listAux);
 		}
 		
-		perfil.setIdEscuela(sesion.getLicencia().getPlantel().getIdEscuela());
+		perfil.setIdEmpresa(sesion.getLicencia().getPlantel().getIdEmpresa());
 		perfil.setEstatus(singletonUtil.getActivo());
 		perfil.setIdUsuarioModificado(sesion.getUsuario().getId());
 		perfil.setFechaDeModificacion(LocalDateTime.now());
@@ -178,11 +178,11 @@ public class PerfilControllerV01 extends Auth{
 			return new ResponseEntity<Perfil>(HttpStatus.NOT_FOUND);
 		}
 		Perfil perfilAux = perfilAuxOptional.get();
-		if(perfilAux.getIdEscuela().longValue() != sesion.getLicencia().getPlantel().getIdEscuela().longValue()) {
+		if(perfilAux.getIdEmpresa().longValue() != sesion.getLicencia().getPlantel().getIdEmpresa().longValue()) {
 			return new ResponseEntity<Perfil>(HttpStatus.NOT_FOUND);
 		}
 		
-		Page<Perfil> pagePerfil = perfilService.findByNombre(sesion.getLicencia().getPlantel().getIdEscuela(), perfil.getNombre(),Integer.MAX_VALUE,0);
+		Page<Perfil> pagePerfil = perfilService.findByNombre(sesion.getLicencia().getPlantel().getIdEmpresa(), perfil.getNombre(),Integer.MAX_VALUE,0);
 		for (Perfil perfilExistente : pagePerfil) {
 			if(perfilExistente != null && !perfilExistente.equals(perfil)) {
 				return new ResponseEntity<Perfil>(HttpStatus.NOT_ACCEPTABLE);
@@ -229,7 +229,7 @@ public class PerfilControllerV01 extends Auth{
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		Perfil perfil = perfilOptional.get();
-		if(perfil.getIdEscuela().longValue() != sesion.getLicencia().getPlantel().getIdEscuela().longValue()) {
+		if(perfil.getIdEmpresa().longValue() != sesion.getLicencia().getPlantel().getIdEmpresa().longValue()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		perfil.setEstatus(singletonUtil.getEliminado());
