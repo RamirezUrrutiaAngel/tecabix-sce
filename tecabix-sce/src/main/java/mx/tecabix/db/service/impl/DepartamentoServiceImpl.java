@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.GenericSeviceImpl;
@@ -47,20 +48,29 @@ public class DepartamentoServiceImpl extends GenericSeviceImpl<Departamento, Lon
 	@Override
 	protected void postConstruct() {
 		setJpaRepository(departamentoRepository);
-		
 	}
 
 	@Override
-	public Page<Departamento> findByIdEmpresa(Long idEmpresa, int elements, int page) {
-		Pageable pageable = PageRequest.of(page, elements);
-		Page<Departamento> response = departamentoRepository.findByIdEmpresa(idEmpresa, pageable);
-		return response;
+	public Page<Departamento> findByIdEmpresa(Long idEmpresa, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort);
+		return departamentoRepository.findByIdEmpresa(idEmpresa, pageable);
 	}
 
 	@Override
 	public Optional<Departamento> findByClave(UUID uuid) {
-		Optional<Departamento> result = departamentoRepository.findByClave(uuid);
-		return result;
+		return departamentoRepository.findByClave(uuid);
+	}
+
+	@Override
+	public Page<Departamento> findByLikeNombre(String nombre, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort);
+		return departamentoRepository.findByLikeNombre(nombre, pageable);
+	}
+
+	@Override
+	public Page<Departamento> findByLikeDescripcion(String descripcion, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort);
+		return departamentoRepository.findByLikeDescripcion(descripcion, pageable);
 	}
 	
 }

@@ -15,25 +15,39 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.db.service;
+package mx.tecabix.service.page;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.io.Serializable;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 
-import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.Departamento;
+import mx.tecabix.service.PageGeneric;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface DepartamentoService extends GenericSevice<Departamento, Long>{
+public class DepartamentoPage extends PageGeneric implements Serializable{
 
-	Page<Departamento> findByLikeNombre(String nombre, int elements, int page, Sort sort);
-	Page<Departamento> findByLikeDescripcion(String descripcion, int elements, int page, Sort sort);
-	Page<Departamento> findByIdEmpresa(Long idEmpresa, int elements, int page, Sort sort);
-	Optional<Departamento> findByClave(UUID uuid);
+	private static final long serialVersionUID = 872562690291846541L;
+	
+	private List<Departamento> data;
+	
+	public DepartamentoPage() {}
+	
+	public DepartamentoPage(Page<Departamento> data) {
+		super(data);
+		this.data = data.getContent();
+	}
+
+	public List<Departamento> getData() {
+		return data;
+	}
+
+	public void setData(List<Departamento> data) {
+		this.data = data;
+	}
+
 }

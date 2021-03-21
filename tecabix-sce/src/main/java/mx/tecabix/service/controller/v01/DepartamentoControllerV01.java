@@ -23,6 +23,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -36,16 +37,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.ApiOperation;
 import mx.tecabix.db.entity.Catalogo;
-/**
- * 
- * @author Ramirez Urrutia Angel Abinadi
- * 
- */
 import mx.tecabix.db.entity.Departamento;
 import mx.tecabix.db.entity.Sesion;
-import mx.tecabix.db.service.CatalogoService;
 import mx.tecabix.db.service.DepartamentoService;
 import mx.tecabix.service.Auth;
+import mx.tecabix.service.SingletonUtil;
+import mx.tecabix.service.page.DepartamentoPage;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -56,35 +53,64 @@ import mx.tecabix.service.Auth;
 public class DepartamentoControllerV01 extends Auth{
 	
 	@Autowired
-	private CatalogoService catalogoService;
+	private SingletonUtil singletonUtil;
 	@Autowired
 	private DepartamentoService departamentoService;
 	
-	private final String ACTIVO = "ACTIVO";
-	private final String ESTATUS = "ESTATUS";
 	private final String DEPARTAMENTO = "DEPARTAMENTO";
 	private final String DEPARTAMENTO_CREAR = "DEPARTAMENTO_CREAR";
 	private final String DEPARTAMENTO_EDITAR = "DEPARTAMENTO_EDITAR";
 	private final String DEPARTAMENTO_ELIMINAR = "DEPARTAMENTO_ELIMINAR";
 
-	@ApiOperation(value = "Obtiene todo los Departamentos paginado.")
-	@GetMapping("findAll")
-	public ResponseEntity<Page<Departamento>> findAll(
+	/**
+	 * 
+	 * @param by:		NOMBRE, DESCRIPCION
+	 * @param order:	ASC, DESC
+	 * 
+	 */
+	@ApiOperation(value = "Obtiene todo los Departamentos paginado.", 
+			notes = "<b>by:</b> NOMBRE, DESCRIPCION<br/><b>order:</b> ASC, DESC")
+	@GetMapping()
+	public ResponseEntity<DepartamentoPage> find(
 			@RequestParam(value="token") UUID token,
+			@RequestParam(value="search", required = false) String search,
+			@RequestParam(value="by", defaultValue = "NOMBRE") String by,
+			@RequestParam(value="order", defaultValue = "ASC") String order,
 			@RequestParam(value="elements") byte elements,
 			@RequestParam(value="page") short page) {
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, DEPARTAMENTO) ;
 		if(sesion == null) {
-			return new ResponseEntity<Page<Departamento>>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<DepartamentoPage>(HttpStatus.UNAUTHORIZED);
 		}
 		long IdEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
-		Page<Departamento> response = departamentoService.findByIdEmpresa(IdEmpresa, elements, page);
-		return new ResponseEntity<Page<Departamento>>(response,HttpStatus.OK);
+		Page<Departamento> response = null;
+		Sort sort;
+		if(order.equalsIgnoreCase("ASC")) {
+			sort = Sort.by(Sort.Direction.ASC, by.toLowerCase());
+		}else if(order.equalsIgnoreCase("DESC")) {
+			sort = Sort.by(Sort.Direction.DESC, by.toLowerCase());
+		}else {
+			return new ResponseEntity<DepartamentoPage>(HttpStatus.BAD_REQUEST);
+		}
+		if(search == null || search.isEmpty()) {
+			response = departamentoService.findByIdEmpresa(IdEmpresa,elements, page, sort);
+		}else {
+			StringBuilder text = new StringBuilder("%").append(search).append("%");
+			if(by.equalsIgnoreCase("NOMBRE")) {
+				response = departamentoService.findByLikeNombre(text.toString(), elements, page, sort);
+			}else if(by.equalsIgnoreCase("DESCRIPCION")) {
+				response = departamentoService.findByLikeDescripcion(text.toString(), elements, page, sort);
+			}else {
+				return new ResponseEntity<DepartamentoPage>(HttpStatus.BAD_REQUEST);
+			}
+		}
+		DepartamentoPage body = new DepartamentoPage(response);
+		return new ResponseEntity<DepartamentoPage>(body,HttpStatus.OK);
 	}
 	
 	@ApiOperation(value = "Persiste la entidad del Departamento. ")
-	@PostMapping("save")
+	@PostMapping()
 	public ResponseEntity<Departamento> save(
 			@RequestBody Departamento departamento,
 			@RequestParam(value="token") UUID token){
@@ -94,18 +120,16 @@ public class DepartamentoControllerV01 extends Auth{
 			return new ResponseEntity<Departamento>(HttpStatus.UNAUTHORIZED);
 		}
 		long IdEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
-		if(departamento.getNombre() == null || departamento.getNombre().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Departamento.SIZE_NOMBRE, departamento.getNombre())) {
 			return new ResponseEntity<Departamento>(HttpStatus.BAD_REQUEST);
 		}
-		if(departamento.getDescripcion() == null || departamento.getDescripcion().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Departamento.SIZE_DESCRIPCION, departamento.getDescripcion())) {
 			return new ResponseEntity<Departamento>(HttpStatus.BAD_REQUEST);
 		}
-		Optional<Catalogo> optionalCatalogoActivo = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO);
-		if(!optionalCatalogoActivo.isPresent()) {
-			return new ResponseEntity<Departamento>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		final Catalogo CAT_ACTIVO = optionalCatalogoActivo.get();
 		
+		final Catalogo CAT_ACTIVO = singletonUtil.getActivo();
+		
+		departamento.setClave(UUID.randomUUID());
 		departamento.setEstatus(CAT_ACTIVO);
 		departamento.setFechaDeModificacion(LocalDateTime.now());
 		departamento.setIdUsuarioModificado(sesion.getUsuario().getId());
@@ -115,7 +139,7 @@ public class DepartamentoControllerV01 extends Auth{
 	}
 	
 	@ApiOperation(value = "Actualiza la entidad del Departamento. ")
-	@PutMapping("update")
+	@PutMapping()
 	public ResponseEntity<Departamento> update(
 			@RequestBody Departamento departamento,
 			@RequestParam(value="token") UUID token){
@@ -125,21 +149,24 @@ public class DepartamentoControllerV01 extends Auth{
 			return new ResponseEntity<Departamento>(HttpStatus.UNAUTHORIZED);
 		}
 		long IdEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
-		if(departamento.getId() == null ) {
+		if(isNotValid(sesion.getClave())) {
+			return new ResponseEntity<Departamento>(HttpStatus.NOT_FOUND);
+		}
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Departamento.SIZE_NOMBRE, departamento.getNombre())) {
 			return new ResponseEntity<Departamento>(HttpStatus.BAD_REQUEST);
 		}
-		if(departamento.getNombre() == null || departamento.getNombre().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Departamento.SIZE_DESCRIPCION, departamento.getDescripcion())) {
 			return new ResponseEntity<Departamento>(HttpStatus.BAD_REQUEST);
 		}
-		if(departamento.getDescripcion() == null || departamento.getDescripcion().isEmpty()) {
-			return new ResponseEntity<Departamento>(HttpStatus.BAD_REQUEST);
-		}
-		Optional<Departamento> optionalDepartamento = departamentoService.findById(departamento.getId());
+		Optional<Departamento> optionalDepartamento = departamentoService.findByClave(departamento.getClave());
 		if(!optionalDepartamento.isPresent()) {
 			return new ResponseEntity<Departamento>(HttpStatus.NOT_FOUND);
 		}
 		Departamento body = optionalDepartamento.get();
 		if(!body.getIdEmpresa().equals(IdEmpresa)) {
+			return new ResponseEntity<Departamento>(HttpStatus.NOT_FOUND);
+		}
+		if(!body.getEstatus().equals(singletonUtil.getActivo())) {
 			return new ResponseEntity<Departamento>(HttpStatus.NOT_FOUND);
 		}
 		body.setNombre(departamento.getNombre());
