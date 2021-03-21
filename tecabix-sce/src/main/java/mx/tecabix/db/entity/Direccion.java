@@ -46,6 +46,14 @@ public class Direccion implements Serializable {
 
 	private static final long serialVersionUID = 4798658742448338510L;
 	
+	public static final short SIZE_CALLE = 40;
+	public static final short SIZE_CODIGO_POSTAL = 6;
+	public static final short SIZE_NUM_INT = 15;
+	public static final short SIZE_NUM_EXT = 10;
+	public static final short SIZE_ASENTAMIENTO = 40;
+	public static final short SIZE_ENTRE_CALLE = 40;
+	public static final short SIZE_REFERENCIA = 250;
+	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_direccion", unique = true, nullable = false)
@@ -70,8 +78,10 @@ public class Direccion implements Serializable {
     @JoinColumn(name = "id_municipio")
 	private Municipio municipio;
     @Column(name = "id_usuario_modificado")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Long idUsuarioModificado;
     @Column(name = "fecha_modificado")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private LocalDateTime fechaDeModificacion;
     @ManyToOne
     @JoinColumn(name = "id_estatus")

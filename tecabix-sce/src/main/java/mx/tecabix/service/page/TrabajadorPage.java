@@ -15,26 +15,41 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.db.repository;
+package mx.tecabix.service.page;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.io.Serializable;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
 
-import mx.tecabix.db.entity.Plantel;
+import mx.tecabix.db.entity.Trabajador;
+import mx.tecabix.service.PageGeneric;
+
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface PlantelRepository extends JpaRepository<Plantel, Long>{
+public class TrabajadorPage extends PageGeneric implements Serializable{
 
-	Page<Plantel> findByIdEmpresa(Long idEmpresa, Pageable pageable);
-	Page<Plantel> findByLikeNombre(Long idEmpresa, String nombre, Pageable pageable);
-	Optional<Plantel> findByNombre(Long idEmpresa, String nombre);
+	private static final long serialVersionUID = -8270408493851759445L;
 	
-	Optional<Plantel> findByClave(UUID uuid);
+	private List<Trabajador> data;
+
+	public TrabajadorPage() {
+		super();
+	}
+
+	public TrabajadorPage(Page<Trabajador> data) {
+		super(data);
+		this.data = data.getContent();
+	}
+
+	public List<Trabajador> getData() {
+		return data;
+	}
+
+	public void setData(List<Trabajador> data) {
+		this.data = data;
+	}
 }

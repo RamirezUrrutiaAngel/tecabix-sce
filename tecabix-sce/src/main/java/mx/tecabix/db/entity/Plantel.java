@@ -49,12 +49,16 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @Entity()
 @Table(name = "plantel")
 @NamedQueries({
-	@NamedQuery(name = "Plantel.findByIdEmpresa",query = "SELECT p FROM Plantel p WHERE p.idEmpresa = ?1 AND p.estatus.nombre = 'ACTIVO' "),
-	@NamedQuery(name = "Plantel.findByIdEmpresaAndNombre",query = "SELECT p FROM Plantel p WHERE p.idEmpresa = ?1 AND p.nombre = ?2 AND p.estatus.nombre = 'ACTIVO' ")
+	@NamedQuery(name = "Plantel.findByNombre",query = "SELECT p FROM Plantel p WHERE p.idEmpresa = ?1 AND p.nombre = ?2 AND p.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Plantel.findByLikeNombre",query = "SELECT p FROM Plantel p WHERE p.idEmpresa = ?1 AND UPPER(p.nombre) LIKE UPPER(?2) AND p.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Plantel.findByIdEmpresa",query = "SELECT p FROM Plantel p WHERE p.idEmpresa = ?1 AND p.estatus.nombre = 'ACTIVO' ")
 })
 public class Plantel implements Serializable{
 	
 	private static final long serialVersionUID = -1144141703432606826L;
+	
+	public static final short SIZE_NOMBRE = 200;
+	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_plantel", unique = true, nullable = false)

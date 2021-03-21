@@ -23,12 +23,12 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -53,6 +53,8 @@ import mx.tecabix.db.service.PersonaService;
 import mx.tecabix.db.service.PlantelService;
 import mx.tecabix.db.service.TrabajadorService;
 import mx.tecabix.service.Auth;
+import mx.tecabix.service.SingletonUtil;
+import mx.tecabix.service.page.TrabajadorPage;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -62,6 +64,8 @@ import mx.tecabix.service.Auth;
 @RequestMapping("trabajador/v1")
 public class TrabajadorControllerV01 extends Auth{
 
+	@Autowired
+	private SingletonUtil singletonUtil;
 	@Autowired
 	private CatalogoService catalogoService;
 	@Autowired
@@ -77,11 +81,6 @@ public class TrabajadorControllerV01 extends Auth{
 	@Autowired
 	private PlantelService plantelService;
 	
-	private final String ESTATUS = "ESTATUS";
-	private final String PENDIENTE = "PENDIENTE";
-	private final String ACTIVO = "ACTIVO";
-	private final String ELIMINADO = "ELIMINADO";
-	
 	private final String TIPO_DE_PERSONA = "TIPO_DE_PERSONA";
 	private final String FISICA = "FISICA";
 	
@@ -89,61 +88,67 @@ public class TrabajadorControllerV01 extends Auth{
 	
 	private final String TRABAJADOR = "TRABAJADOR";
 	private final String TRABAJADOR_CREAR = "TRABAJADOR_CREAR";
-	private final String TRABAJADOR_ACTIVAR = "TRABAJADOR_ACTIVAR";
 	private final String TRABAJADOR_ELIMINAR = "TRABAJADOR_ELIMINAR";
 	
-	
-	
-	@ApiOperation(value = "Devuelve los datos del trabajador que realiza la petición.")
+	/**
+	 * 
+	 * @param by:		NOMBRE, APELLIDO_PATERNO, APELLIDO_MATERNO, CURP, PUESTO, PLANTEL
+	 * @param order:	ASC, DESC
+	 * 
+	 */
+	@ApiOperation(value = "Trae todos los trabajadores paginados con estatus ACTIVO.", 
+			notes = "<b>by:</b> NOMBRE, APELLIDO_PATERNO, APELLIDO_MATERNO, CURP, PUESTO, PLANTEL<br/><b>order:</b> ASC, DESC")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
 			@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso.") })
-	@GetMapping
-	public ResponseEntity<Trabajador> findByUsuario(@RequestParam(value="token") UUID token) {
-		Sesion sesion = getSessionIfIsAuthorized(token);
-		if(sesion == null) {
-			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
-		}
-		Optional<Trabajador> opcionalTrabajador =  trabajadorService.findByUsuario(sesion.getUsuario().getNombre());
-		if(!opcionalTrabajador.isPresent()) {
-			return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
-		}
-		Trabajador trabajador = opcionalTrabajador.get();
-		return new ResponseEntity<Trabajador>(trabajador,HttpStatus.OK);
-	}
-	
-	@ApiOperation(value = "Trae todos los trabajadores paginados con estatus ACTIVO.")
-	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
-			@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso.") })
-	@GetMapping("findAll")
-	public ResponseEntity<Page<Trabajador>> findAll(@RequestParam(value="token") UUID token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
-
-		Sesion sesion = getSessionIfIsAuthorized(token, TRABAJADOR);
-		if(sesion == null) {
-			return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
-		}
+	@GetMapping()
+	public ResponseEntity<TrabajadorPage> find(
+			@RequestParam(value="token") UUID token,
+			@RequestParam(value="search", required = false) String search,
+			@RequestParam(value="by", defaultValue = "NOMBRE") String by,
+			@RequestParam(value="order", defaultValue = "ASC") String order,
+			@RequestParam(value="elements") byte elements,
+			@RequestParam(value="page") short page) {
 		
-		Page<Trabajador> trabajador =  trabajadorService.findAll(sesion.getLicencia().getPlantel().getIdEmpresa(),elements, page);
-		return new ResponseEntity<Page<Trabajador>>(trabajador,HttpStatus.OK);
-	}
-	
-	@ApiOperation(value = "Trae los trabajadores por coincidencia de nombre")
-	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
-			@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso.") })
-	@GetMapping("findAllByNombre")
-	public ResponseEntity<Page<Trabajador>> findAllByNombre(@RequestParam(value="token") UUID token, @RequestParam(value="nombre") String nombre,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
 		Sesion sesion = getSessionIfIsAuthorized(token, TRABAJADOR);
 		if(sesion == null) {
-			return new ResponseEntity<Page<Trabajador>>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<TrabajadorPage>(HttpStatus.UNAUTHORIZED);
 		}
-		Page<Trabajador> trabajador =  trabajadorService.findAllByNombre(sesion.getLicencia().getPlantel().getIdEmpresa(),nombre,elements, page);
-		return new ResponseEntity<Page<Trabajador>>(trabajador,HttpStatus.OK);
+		Sort sort = null;
+		if(order.equalsIgnoreCase("ASC")) {
+			sort = Sort.by(Sort.Direction.ASC, by.toLowerCase());
+		}else if(order.equalsIgnoreCase("DESC")) {
+			sort = Sort.by(Sort.Direction.DESC, by.toLowerCase());
+		}else {
+			new ResponseEntity<TrabajadorPage>(HttpStatus.BAD_REQUEST);
+		}
+		Long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		Page<Trabajador> response = null;
+		if(search == null || search.isEmpty()) {
+			response = trabajadorService.findByIdEmpresa(idEmpresa,elements, page, sort);
+		}else {
+			StringBuilder text = new StringBuilder("%").append(search).append("%");
+			if(by.equalsIgnoreCase("NOMBRE")) {
+				response = trabajadorService.findByLikeNombre(idEmpresa, text.toString(), elements, page, sort);
+			}else if(by.equalsIgnoreCase("APELLIDO_PATERNO")) {
+				response = trabajadorService.findByLikeApellidoPaterno(idEmpresa, text.toString(), elements, page, sort);
+			}else if(by.equalsIgnoreCase("APELLIDO_MATERNO")) {
+				response = trabajadorService.findByLikeApellidoMaterno(idEmpresa, text.toString(), elements, page, sort);
+			}else if(by.equalsIgnoreCase("CURP")) {
+				response = trabajadorService.findByLikeCURP(idEmpresa, text.toString(), elements, page, sort);
+			}else if(by.equalsIgnoreCase("PUESTO")) {
+				response = trabajadorService.findByLikePuesto(idEmpresa, text.toString(), elements, page, sort);
+			}else if(by.equalsIgnoreCase("PLANTEL")) {
+				response = trabajadorService.findByLikePlantel(idEmpresa, text.toString(), elements, page, sort);
+			}else {
+				new ResponseEntity<TrabajadorPage>(HttpStatus.BAD_REQUEST);
+			}
+		}
+		TrabajadorPage body = new TrabajadorPage(response);
+		return new ResponseEntity<TrabajadorPage>(body, HttpStatus.OK);
 	}
 	
-	
-	@ApiOperation(value = "Dar de alta un nuevo trabajador", notes = "Dar de alta un trabajador nuevo en una empresa ya existente, pero no se encontrara habilitado hasta que se active con el serivicio trabajador/activar.")
+	@ApiOperation(value = "Dar de alta un nuevo trabajador", notes = "Dar de alta un trabajador nuevo en una empresa ya existente.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
 			@ApiResponse(code = 400, message = "Faltan datos para poder procesar la petición o no son validos."),
@@ -160,197 +165,162 @@ public class TrabajadorControllerV01 extends Auth{
 		if(trabajador == null) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
-		if(trabajador.getCURP() == null || trabajador.getCURP().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC, Trabajador.SIZE_CURP, trabajador.getCURP())) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
-		if(trabajador.getJefe() == null || trabajador.getJefe().getId() == null) {
+		if(isNotValid(trabajador.getJefe())) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
-		if(trabajador.getPuesto() == null || trabajador.getPuesto().getId() == null) {
+		if(isNotValid(trabajador.getJefe().getClave())) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
-		
+		if(isValid(trabajador.getPlantel())) {
+			if(isNotValid(trabajador.getPlantel().getClave())) {
+				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+			}
+		}
+		if(isNotValid(trabajador.getPuesto())) {
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(trabajador.getPuesto().getClave())) {
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
 		PersonaFisica persona = trabajador.getPersonaFisica();
-		if(persona == null ) {
+		if(isNotValid(persona) ) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
-		if(persona.getNombre() == null || persona.getNombre().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, PersonaFisica.SIZE_NOMBRE, persona.getNombre())) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
-		if(persona.getSexo() == null || persona.getSexo().getNombre() == null || persona.getSexo().getNombre().isEmpty()) {
+		if(isNotValid(persona.getSexo())) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
-		if(persona.getFechaNacimiento() == null) {
+		if(isNotValid(persona.getSexo().getNombre())) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
-		if(persona.getApellidoMaterno() == null || persona.getApellidoMaterno().isEmpty()) {
+		if(isNotValid(persona.getFechaNacimiento())) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
-		if(persona.getApellidoPaterno() == null || persona.getApellidoPaterno().isEmpty()) {
+		if(isNotValid(TIPO_ALFA, PersonaFisica.SIZE_APELLIDO_MATERNO, persona.getApellidoMaterno())) {
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(TIPO_ALFA, PersonaFisica.SIZE_APELLIDO_PATERNO, persona.getApellidoPaterno())) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
 		Direccion direccion = persona.getDireccion();
-		if(direccion == null ) {
+		if(isNotValid(direccion)) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
-		if(direccion.getCalle() == null || direccion.getCalle().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC, Direccion.SIZE_CALLE, direccion.getCalle())) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
-		if(direccion.getCodigoPostal() == null || direccion.getCodigoPostal().isEmpty()) {
+		if(isNotValid(TIPO_NUMERIC, Direccion.SIZE_CODIGO_POSTAL, direccion.getCodigoPostal())) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
-		if(direccion.getAsentamiento() == null || direccion.getAsentamiento().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Direccion.SIZE_ASENTAMIENTO, direccion.getAsentamiento())) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
-		if(direccion.getNumExt() == null || direccion.getAsentamiento().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Direccion.SIZE_NUM_EXT, direccion.getNumExt())) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
-		if(direccion.getMunicipio() == null || direccion.getMunicipio().getId() == null ) {
+		if(isValid(direccion.getNumInt())) {
+			if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Direccion.SIZE_NUM_INT, direccion.getNumInt())) {
+				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+			}
+		}
+		if(isNotValid(direccion.getMunicipio())) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
-		
+		if(isNotValid(direccion.getMunicipio().getClave())) {
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
 		
 		Optional<Catalogo> optionalCatalogoSexo = catalogoService.findByTipoAndNombre(SEXO, persona.getSexo().getNombre());
-		Optional<Catalogo> optionalCatalogoPendinte = catalogoService.findByTipoAndNombre(ESTATUS, PENDIENTE);
 		Optional<Catalogo> optionalCatalogoTipoPersona = catalogoService.findByTipoAndNombre(TIPO_DE_PERSONA, FISICA);
 		
 		if(!optionalCatalogoSexo.isPresent()) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
-		if(!optionalCatalogoPendinte.isPresent()) {
-			return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+		
 		if(!optionalCatalogoTipoPersona.isPresent()) {
 			return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		final Catalogo CAT_SEXO = optionalCatalogoSexo.get();
-		final Catalogo CAT_PENDIENTE = optionalCatalogoPendinte.get();
+		final Catalogo CAT_ACTIVO = singletonUtil.getActivo();
 		final Catalogo CAT_TIPO_PERSONA = optionalCatalogoTipoPersona.get();
 		
-		Optional<Municipio> municipioOptional = municipioService.findById(direccion.getMunicipio().getId());
+		Optional<Municipio> municipioOptional = municipioService.findByClave(direccion.getMunicipio().getClave());
 		if(!municipioOptional.isPresent()) {
 			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Municipio municipio = municipioOptional.get();
 		
-		Optional<Trabajador> opcionalTrabajador =  trabajadorService.findByKey(trabajador.getJefe().getId());
+		Optional<Trabajador> opcionalTrabajador =  trabajadorService.findByClave(trabajador.getJefe().getClave());
 		if(!opcionalTrabajador.isPresent()) {
 			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Trabajador jefe = opcionalTrabajador.get();
-		
+		if(jefe.getPlantel().getIdEmpresa().equals(sesion.getLicencia().getPlantel().getIdEmpresa())) {
+			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
+		}
 		Plantel plantel = trabajador.getPlantel();
-		if(plantel != null) {
-			Optional<Plantel> optionalPlantel = plantelService.findById(plantel.getId());
+		if(isValid(plantel)) {
+			Optional<Plantel> optionalPlantel = plantelService.findByClave(plantel.getClave());
 			if(optionalPlantel.isPresent()) {
 				plantel = optionalPlantel.get();
 				if(!plantel.getIdEmpresa().equals(sesion.getLicencia().getPlantel().getIdEmpresa())) {
-					plantel = null;
+					return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 				}
 			}else {
-				plantel = null;
+				return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 			}
 		}
-		
-		direccion.setEstatus(CAT_PENDIENTE);
+		direccion.setClave(UUID.randomUUID());
+		direccion.setEstatus(CAT_ACTIVO);
 		direccion.setMunicipio(municipio);
 		direccion.setFechaDeModificacion(LocalDateTime.now());
 		direccion.setIdUsuarioModificado(sesion.getUsuario().getId());
 		direccion = direccionService.save(direccion);
 		
 		Persona prs=new Persona();
+		prs.setClave(UUID.randomUUID());
 		prs.setTipo(CAT_TIPO_PERSONA);
 		prs.setIdUsuarioModificado(sesion.getUsuario().getId());
 		prs.setFechaDeModificacion(LocalDateTime.now());
-		prs.setEstatus(CAT_PENDIENTE);
+		prs.setEstatus(CAT_ACTIVO);
 		prs = personaService.save(prs);
+		persona.setClave(UUID.randomUUID());
 		persona.setPresona(prs);
 		persona.setDireccion(direccion);
 		persona.setSexo(CAT_SEXO);
 		persona.setFechaDeModificacion(LocalDateTime.now());
 		persona.setIdUsuarioModificado(sesion.getUsuario().getId());
-		persona.setEstatus(CAT_PENDIENTE);
+		persona.setEstatus(CAT_ACTIVO);
 		
 		persona = personaFisicaService.save(persona);
-		trabajador.setEstatus(CAT_PENDIENTE);
+		trabajador.setClave(UUID.randomUUID());
+		trabajador.setEstatus(CAT_ACTIVO);
 		trabajador.setFechaDeModificacion(LocalDateTime.now());
 		trabajador.setIdUsuarioModificado(sesion.getUsuario().getId());
 		trabajador.setIdEmpresa(sesion.getLicencia().getPlantel().getIdEmpresa());
 		trabajador.setJefe(jefe);
 		trabajador.setPersonaFisica(persona);
 		trabajador.setPlantel(plantel);
-		trabajadorService.save(trabajador);
-		return new ResponseEntity<Trabajador>(trabajador, HttpStatus.OK);
-	}
-	
-	
-	@ApiOperation(value = "Activar trabajador dado de alta",
-			notes = "Activa el trabajador con sus corespondientes usuario y direccion")
-	@ApiResponses(value = {
-				@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
-				@ApiResponse(code = 400, message = "Faltan datos para poder procesar la petición o no son validos."),
-				@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso."),
-				@ApiResponse(code = 406, message = "Uno o varios datos ingresados no son validos para procesar la petición."),
-				@ApiResponse(code = 409, message = "La petición no pudo realizarse por que el usuario que se intenta guardar ya existe.")
-			})
-	@PutMapping("activar")
-	public ResponseEntity<Trabajador> activar(@RequestParam(value="id") Long id, @RequestParam(value="token") UUID token) {
-		
-		Sesion sesion = getSessionIfIsAuthorized(token, TRABAJADOR_ACTIVAR);
-		if(sesion == null) {
-			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED); 
-		}
-		Optional<Catalogo> optionalCatalogoActivo = catalogoService.findByTipoAndNombre(ESTATUS, ACTIVO);
-		if(!optionalCatalogoActivo.isPresent()) {
-			return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		final Catalogo CAT_ACTIVO = optionalCatalogoActivo.get();
-		
-		
-		Optional<Trabajador> opcionalTrabajador =  trabajadorService.findByIdAndPendiente(id);
-		if(!opcionalTrabajador.isPresent()) {
-			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
-		}
-
-		Trabajador trabajador = opcionalTrabajador.get();
-		Long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
-		
-		if(trabajador.getIdEmpresa().longValue() != idEmpresa.longValue()) {
-			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
-		}
-		PersonaFisica personaFisica = trabajador.getPersonaFisica();
-		personaFisica.setEstatus(CAT_ACTIVO);
-		Persona persona = personaFisica.getPresona();
-		persona.setEstatus(CAT_ACTIVO);
-		persona = personaService.update(persona);
-		personaFisica.setPresona(persona);
-		Direccion direccion = personaFisica.getDireccion();
-		direccion.setEstatus(CAT_ACTIVO);
-		direccionService.update(direccion);
-		personaFisica.setDireccion(direccion);
-		personaFisica = personaFisicaService.update(personaFisica);
-		trabajador.setPersonaFisica(personaFisica);
-		trabajadorService.update(trabajador);
+		trabajador = trabajadorService.save(trabajador);
 		return new ResponseEntity<Trabajador>(trabajador, HttpStatus.OK);
 	}
 	
 	@ApiOperation(value = "Eliminar trabajador y dependencias")
 	@DeleteMapping("delete")
-	public ResponseEntity<Trabajador> delete(@RequestParam(value="id") Long id, @RequestParam(value="token") UUID token) {
+	public ResponseEntity<Trabajador> delete(@RequestParam(value="clave") UUID clave, @RequestParam(value="token") UUID token) {
 		
 		Sesion sesion = getSessionIfIsAuthorized(token, TRABAJADOR_ELIMINAR);
 		if(sesion == null) {
 			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED); 
 		}
-		
-		Optional<Catalogo> optionalCatalogoEliminado = catalogoService.findByTipoAndNombre(ESTATUS, ELIMINADO);
-		if(!optionalCatalogoEliminado.isPresent()) {
-			return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		final Catalogo CAT_ELIMINADO = optionalCatalogoEliminado.get();
-		
+		final Catalogo CAT_ELIMINADO = singletonUtil.getEliminado();
 
-		Optional<Trabajador> opcionalTrabajador = trabajadorService.findByKey(id);
+		Optional<Trabajador> opcionalTrabajador = trabajadorService.findByClave(clave);
 		if(!opcionalTrabajador.isPresent()) {
 			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 		}
@@ -369,12 +339,11 @@ public class TrabajadorControllerV01 extends Auth{
 		personaFisica.setPresona(persona);
 		Direccion direccion = personaFisica.getDireccion();
 		direccion.setEstatus(CAT_ELIMINADO);
-		direccionService.update(direccion);
+		direccion = direccionService.update(direccion);
 		personaFisica.setDireccion(direccion);
 		personaFisica = personaFisicaService.update(personaFisica);
 		trabajador.setPersonaFisica(personaFisica);
-		trabajadorService.update(trabajador);
+		trabajador = trabajadorService.update(trabajador);
 		return new ResponseEntity<Trabajador>(trabajador, HttpStatus.OK);
 	}
-	
 }

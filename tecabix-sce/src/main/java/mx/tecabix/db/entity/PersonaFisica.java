@@ -44,11 +44,13 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @Entity
 @Table(name = "persona_fisica")
 public class PersonaFisica implements Serializable{
-	
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 701859570029260114L;
+	
+	public static final short SIZE_NOMBRE = 45;
+	public static final short SIZE_APELLIDO_PATERNO = 15;
+	public static final short SIZE_APELLIDO_MATERNO = 15;
+	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_persona_fisica", unique = true, nullable = false)

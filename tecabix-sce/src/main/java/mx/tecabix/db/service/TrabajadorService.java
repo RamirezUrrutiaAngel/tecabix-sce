@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 
 import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.Trabajador;
@@ -31,10 +32,13 @@ import mx.tecabix.db.entity.Trabajador;
  */
 public interface TrabajadorService  extends GenericSevice<Trabajador, Long>{
 	
-	Optional<Trabajador> findByKey(Long id);
-	Optional<Trabajador> findByIdAndPendiente(Long id);
-	Optional<Trabajador> findByUsuario(String usuario);
-	Page<Trabajador> findAll(Long idEmpresa, int elements, int page);
-	Page<Trabajador> findAllByNombre(Long idEmpresa,String nombre, int elements, int page);
+	Page<Trabajador> findByLikePuesto(Long idEmpresa, String puesto, int elements, int page, Sort sort);
+	Page<Trabajador> findByLikePlantel(Long idEmpresa, String plantel, int elements, int page, Sort sort);
+	Page<Trabajador> findByLikeCURP(Long idEmpresa, String CURP, int elements, int page, Sort sort);
+	Page<Trabajador> findByLikeNombre(Long idEmpresa, String nombre, int elements, int page, Sort sort);
+	Page<Trabajador> findByLikeApellidoPaterno(Long idEmpresa, String apellidoPaterno, int elements, int page, Sort sort);
+	Page<Trabajador> findByLikeApellidoMaterno(Long idEmpresa, String apellidoMaterno, int elements, int page, Sort sort);
+	Page<Trabajador> findByIdEmpresa(Long idEmpresa, int elements, int page, Sort sort);
+	
 	Optional<Trabajador> findByClave(UUID uuid);
 }

@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 
 import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.Plantel;
@@ -30,8 +31,9 @@ import mx.tecabix.db.entity.Plantel;
  * 
  */
 public interface PlantelService extends GenericSevice<Plantel, Long>{
-
-	Page<Plantel> findByIdEmpresa(Long idEmpresa,  int elements, int page);
-	Optional<Plantel> findByIdEmpresaAndNombre(Long idEmpresa, String nombre);
+	
+	Page<Plantel> findByIdEmpresa(Long idEmpresa, int elements, int page, Sort sort);
+	Page<Plantel> findByLikeNombre(Long idEmpresa, String nombre, int elements, int page, Sort sort);
+	Optional<Plantel> findByNombre(Long idEmpresa, String nombre);
 	Optional<Plantel> findByClave(UUID uuid);
 }

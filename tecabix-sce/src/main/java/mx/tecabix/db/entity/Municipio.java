@@ -57,8 +57,10 @@ public class Municipio implements Serializable {
     @JoinColumn(name = "id_estado")
 	private Estado entidadFederativa;
     @Column(name = "id_usuario_modificado")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Long idUsuarioModificado;
     @Column(name = "fecha_modificado")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private LocalDateTime fechaDeModificacion;
     @ManyToOne
     @JoinColumn(name = "id_estatus")

@@ -181,7 +181,9 @@ public class PerfilControllerV01 extends Auth{
 		if(perfilAux.getIdEmpresa().longValue() != sesion.getLicencia().getPlantel().getIdEmpresa().longValue()) {
 			return new ResponseEntity<Perfil>(HttpStatus.NOT_FOUND);
 		}
-		
+		if(!perfilAux.getEstatus().equals(singletonUtil.getActivo())) {
+			return new ResponseEntity<Perfil>(HttpStatus.NOT_FOUND);
+		}
 		Page<Perfil> pagePerfil = perfilService.findByNombre(sesion.getLicencia().getPlantel().getIdEmpresa(), perfil.getNombre(),Integer.MAX_VALUE,0);
 		for (Perfil perfilExistente : pagePerfil) {
 			if(perfilExistente != null && !perfilExistente.equals(perfil)) {
@@ -236,7 +238,6 @@ public class PerfilControllerV01 extends Auth{
 		perfil.setIdUsuarioModificado(sesion.getUsuario().getId());
 		perfil.setFechaDeModificacion(LocalDateTime.now());
 		perfil = perfilService.update(perfil);
-		perfilService.deleteById(perfil.getId());
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }

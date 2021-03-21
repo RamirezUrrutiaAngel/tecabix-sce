@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.GenericSeviceImpl;
@@ -47,25 +48,28 @@ public class PlantelServiceImpl extends GenericSeviceImpl<Plantel, Long> impleme
 	@Override
 	protected void postConstruct() {
 		setJpaRepository(plantelRepository);
-		
 	}
 
 	@Override
-	public Page<Plantel> findByIdEmpresa(Long idEmpresa, int elements, int page) {
-		Pageable pageable = PageRequest.of(page, elements);
-		Page<Plantel> result = plantelRepository.findByIdEmpresa(idEmpresa, pageable);
-		return result;
-	}
-
-	@Override
-	public Optional<Plantel> findByIdEmpresaAndNombre(Long idEmpresa, String nombre) {
-		Optional<Plantel> result = plantelRepository.findByIdEmpresaAndNombre(idEmpresa, nombre);
-		return result;
+	public Optional<Plantel> findByNombre(Long idEmpresa, String nombre) {
+		return plantelRepository.findByNombre(idEmpresa, nombre);
 	}
 
 	@Override
 	public Optional<Plantel> findByClave(UUID uuid) {
 		return plantelRepository.findByClave(uuid);
+	}
+
+	@Override
+	public Page<Plantel> findByLikeNombre(Long idEmpresa, String nombre, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		return plantelRepository.findByLikeNombre(idEmpresa, nombre, pageable);
+	}
+
+	@Override
+	public Page<Plantel> findByIdEmpresa(Long idEmpresa, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		return plantelRepository.findByIdEmpresa(idEmpresa, pageable);
 	}
 
 }

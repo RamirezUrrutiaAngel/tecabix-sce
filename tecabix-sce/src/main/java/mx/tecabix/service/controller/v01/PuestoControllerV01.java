@@ -25,8 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -39,11 +37,9 @@ import mx.tecabix.db.entity.Catalogo;
 import mx.tecabix.db.entity.Departamento;
 import mx.tecabix.db.entity.Puesto;
 import mx.tecabix.db.entity.Sesion;
-import mx.tecabix.db.entity.Trabajador;
 import mx.tecabix.db.service.CatalogoService;
 import mx.tecabix.db.service.DepartamentoService;
 import mx.tecabix.db.service.PuestoService;
-import mx.tecabix.db.service.TrabajadorService;
 import mx.tecabix.service.Auth;
 
 /**
@@ -55,8 +51,6 @@ import mx.tecabix.service.Auth;
 @RequestMapping("puesto/v1")
 public class PuestoControllerV01 extends Auth{
 
-	@Autowired
-	private TrabajadorService trabajadorService;
 	@Autowired
 	private PuestoService puestoService;
 	@Autowired
@@ -71,21 +65,6 @@ public class PuestoControllerV01 extends Auth{
 	private final String ESTATUS = "ESTATUS";
 	private final String ACTIVO = "ACTIVO";
 	
-	@GetMapping
-	public ResponseEntity<Puesto> get(@RequestParam(value="token") UUID token){
-		Sesion sesion = getSessionIfIsAuthorized(token);
-		if(sesion == null) {
-			return new ResponseEntity<Puesto>(HttpStatus.UNAUTHORIZED);
-		}
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		String usuarioName = auth.getName();
-		Optional<Trabajador> optionalTrabajador = trabajadorService.findByUsuario(usuarioName);
-		if(!optionalTrabajador.isPresent()) {
-			return new ResponseEntity<Puesto>(HttpStatus.NOT_FOUND);
-		}
-		Puesto body = optionalTrabajador.get().getPuesto();
-		return new ResponseEntity<Puesto>(body,HttpStatus.OK);
-	}
 	@GetMapping("findAll")
 	public ResponseEntity<Page<Puesto>> findAll(@RequestParam(value="token") UUID token, byte elements, short page) {
 		Sesion sesion = getSessionIfIsAuthorized(token, PUESTO);

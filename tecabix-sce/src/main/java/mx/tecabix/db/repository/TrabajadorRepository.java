@@ -32,10 +32,13 @@ import mx.tecabix.db.entity.Trabajador;
  */
 public interface TrabajadorRepository extends JpaRepository<Trabajador, Long>{
 
-	Optional<Trabajador> findByKey(Long id);
-	Optional<Trabajador> findByKeyAndPendiente(Long id);
-	Optional<Trabajador> findByUsuario(String usuario);
-	Page<Trabajador> findAll(Long idEmpresa, Pageable pageable);
-	Page<Trabajador> findAllByNombre(Long idEmpresa,String nombre, Pageable pageable);
+	Page<Trabajador> findByLikePuesto(Long idEmpresa, String puesto, Pageable pageable);
+	Page<Trabajador> findByLikePlantel(Long idEmpresa, String plantel, Pageable pageable);
+	Page<Trabajador> findByLikeCURP(Long idEmpresa, String CURP, Pageable pageable);
+	Page<Trabajador> findByLikeNombre(Long idEmpresa, String nombre, Pageable pageable);
+	Page<Trabajador> findByLikeApellidoPaterno(Long idEmpresa, String apellidoPaterno, Pageable pageable);
+	Page<Trabajador> findByLikeApellidoMaterno(Long idEmpresa, String apellidoMaterno, Pageable pageable);
+	Page<Trabajador> findByIdEmpresa(Long idEmpresa, Pageable pageable);
+	
 	Optional<Trabajador> findByClave(UUID uuid);
 }

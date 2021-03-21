@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.GenericSeviceImpl;
@@ -51,40 +52,51 @@ public class TrabajadorServiceimpl extends GenericSeviceImpl<Trabajador, Long> i
 	}
 	
 	@Override
-	public Optional<Trabajador> findByKey(Long id) {
-		Optional<Trabajador> trabajador = trabajadorRepository.findByKey(id);
-		return trabajador;
-	}
-	
-	@Override
-	public Optional<Trabajador> findByUsuario(String usuario) {
-		Optional<Trabajador> trabajador = trabajadorRepository.findByUsuario(usuario);
-		return trabajador;
-	}
-
-	@Override
-	public Page<Trabajador> findAll(Long idEmpresa,int elements, int page) {
-		Pageable pageable = PageRequest.of(page, elements);
-		Page<Trabajador> entitys = trabajadorRepository.findAll(idEmpresa, pageable);
-		return entitys;
-	}
-
-	@Override
-	public Page<Trabajador> findAllByNombre(Long idEmpresa, String nombre, int elements, int page) {
-		Pageable pageable = PageRequest.of(page, elements);
-		Page<Trabajador> entitys = trabajadorRepository.findAllByNombre(idEmpresa,nombre, pageable);
-		return entitys;
-	}
-
-	@Override
-	public Optional<Trabajador> findByIdAndPendiente(Long id) {
-		Optional<Trabajador> trabajador = trabajadorRepository.findByKeyAndPendiente(id);
-		return trabajador;
-	}
-
-	@Override
 	public Optional<Trabajador> findByClave(UUID uuid) {
 		return trabajadorRepository.findByClave(uuid);
 	}
 
+	@Override
+	public Page<Trabajador> findByLikeCURP(Long idEmpresa, String CURP, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		return trabajadorRepository.findByLikeCURP(idEmpresa, CURP, pageable);
+	}
+
+	@Override
+	public Page<Trabajador> findByLikeNombre(Long idEmpresa, String nombre, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		return trabajadorRepository.findByLikeNombre(idEmpresa, nombre, pageable);
+	}
+
+	@Override
+	public Page<Trabajador> findByLikeApellidoPaterno(Long idEmpresa, String apellidoPaterno, int elements, int page,
+			Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		return trabajadorRepository.findByLikeApellidoPaterno(idEmpresa, apellidoPaterno, pageable);
+	}
+
+	@Override
+	public Page<Trabajador> findByLikeApellidoMaterno(Long idEmpresa, String apellidoMaterno, int elements, int page,
+			Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		return trabajadorRepository.findByLikeApellidoMaterno(idEmpresa, apellidoMaterno, pageable);
+	}
+
+	@Override
+	public Page<Trabajador> findByIdEmpresa(Long idEmpresa, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		return trabajadorRepository.findByIdEmpresa(idEmpresa, pageable);
+	}
+
+	@Override
+	public Page<Trabajador> findByLikePuesto(Long idEmpresa, String puesto, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		return trabajadorRepository.findByLikePuesto(idEmpresa, puesto, pageable);
+	}
+
+	@Override
+	public Page<Trabajador> findByLikePlantel(Long idEmpresa, String plantel, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		return trabajadorRepository.findByLikePlantel(idEmpresa, plantel, pageable);
+	}
 }

@@ -265,11 +265,14 @@ public class AuthorityControllerV01 extends Auth{
 		}
 		
 		Authority authorityViejo = optionalAuthorityViejo.get();
+		if(!authorityViejo.getEstatus().equals(singletonUtil.getActivo())) {
+			return new ResponseEntity<Authority>(HttpStatus.NOT_FOUND);
+		}
 		authority.setId(authorityViejo.getId());
 		authority.setPreAuthority(authorityViejo.getPreAuthority());
 		authority.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
 		authority.setFechaDeModificacion(LocalDateTime.now());
-		authority.setEstatus(singletonUtil.getActivo());
+		authority.setEstatus(authorityViejo.getEstatus());
 		
 		Optional<Authority> authorityPadreOptional = authorityService.findByNombre(AUTENTIFICADOS);
 		if(!authorityPadreOptional.isPresent()) {

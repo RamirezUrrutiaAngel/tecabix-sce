@@ -264,7 +264,7 @@ public class EmpresaControllerV01 extends Auth{
 		}
 		Municipio municipioInstitucional = municipioOptional.get();
 		
-		Optional<Trabajador> opcionalTrabajador = trabajadorService.findByKey(trabajador.getJefe().getId());
+		Optional<Trabajador> opcionalTrabajador = trabajadorService.findByClave(trabajador.getJefe().getClave());
 		if(!opcionalTrabajador.isPresent()) {
 			return new ResponseEntity<Empresa>(HttpStatus.NOT_ACCEPTABLE);
 		}

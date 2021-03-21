@@ -45,18 +45,22 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @Entity
 @Table(name = "trabajador")
 @NamedQueries({
-	@NamedQuery(name = "Trabajador.findByKey",query = "SELECT t FROM Trabajador t WHERE t.id = ?1 AND t.estatus.nombre = 'ACTIVO' "),
-	@NamedQuery(name = "Trabajador.findByKeyAndPendiente",query = "SELECT t FROM Trabajador t WHERE t.id = ?1 AND t.estatus.nombre = 'PENDIENTE' "),
-	
-	@NamedQuery(name = "Trabajador.findAll",query = "SELECT t FROM Trabajador t WHERE t.idEmpresa = ?1 AND t.estatus.nombre = 'ACTIVO' ORDER BY t.personaFisica.apellidoPaterno"),
-	@NamedQuery(name = "Trabajador.findAllByNombre",query = "SELECT t FROM Trabajador t WHERE t.idEmpresa = ?1 AND t.estatus.nombre = 'ACTIVO' AND t.personaFisica.nombre LIKE ?2 ORDER BY t.personaFisica.nombre"),
-
-	@NamedQuery(name = "Trabajador.findByUsuario",query = "SELECT t FROM Trabajador t WHERE t.personaFisica.presona.usuarioPersona.usuario.nombre = ?1 AND t.estatus.nombre = 'ACTIVO' ")
+	@NamedQuery(name = "Trabajador.findByLikePuesto",query = "SELECT t FROM Trabajador t WHERE t.idEmpresa = ?1 AND UPPER(t.puesto.nombre) LIKE UPPER(?2) AND t.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Trabajador.findByLikePlantel",query = "SELECT t FROM Trabajador t WHERE t.idEmpresa = ?1 AND UPPER(t.plantel.nombre) LIKE UPPER(?2) AND t.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Trabajador.findByLikeNombre",query = "SELECT t FROM Trabajador t WHERE t.idEmpresa = ?1 AND UPPER(t.personaFisica.nombre) LIKE UPPER(?2) AND t.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Trabajador.findByLikeApellidoPaterno",query = "SELECT t FROM Trabajador t WHERE t.idEmpresa = ?1 AND UPPER(t.personaFisica.apellidoPaterno) LIKE UPPER(?2) AND t.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Trabajador.findByLikeApellidoMaterno",query = "SELECT t FROM Trabajador t WHERE t.idEmpresa = ?1 AND UPPER(t.personaFisica.apellidoMaterno) LIKE UPPER(?2) AND t.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Trabajador.findByLikeCURP",query = "SELECT t FROM Trabajador t WHERE t.idEmpresa = ?1 AND UPPER(t.CURP) LIKE UPPER(?2) AND t.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Trabajador.findByIdEmpresa",query = "SELECT t FROM Trabajador t WHERE t.idEmpresa = ?1 AND t.estatus.nombre = 'ACTIVO' ")
 
 })
 public class Trabajador implements Serializable{
 
 	private static final long serialVersionUID = -7407043110565368553L;
+	
+	public static final short SIZE_CURP = 19;
+	public static final short SIZE_URL_IMG = 200;
+	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_trabajador", unique = true, nullable = false)

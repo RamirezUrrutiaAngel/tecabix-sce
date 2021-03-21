@@ -23,8 +23,10 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -33,20 +35,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.ApiOperation;
 import mx.tecabix.db.entity.Direccion;
 import mx.tecabix.db.entity.Municipio;
 import mx.tecabix.db.entity.Plantel;
 import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.entity.Trabajador;
+import mx.tecabix.db.service.DireccionService;
 import mx.tecabix.db.service.MunicipioService;
-/**
- * 
- * @author Ramirez Urrutia Angel Abinadi
- * 
- */
 import mx.tecabix.db.service.PlantelService;
 import mx.tecabix.db.service.TrabajadorService;
 import mx.tecabix.service.Auth;
+import mx.tecabix.service.SingletonUtil;
+import mx.tecabix.service.page.PlantelPage;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -57,74 +58,125 @@ import mx.tecabix.service.Auth;
 public class PlantelControllerV01 extends Auth{
 
 	@Autowired
+	private SingletonUtil singletonUtil;
+	@Autowired
 	private PlantelService plantelService;
 	@Autowired
 	private MunicipioService municipioService;
 	@Autowired
 	private TrabajadorService trabajadorService;
+	@Autowired
+	private DireccionService direccionService;
 	
 	private final String PLANTEL = "PLANTEL";
 	private final String PLANTEL_CREAR = "PLANTEL_CREAR";
 	private final String PLANTEL_EDITAR = "PLANTEL_EDITAR";
+	private final String PLANTEL_ELIMINAR = "PLANTEL_ELIMINAR";
 	
+	/**
+	 * 
+	 * @param by:		NOMBRE
+	 * @param order:	ASC, DESC
+	 * 
+	 */
+	@ApiOperation(value = "Obtiene todo los Planteles paginado.", 
+			notes = "<b>by:</b> NOMBRE<br/><b>order:</b> ASC, DESC")
 	@GetMapping
-	private ResponseEntity<Page<Plantel>> get(
-			@RequestParam(value="token") UUID token, 
+	private ResponseEntity<PlantelPage> find(
+			@RequestParam(value="token") UUID token,
+			@RequestParam(value="search", required = false) String search,
+			@RequestParam(value="by", defaultValue = "NOMBRE") String by,
+			@RequestParam(value="order", defaultValue = "ASC") String order,
 			@RequestParam(value="elements") byte elements,
 			@RequestParam(value="page") short page) {
 
 		Sesion sesion = getSessionIfIsAuthorized(token, PLANTEL);
 		if(sesion == null){
-			return new ResponseEntity<Page<Plantel>>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<PlantelPage>(HttpStatus.UNAUTHORIZED);
+		}
+		Page<Plantel> response = null;
+		Sort sort;
+		if(order.equalsIgnoreCase("ASC")) {
+			sort = Sort.by(Sort.Direction.ASC, by.toLowerCase());
+		}else if(order.equalsIgnoreCase("DESC")) {
+			sort = Sort.by(Sort.Direction.DESC, by.toLowerCase());
+		}else {
+			return new ResponseEntity<PlantelPage>(HttpStatus.BAD_REQUEST);
 		}
 		Long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
-		Page<Plantel> body = plantelService.findByIdEmpresa(idEmpresa, elements, page);
-		return new ResponseEntity<Page<Plantel>>(body, HttpStatus.OK);
+		if(search == null || search.isEmpty()) {
+			response = plantelService.findByIdEmpresa(idEmpresa, elements, page, sort);
+		}else {
+			StringBuilder text = new StringBuilder("%").append(search).append("%");
+			if(by.equalsIgnoreCase("NOMBRE")) {
+				response = plantelService.findByLikeNombre(idEmpresa, text.toString(), elements, page, sort);
+			}else {
+				return new ResponseEntity<PlantelPage>( HttpStatus.BAD_REQUEST);
+			}
+		}
+		PlantelPage body = new PlantelPage(response);
+		return new ResponseEntity<PlantelPage>(body, HttpStatus.OK);
 	}
 	
+	@ApiOperation(value = "Persiste la entidad del Plantel con sus correspondiente direccion. ")
 	@PostMapping
-	private ResponseEntity<Plantel> post(@RequestParam(value="token") UUID token, @RequestBody Plantel plantel){
+	private ResponseEntity<Plantel> save(@RequestParam(value="token") UUID token, @RequestBody Plantel plantel){
 		Sesion sesion = getSessionIfIsAuthorized(token, PLANTEL_CREAR);
 		if(sesion == null){
 			return new ResponseEntity<Plantel>(HttpStatus.UNAUTHORIZED);
 		}
 		Long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
-		if(plantel.getNombre() == null || plantel.getNombre().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Plantel.SIZE_NOMBRE, plantel.getNombre())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
-		if(plantel.getDireccion() == null) {
+		if(isNotValid(plantel.getGerente())) {
+			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(plantel.getGerente().getClave())) {
+			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(plantel.getDireccion())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
 		Direccion direccion = plantel.getDireccion();
-		if(direccion == null ) {
+		if(isNotValid(direccion)) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
-		if(direccion.getCalle() == null || direccion.getCalle().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_CALLE, direccion.getCalle())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
-		if(direccion.getCodigoPostal() == null || direccion.getCodigoPostal().isEmpty()) {
+		if(isNotValid(TIPO_NUMERIC, Direccion.SIZE_CODIGO_POSTAL, direccion.getCodigoPostal())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
-		if(direccion.getAsentamiento() == null || direccion.getAsentamiento().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Direccion.SIZE_ASENTAMIENTO, direccion.getAsentamiento())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
-		if(direccion.getNumExt() == null || direccion.getAsentamiento().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_NUM_EXT, direccion.getNumExt())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
-		if(direccion.getMunicipio() == null || direccion.getMunicipio().getId() == null ) {
+		if(isValid(direccion.getNumInt())) {
+			if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_NUM_INT, direccion.getNumInt())) {
+				return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
+			}
+		}
+		if(isNotValid(direccion.getMunicipio())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
-		Optional<Municipio> municipioOptional = municipioService.findById(direccion.getMunicipio().getId());
+		if(isNotValid(direccion.getMunicipio().getClave())) {
+			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
+		}
+		Optional<Plantel> optionalPlantel = plantelService.findByNombre(idEmpresa, plantel.getNombre());
+		if(optionalPlantel.isPresent()) {
+			return new ResponseEntity<Plantel>(HttpStatus.BAD_GATEWAY);
+		}
+		Optional<Municipio> municipioOptional = municipioService.findByClave(direccion.getMunicipio().getClave());
 		if(!municipioOptional.isPresent()) {
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Municipio municipio = municipioOptional.get();
 		direccion.setMunicipio(municipio);
 		
-		if(plantel.getGerente() == null || plantel.getGerente().getId() == null) {
-			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
-		}
-		Optional<Trabajador> optionalTrabajador = trabajadorService.findById(plantel.getGerente().getId());
+		Optional<Trabajador> optionalTrabajador = trabajadorService.findByClave(plantel.getGerente().getClave());
 		if(!optionalTrabajador.isPresent()) {
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_ACCEPTABLE);
 		}
@@ -132,70 +184,80 @@ public class PlantelControllerV01 extends Auth{
 		if(!gerente.getIdEmpresa().equals(idEmpresa)) {
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_ACCEPTABLE);
 		}
+		direccion.setClave(UUID.randomUUID());
+		direccion.setEstatus(singletonUtil.getActivo());
+		direccion.setFechaDeModificacion(LocalDateTime.now());
+		direccion.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+		direccion = direccionService.save(direccion);
+		plantel.setIdEmpresa(idEmpresa);
+		plantel.setDireccion(direccion);
 		plantel.setGerente(gerente);
-		Optional<Plantel> optionalPlantel = plantelService.findByIdEmpresaAndNombre(idEmpresa, plantel.getNombre());
-		if(optionalPlantel.isPresent()) {
-			return new ResponseEntity<Plantel>(HttpStatus.BAD_GATEWAY);
-		}
+		plantel.setClave(UUID.randomUUID());
+		plantel.setEstatus(singletonUtil.getActivo());
 		plantel.setFechaDeModificacion(LocalDateTime.now());
 		plantel.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
 		plantel = plantelService.save(plantel);
 		return new ResponseEntity<Plantel>(plantel,HttpStatus.OK);
 	}
 	
+	@ApiOperation(value = "Actualiza la entidad del Plantel con sus correspondiente direccion. ")
 	@PutMapping
-	private ResponseEntity<Plantel> put(@RequestParam(value="token") UUID token, @RequestBody Plantel plantel){
+	private ResponseEntity<Plantel> update(@RequestParam(value="token") UUID token, @RequestBody Plantel plantel){
 		Sesion sesion = getSessionIfIsAuthorized(token, PLANTEL_EDITAR);
 		if(sesion == null){
 			return new ResponseEntity<Plantel>(HttpStatus.UNAUTHORIZED);
 		}
 		Long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
-		if(plantel.getId() == null) {
+		if(isNotValid(plantel.getClave())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
-		Optional<Plantel> optionalPlantel = plantelService.findById(plantel.getId());
-		if(!optionalPlantel.isPresent()) {
-			return new ResponseEntity<Plantel>(HttpStatus.NOT_FOUND);
-		}
-		if(!optionalPlantel.get().getIdEmpresa().equals(idEmpresa)) {
-			return new ResponseEntity<Plantel>(HttpStatus.NOT_FOUND);
-		}
-		if(plantel.getNombre() == null || plantel.getNombre().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Plantel.SIZE_NOMBRE, plantel.getNombre())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
-		if(plantel.getDireccion() == null) {
+		if(isNotValid(plantel.getGerente())) {
+			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(plantel.getGerente().getClave())) {
+			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(plantel.getDireccion())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
 		Direccion direccion = plantel.getDireccion();
-		if(direccion == null ) {
+		if(isNotValid(direccion)) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
-		if(direccion.getCalle() == null || direccion.getCalle().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_CALLE, direccion.getCalle())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
-		if(direccion.getCodigoPostal() == null || direccion.getCodigoPostal().isEmpty()) {
+		if(isNotValid(TIPO_NUMERIC, Direccion.SIZE_CODIGO_POSTAL, direccion.getCodigoPostal())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
-		if(direccion.getAsentamiento() == null || direccion.getAsentamiento().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Direccion.SIZE_ASENTAMIENTO, direccion.getAsentamiento())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
-		if(direccion.getNumExt() == null || direccion.getAsentamiento().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_NUM_EXT, direccion.getNumExt())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
-		if(direccion.getMunicipio() == null || direccion.getMunicipio().getId() == null ) {
+		if(isValid(direccion.getNumInt())) {
+			if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_NUM_INT, direccion.getNumInt())) {
+				return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
+			}
+		}
+		if(isNotValid(direccion.getMunicipio())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
-		Optional<Municipio> municipioOptional = municipioService.findById(direccion.getMunicipio().getId());
+		if(isNotValid(direccion.getMunicipio().getClave())) {
+			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
+		}
+		Optional<Municipio> municipioOptional = municipioService.findByClave(direccion.getMunicipio().getClave());
 		if(!municipioOptional.isPresent()) {
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Municipio municipio = municipioOptional.get();
 		direccion.setMunicipio(municipio);
 		
-		if(plantel.getGerente() == null || plantel.getGerente().getId() == null) {
-			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
-		}
-		Optional<Trabajador> optionalTrabajador = trabajadorService.findById(plantel.getGerente().getId());
+		Optional<Trabajador> optionalTrabajador = trabajadorService.findByClave(plantel.getGerente().getClave());
 		if(!optionalTrabajador.isPresent()) {
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_ACCEPTABLE);
 		}
@@ -203,19 +265,56 @@ public class PlantelControllerV01 extends Auth{
 		if(!gerente.getIdEmpresa().equals(idEmpresa)) {
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_ACCEPTABLE);
 		}
-		plantel.setGerente(gerente);
-		Optional<Plantel> optionalPlantel2 = plantelService.findByIdEmpresaAndNombre(idEmpresa, plantel.getNombre());
-		if(optionalPlantel2.isPresent()) {
-			if(!optionalPlantel2.get().getId().equals(plantel.getId())) {
+		Optional<Plantel> optionalPlantel = plantelService.findByNombre(idEmpresa, plantel.getNombre());
+		if(optionalPlantel.isPresent()) {
+			if(!optionalPlantel.get().getClave().equals(plantel.getClave())) {
 				return new ResponseEntity<Plantel>(HttpStatus.BAD_GATEWAY);
 			}
 		}
-		plantel.setFechaDeModificacion(LocalDateTime.now());
-		plantel.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
-		plantel = plantelService.update(plantel);
-		return new ResponseEntity<Plantel>(plantel,HttpStatus.OK);
+		optionalPlantel = plantelService.findByClave(plantel.getClave());
+		if(!optionalPlantel.isPresent()) {
+			return new ResponseEntity<Plantel>(HttpStatus.NOT_FOUND);
+		}
+		Plantel plantelEdit = optionalPlantel.get();
+		if(!plantelEdit.getEstatus().equals(singletonUtil.getActivo())) {
+			return new ResponseEntity<Plantel>(HttpStatus.NOT_FOUND);
+		}
+		direccion.setId(plantelEdit.getDireccion().getId());
+		direccion.setClave(plantelEdit.getDireccion().getClave());
+		direccion.setFechaDeModificacion(LocalDateTime.now());
+		direccion.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+		direccion.setEstatus(plantelEdit.getDireccion().getEstatus());
+		direccion = direccionService.update(direccion);
+		plantelEdit.setDireccion(direccion);
+		plantelEdit.setNombre(plantel.getNombre());
+		plantelEdit.setGerente(gerente);
+		plantelEdit.setFechaDeModificacion(LocalDateTime.now());
+		plantelEdit.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+		plantelEdit = plantelService.update(plantelEdit);
+		return new ResponseEntity<Plantel>(plantelEdit,HttpStatus.OK);
 	}
 	
-	
-	
+	@ApiOperation(value = "Elimina la entidad del Plantel con sus correspondiente direccion. ")
+	@DeleteMapping
+	public ResponseEntity<?> delete(@RequestParam(value="clave") UUID clave, @RequestParam(value="token") UUID token) {
+		Sesion sesion = getSessionIfIsAuthorized(token, PLANTEL_ELIMINAR);
+		if(sesion == null){
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
+		Optional<Plantel> optionalPlantel = plantelService.findByClave(clave);
+		if(!optionalPlantel.isPresent()) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		Plantel plantel =  optionalPlantel.get();
+		Direccion direccion = plantel.getDireccion();
+		direccion.setEstatus(singletonUtil.getEliminado());
+		direccion.setFechaDeModificacion(LocalDateTime.now());
+		direccion.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+		direccionService.update(direccion);
+		plantel.setEstatus(singletonUtil.getEliminado());
+		plantel.setFechaDeModificacion(LocalDateTime.now());
+		plantel.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+		plantelService.update(plantel);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 }
