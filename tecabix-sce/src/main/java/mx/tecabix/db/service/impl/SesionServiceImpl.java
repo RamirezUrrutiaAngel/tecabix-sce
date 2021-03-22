@@ -50,7 +50,8 @@ public class SesionServiceImpl extends GenericSeviceImpl<Sesion, Long> implement
 	
 	@Autowired
 	private SesionRepository sesionRepository;
-	@Autowired SuscripcionService suscripcionService;
+	@Autowired 
+	private SuscripcionService suscripcionService;
 
 	@PostConstruct
 	@Override

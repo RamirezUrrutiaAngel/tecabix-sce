@@ -20,10 +20,13 @@ package mx.tecabix.db.service.impl;
 import java.util.Optional;
 import java.util.UUID;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.GenericSeviceImpl;
@@ -40,20 +43,35 @@ public class PuestoServiceImpl extends GenericSeviceImpl<Puesto, Long> implement
 
 	@Autowired
 	private PuestoRepository puestoRepository;
+	
+	@PostConstruct
 	@Override
 	protected void postConstruct() {
 		setJpaRepository(puestoRepository);
-		
 	}
 	@Override
-	public Page<Puesto> findByIdEmpresa(Long idEmpresa, int elements, int page) {
-		Pageable pageable = PageRequest.of(page, elements);
-		Page<Puesto> puestos = puestoRepository.findByIdEmpresa(idEmpresa, pageable);
-		return puestos;
+	public Page<Puesto> findByIdEmpresa(Long idEmpresa, int elements, int page, Sort sort){
+		Pageable pageable = PageRequest.of(page, elements, sort);
+		return puestoRepository.findByIdEmpresa(idEmpresa, pageable);
 	}
 	@Override
 	public Optional<Puesto> findByClave(UUID uuid) {
 		return puestoRepository.findByClave(uuid);
+	}
+	@Override
+	public Page<Puesto> findByLikeNombre(String nombre, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort);
+		return puestoRepository.findByLikeNombre(nombre, pageable);
+	}
+	@Override
+	public Page<Puesto> findByLikeDescripcion(String descripcion, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort);
+		return puestoRepository.findByLikeDescripcion(descripcion, pageable);
+	}
+	@Override
+	public Page<Puesto> findByLikeDepartamento(String departamento, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort);
+		return puestoRepository.findByLikeDepartamento(departamento, pageable);
 	}
 
 }

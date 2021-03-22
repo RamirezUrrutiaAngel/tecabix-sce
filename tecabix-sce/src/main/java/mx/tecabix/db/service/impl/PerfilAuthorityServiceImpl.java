@@ -39,6 +39,7 @@ public class PerfilAuthorityServiceImpl extends GenericSeviceImpl<PerfilAuthorit
 
 	@Autowired
 	private PerfilAuthorityRepository perfilAuthorityRepository;
+	
 	@PostConstruct
 	@Override
 	protected void postConstruct() {

@@ -27,13 +27,14 @@ import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.GenericSeviceImpl;
 import mx.tecabix.db.entity.Plan;
+import mx.tecabix.db.repository.PlanRepository;
+import mx.tecabix.db.service.PlanService;
+
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-import mx.tecabix.db.repository.PlanRepository;
-import mx.tecabix.db.service.PlanService;
 @Service
 public class PlanServiceImpl extends GenericSeviceImpl<Plan, Integer> implements PlanService {
 

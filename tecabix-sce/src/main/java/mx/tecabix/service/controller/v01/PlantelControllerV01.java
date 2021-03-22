@@ -279,6 +279,9 @@ public class PlantelControllerV01 extends Auth{
 		if(!plantelEdit.getEstatus().equals(singletonUtil.getActivo())) {
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_FOUND);
 		}
+		if(!plantelEdit.getIdEmpresa().equals(idEmpresa)) {
+			return new ResponseEntity<Plantel>(HttpStatus.NOT_FOUND);
+		}
 		direccion.setId(plantelEdit.getDireccion().getId());
 		direccion.setClave(plantelEdit.getDireccion().getClave());
 		direccion.setFechaDeModificacion(LocalDateTime.now());

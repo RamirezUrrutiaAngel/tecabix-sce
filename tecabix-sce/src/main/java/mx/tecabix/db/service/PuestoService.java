@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 
 import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.Puesto;
@@ -31,6 +32,9 @@ import mx.tecabix.db.entity.Puesto;
  */
 public interface PuestoService extends GenericSevice<Puesto, Long>{
 
-	Page<Puesto> findByIdEmpresa(Long idEmpresa, int elements, int page);
+	Page<Puesto> findByLikeNombre(String nombre, int elements, int page, Sort sort);
+	Page<Puesto> findByLikeDescripcion(String descripcion, int elements, int page, Sort sort);
+	Page<Puesto> findByLikeDepartamento(String departamento, int elements, int page, Sort sort);
+	Page<Puesto> findByIdEmpresa(Long idEmpresa, int elements, int page, Sort sort);
 	Optional<Puesto> findByClave(UUID uuid);
 }

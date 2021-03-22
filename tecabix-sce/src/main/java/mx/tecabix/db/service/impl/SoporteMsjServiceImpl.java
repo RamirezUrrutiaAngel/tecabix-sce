@@ -39,6 +39,7 @@ public class SoporteMsjServiceImpl extends GenericSeviceImpl<SoporteMsj, Long> i
 
 	@Autowired
 	private SoporteMsjRepository soporteMsjRepository;
+	
 	@PostConstruct
 	@Override
 	protected void postConstruct() {

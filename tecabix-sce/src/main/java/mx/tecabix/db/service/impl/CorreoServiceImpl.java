@@ -20,6 +20,8 @@ package mx.tecabix.db.service.impl;
 import java.util.Optional;
 import java.util.UUID;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +39,8 @@ public class CorreoServiceImpl extends GenericSeviceImpl<Correo, Long> implement
 
 	@Autowired
 	private CorreoRepository correoRepository; 
+	
+	@PostConstruct
 	@Override
 	protected void postConstruct() {
 		setJpaRepository(correoRepository);
