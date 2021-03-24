@@ -99,7 +99,7 @@ public class SesionServiceImpl extends GenericSeviceImpl<Sesion, Long> implement
 						if(response.getVencimiento().isBefore(hoy)) {
 							Long idEmpresa = response.getLicencia().getPlantel().getIdEmpresa();
 							Optional<Suscripcion> optionalSuscripsion = suscripcionService.findByIdEmpresaAndValid(idEmpresa);
-							if(!optionalSuscripsion.isPresent()) {
+							if(optionalSuscripsion.isEmpty()) {
 								LOG.warn("SUSCRIPCION CADUCADA PARA EL ID "+idEmpresa);
 								return Optional.empty();
 							}

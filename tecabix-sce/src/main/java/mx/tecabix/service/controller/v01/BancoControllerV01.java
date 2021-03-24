@@ -118,20 +118,6 @@ public class BancoControllerV01 extends Auth{
 		return new ResponseEntity<BancoPage>(body, HttpStatus.OK);
 	}
 	
-	@ApiOperation(value = "Obtiene el bancos por Clave.")
-	@GetMapping("findByClave")
-	public ResponseEntity<Banco> findByClave(@RequestParam(value="token") UUID token,@RequestParam(value="clave") UUID uuid) {
-		if(isNotAuthorized(token, BANCO, ROOT_BANCO)) {
-			return new ResponseEntity<Banco>(HttpStatus.UNAUTHORIZED);
-		}
-		Optional<Banco> result =  bancoService.findByClave(uuid);
-		if(!result.isPresent()) {
-			return new ResponseEntity<Banco>(HttpStatus.NOT_FOUND);
-		}
-		Banco body = result.get();
-		return new ResponseEntity<Banco>(body, HttpStatus.OK);
-	}
-	
 	@ApiOperation(value = "Persiste la entidad del Banco. ")
 	@PostMapping
 	public ResponseEntity<Banco> save(@RequestParam(value="token") UUID token, @RequestBody Banco banco){
@@ -144,9 +130,13 @@ public class BancoControllerV01 extends Auth{
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Banco.SIZE_NOMBRE, banco.getNombre())) {
 			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
+		}else {
+			banco.setNombre(banco.getNombre().strip());
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Banco.SIZE_RAZON_SOCIAL, banco.getRazonSocial())) {
 			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
+		}else {
+			banco.setRazonSocial(banco.getRazonSocial().strip());
 		}
 		banco.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
 		banco.setFechaDeModificacion(LocalDateTime.now());
@@ -171,12 +161,16 @@ public class BancoControllerV01 extends Auth{
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE,Banco.SIZE_NOMBRE,banco.getNombre())) {
 			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
+		}else {
+			banco.setNombre(banco.getNombre().strip());
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Banco.SIZE_RAZON_SOCIAL, banco.getRazonSocial())) {
 			return new ResponseEntity<Banco>(HttpStatus.BAD_REQUEST);
+		}else {
+			banco.setRazonSocial(banco.getRazonSocial().strip());
 		}
 		Optional<Banco> bancoAux =  bancoService.findByClave(banco.getClave());
-		if(!bancoAux.isPresent()) {
+		if(bancoAux.isEmpty()) {
 			return new ResponseEntity<Banco>(HttpStatus.NOT_FOUND);
 		}
 		Banco bancoUpdate = bancoAux.get();
@@ -196,7 +190,7 @@ public class BancoControllerV01 extends Auth{
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 		Optional<Banco> optional = bancoService.findByClave(clave);
-		if(!optional.isPresent()) {
+		if(optional.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		bancoService.deleteById(optional.get().getId());

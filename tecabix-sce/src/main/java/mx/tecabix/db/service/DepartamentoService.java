@@ -32,8 +32,8 @@ import mx.tecabix.db.entity.Departamento;
  */
 public interface DepartamentoService extends GenericSevice<Departamento, Long>{
 
-	Page<Departamento> findByLikeNombre(String nombre, int elements, int page, Sort sort);
-	Page<Departamento> findByLikeDescripcion(String descripcion, int elements, int page, Sort sort);
+	Page<Departamento> findByLikeNombre(Long idEmpresa, String nombre, int elements, int page, Sort sort);
+	Page<Departamento> findByLikeDescripcion(Long idEmpresa, String descripcion, int elements, int page, Sort sort);
 	Page<Departamento> findByIdEmpresa(Long idEmpresa, int elements, int page, Sort sort);
 	Optional<Departamento> findByClave(UUID uuid);
 }

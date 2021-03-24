@@ -98,9 +98,9 @@ public class DepartamentoControllerV01 extends Auth{
 		}else {
 			StringBuilder text = new StringBuilder("%").append(search).append("%");
 			if(by.equalsIgnoreCase("NOMBRE")) {
-				response = departamentoService.findByLikeNombre(text.toString(), elements, page, sort);
+				response = departamentoService.findByLikeNombre(IdEmpresa, text.toString(), elements, page, sort);
 			}else if(by.equalsIgnoreCase("DESCRIPCION")) {
-				response = departamentoService.findByLikeDescripcion(text.toString(), elements, page, sort);
+				response = departamentoService.findByLikeDescripcion(IdEmpresa, text.toString(), elements, page, sort);
 			}else {
 				return new ResponseEntity<DepartamentoPage>(HttpStatus.BAD_REQUEST);
 			}
@@ -122,9 +122,13 @@ public class DepartamentoControllerV01 extends Auth{
 		long IdEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Departamento.SIZE_NOMBRE, departamento.getNombre())) {
 			return new ResponseEntity<Departamento>(HttpStatus.BAD_REQUEST);
+		}else {
+			departamento.setNombre(departamento.getNombre().strip());
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Departamento.SIZE_DESCRIPCION, departamento.getDescripcion())) {
 			return new ResponseEntity<Departamento>(HttpStatus.BAD_REQUEST);
+		}else {
+			departamento.setDescripcion(departamento.getDescripcion().strip());
 		}
 		
 		final Catalogo CAT_ACTIVO = singletonUtil.getActivo();
@@ -154,12 +158,16 @@ public class DepartamentoControllerV01 extends Auth{
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Departamento.SIZE_NOMBRE, departamento.getNombre())) {
 			return new ResponseEntity<Departamento>(HttpStatus.BAD_REQUEST);
+		}else {
+			departamento.setNombre(departamento.getNombre().strip());
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Departamento.SIZE_DESCRIPCION, departamento.getDescripcion())) {
 			return new ResponseEntity<Departamento>(HttpStatus.BAD_REQUEST);
+		}else {
+			departamento.setDescripcion(departamento.getDescripcion().strip());
 		}
 		Optional<Departamento> optionalDepartamento = departamentoService.findByClave(departamento.getClave());
-		if(!optionalDepartamento.isPresent()) {
+		if(optionalDepartamento.isEmpty()) {
 			return new ResponseEntity<Departamento>(HttpStatus.NOT_FOUND);
 		}
 		Departamento body = optionalDepartamento.get();
@@ -188,7 +196,7 @@ public class DepartamentoControllerV01 extends Auth{
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 		Optional<Departamento> optionalDepartamento = departamentoService.findByClave(uuid);
-		if(!optionalDepartamento.isPresent()) {
+		if(optionalDepartamento.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();

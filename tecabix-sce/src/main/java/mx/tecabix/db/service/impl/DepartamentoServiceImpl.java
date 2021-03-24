@@ -62,15 +62,15 @@ public class DepartamentoServiceImpl extends GenericSeviceImpl<Departamento, Lon
 	}
 
 	@Override
-	public Page<Departamento> findByLikeNombre(String nombre, int elements, int page, Sort sort) {
+	public Page<Departamento> findByLikeNombre(Long idEmpresa, String nombre, int elements, int page, Sort sort) {
 		Pageable pageable = PageRequest.of(page, elements, sort);
-		return departamentoRepository.findByLikeNombre(nombre, pageable);
+		return departamentoRepository.findByLikeNombre(idEmpresa, nombre, pageable);
 	}
 
 	@Override
-	public Page<Departamento> findByLikeDescripcion(String descripcion, int elements, int page, Sort sort) {
+	public Page<Departamento> findByLikeDescripcion(Long idEmpresa, String descripcion, int elements, int page, Sort sort) {
 		Pageable pageable = PageRequest.of(page, elements, sort);
-		return departamentoRepository.findByLikeDescripcion(descripcion, pageable);
+		return departamentoRepository.findByLikeDescripcion(idEmpresa, descripcion, pageable);
 	}
 	
 }

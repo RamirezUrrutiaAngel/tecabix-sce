@@ -99,17 +99,17 @@ public class SesionControllerV01 extends Auth {
 			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND); 
 		}
 		Optional<Usuario> optionalUsuario = usuarioService.findByNombre(usuarioName);
-		if(!optionalUsuario.isPresent()) {
+		if(optionalUsuario.isEmpty()) {
 			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);
 		}
 		Usuario usuario = optionalUsuario.get();
 		Optional<Suscripcion> optionalSuscripcion = suscripcionService.findByIdEmpresaAndValid(licencia.getPlantel().getIdEmpresa());
-		if(!optionalSuscripcion.isPresent()) {
+		if(optionalSuscripcion.isEmpty()) {
 			return new ResponseEntity<Sesion>(HttpStatus.LOCKED);
 		}
 		
 		Optional<Catalogo> optionalCatalogoTipoLicencia = catalogoService.findByTipoAndNombre(TIPO_DE_SERVICIO, WEB);
-		if(!optionalCatalogoTipoLicencia.isPresent()) {
+		if(optionalCatalogoTipoLicencia.isEmpty()) {
 			return new ResponseEntity<Sesion>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		final Catalogo catalogoTipoLicenciaWeb = optionalCatalogoTipoLicencia.get();
@@ -212,7 +212,7 @@ public class SesionControllerV01 extends Auth {
 			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);
 		}
 		Optional<Sesion> sesionOptional = sesionService.findByClave(uuid);
-		if(!sesionOptional.isPresent()) {
+		if(sesionOptional.isEmpty()) {
 			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
 		}
 		Sesion sesionAux = sesionOptional.get();
@@ -234,7 +234,7 @@ public class SesionControllerV01 extends Auth {
 		}
 		
 		Optional<Sesion> sesionOptional = sesionService.findByClave(uuid);
-		if(!sesionOptional.isPresent()) {
+		if(sesionOptional.isEmpty()) {
 			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND);
 		}
 		Sesion sesionAux = sesionOptional.get();

@@ -81,6 +81,8 @@ public class AuthorityControllerV01 extends Auth{
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Authority.SIZE_DESCRIPCION, authority.getDescripcion())) {
 			return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
+		}else {
+			authority.setDescripcion(authority.getDescripcion().strip());
 		}
 		List<Authority> list = authority.getSubAuthority();
 		if(list != null) {
@@ -94,6 +96,8 @@ public class AuthorityControllerV01 extends Auth{
 				}
 				if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Authority.SIZE_DESCRIPCION, aux.getDescripcion())) {
 					return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
+				}else {
+					aux.setDescripcion(aux.getDescripcion().strip());
 				}
 				if(authority.getNombre().equalsIgnoreCase(aux.getNombre())) {
 					return new ResponseEntity<Authority>(HttpStatus.CONFLICT);
@@ -124,7 +128,7 @@ public class AuthorityControllerV01 extends Auth{
 			}
 		}
 		Optional<Authority> authorityPadreOptional = authorityService.findByNombre(AUTENTIFICADOS);
-		if(!authorityPadreOptional.isPresent()) {
+		if(authorityPadreOptional.isEmpty()) {
 			return new ResponseEntity<Authority>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		Authority authorityPadre = authorityPadreOptional.get(); 
@@ -152,7 +156,7 @@ public class AuthorityControllerV01 extends Auth{
 			}
 		}
 		Optional<Authority>authorityOptional = authorityService.findById(authority.getId());
-		if(!authorityOptional.isPresent()) {
+		if(authorityOptional.isEmpty()) {
 			return new ResponseEntity<Authority>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		authority = authorityOptional.get();
@@ -216,7 +220,7 @@ public class AuthorityControllerV01 extends Auth{
 			return new ResponseEntity<Authority>(HttpStatus.UNAUTHORIZED);
 		}
 		Optional<Authority> result = authorityService.findByClave(clave);
-		if(!result.isPresent()) {
+		if(result.isEmpty()) {
 			return new ResponseEntity<Authority>(HttpStatus.NOT_FOUND);
 		}
 		
@@ -232,7 +236,7 @@ public class AuthorityControllerV01 extends Auth{
 			return new ResponseEntity<Authority>(HttpStatus.UNAUTHORIZED);
 		}
 		Optional<Authority> result = authorityService.findByNombre(AUTENTIFICADOS);
-		if(!result.isPresent()) {
+		if(result.isEmpty()) {
 			return new ResponseEntity<Authority>(HttpStatus.NOT_FOUND);
 		}
 		Authority body = result.get();
@@ -258,9 +262,11 @@ public class AuthorityControllerV01 extends Auth{
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Authority.SIZE_DESCRIPCION, authority.getDescripcion())) {
 			return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
+		}else {
+			authority.setDescripcion(authority.getDescripcion().strip());
 		}
 		Optional<Authority> optionalAuthorityViejo =  authorityService.findByClave(authority.getClave());
-		if(!optionalAuthorityViejo.isPresent()) {
+		if(optionalAuthorityViejo.isEmpty()) {
 			return new ResponseEntity<Authority>(HttpStatus.NOT_FOUND);
 		}
 		
@@ -275,7 +281,7 @@ public class AuthorityControllerV01 extends Auth{
 		authority.setEstatus(authorityViejo.getEstatus());
 		
 		Optional<Authority> authorityPadreOptional = authorityService.findByNombre(AUTENTIFICADOS);
-		if(!authorityPadreOptional.isPresent()) {
+		if(authorityPadreOptional.isEmpty()) {
 			return new ResponseEntity<Authority>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		Authority authorityPadre = authorityPadreOptional.get(); 
@@ -295,6 +301,8 @@ public class AuthorityControllerV01 extends Auth{
 				}
 				if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Authority.SIZE_DESCRIPCION, aux.getDescripcion())) {
 					return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
+				}else {
+					aux.setDescripcion(aux.getDescripcion().strip());
 				}
 				if(authority.getNombre().equalsIgnoreCase(aux.getNombre())) {
 					return new ResponseEntity<Authority>(HttpStatus.CONFLICT);
@@ -388,12 +396,12 @@ public class AuthorityControllerV01 extends Auth{
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 		Optional<Authority> optionalAuthorityViejo =  authorityService.findByClave(uuid);
-		if(!optionalAuthorityViejo.isPresent()) {
+		if(optionalAuthorityViejo.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		Authority authorityViejo = optionalAuthorityViejo.get();
 		Optional<Authority> authorityPadreOptional = authorityService.findByNombre(AUTENTIFICADOS);
-		if(!authorityPadreOptional.isPresent()) {
+		if(authorityPadreOptional.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		Authority authorityPadre = authorityPadreOptional.get(); 

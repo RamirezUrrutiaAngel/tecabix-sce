@@ -124,9 +124,13 @@ public class PerfilControllerV01 extends Auth{
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Perfil.SIZE_DESCRIPCION, perfil.getDescripcion())) {
 			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
+		}else {
+			perfil.setDescripcion(perfil.getDescripcion().strip());
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Perfil.SIZE_NOMBRE, perfil.getNombre())) {
 			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
+		}else {
+			perfil.setNombre(perfil.getNombre().strip());
 		}
 		
 		Page<Perfil> pagePerfil = perfilService.findByNombre(sesion.getLicencia().getPlantel().getIdEmpresa(), perfil.getNombre(),Integer.MAX_VALUE,0);
@@ -138,7 +142,7 @@ public class PerfilControllerV01 extends Auth{
 		if(list != null) {
 			for (Authority authority : list) {
 				Optional<Authority> authOptional = authorityService.findByClave(authority.getClave());
-				if(!authOptional.isPresent()) {
+				if(authOptional.isEmpty()) {
 					return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 				}else {
 					listAux.add(authOptional.get());
@@ -169,12 +173,16 @@ public class PerfilControllerV01 extends Auth{
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Perfil.SIZE_DESCRIPCION, perfil.getDescripcion())) {
 			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
+		}else {
+			perfil.setDescripcion(perfil.getDescripcion().strip());
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Perfil.SIZE_NOMBRE, perfil.getNombre())) {
 			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
+		}else {
+			perfil.setNombre(perfil.getNombre().strip());
 		}
 		Optional<Perfil> perfilAuxOptional = perfilService.findByClave(perfil.getClave());
-		if(!perfilAuxOptional.isPresent()) {
+		if(perfilAuxOptional.isEmpty()) {
 			return new ResponseEntity<Perfil>(HttpStatus.NOT_FOUND);
 		}
 		Perfil perfilAux = perfilAuxOptional.get();
@@ -200,7 +208,7 @@ public class PerfilControllerV01 extends Auth{
 					return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 				}
 				Optional<Authority> optionalAuthority = authorityService.findByClave(authority.getClave());
-				if(!optionalAuthority.isPresent()) {
+				if(optionalAuthority.isEmpty()) {
 					return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 				}
 				authority = optionalAuthority.get();
@@ -227,7 +235,7 @@ public class PerfilControllerV01 extends Auth{
 
 		Optional<Perfil> perfilOptional = perfilService.findByClave(clave);
 		
-		if(!perfilOptional.isPresent() ) {
+		if(perfilOptional.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		Perfil perfil = perfilOptional.get();

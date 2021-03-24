@@ -191,6 +191,8 @@ public class TrabajadorControllerV01 extends Auth{
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, PersonaFisica.SIZE_NOMBRE, persona.getNombre())) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}else {
+			persona.setNombre(persona.getNombre().strip());
 		}
 		if(isNotValid(persona.getSexo())) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
@@ -219,13 +221,19 @@ public class TrabajadorControllerV01 extends Auth{
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Direccion.SIZE_ASENTAMIENTO, direccion.getAsentamiento())) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}else {
+			direccion.setAsentamiento(direccion.getAsentamiento().strip());
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Direccion.SIZE_NUM_EXT, direccion.getNumExt())) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}else {
+			direccion.setNumExt(direccion.getNumExt().strip());
 		}
 		if(isValid(direccion.getNumInt())) {
 			if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Direccion.SIZE_NUM_INT, direccion.getNumInt())) {
 				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+			}else {
+				direccion.setNumInt(direccion.getNumInt().strip());
 			}
 		}
 		if(isNotValid(direccion.getMunicipio())) {
@@ -238,11 +246,11 @@ public class TrabajadorControllerV01 extends Auth{
 		Optional<Catalogo> optionalCatalogoSexo = catalogoService.findByTipoAndNombre(SEXO, persona.getSexo().getNombre());
 		Optional<Catalogo> optionalCatalogoTipoPersona = catalogoService.findByTipoAndNombre(TIPO_DE_PERSONA, FISICA);
 		
-		if(!optionalCatalogoSexo.isPresent()) {
+		if(optionalCatalogoSexo.isEmpty()) {
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
 		
-		if(!optionalCatalogoTipoPersona.isPresent()) {
+		if(optionalCatalogoTipoPersona.isEmpty()) {
 			return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		final Catalogo CAT_SEXO = optionalCatalogoSexo.get();
@@ -250,13 +258,13 @@ public class TrabajadorControllerV01 extends Auth{
 		final Catalogo CAT_TIPO_PERSONA = optionalCatalogoTipoPersona.get();
 		
 		Optional<Municipio> municipioOptional = municipioService.findByClave(direccion.getMunicipio().getClave());
-		if(!municipioOptional.isPresent()) {
+		if(municipioOptional.isEmpty()) {
 			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Municipio municipio = municipioOptional.get();
 		
 		Optional<Trabajador> opcionalTrabajador =  trabajadorService.findByClave(trabajador.getJefe().getClave());
-		if(!opcionalTrabajador.isPresent()) {
+		if(opcionalTrabajador.isEmpty()) {
 			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Trabajador jefe = opcionalTrabajador.get();
@@ -321,7 +329,7 @@ public class TrabajadorControllerV01 extends Auth{
 		final Catalogo CAT_ELIMINADO = singletonUtil.getEliminado();
 
 		Optional<Trabajador> opcionalTrabajador = trabajadorService.findByClave(clave);
-		if(!opcionalTrabajador.isPresent()) {
+		if(opcionalTrabajador.isEmpty()) {
 			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		

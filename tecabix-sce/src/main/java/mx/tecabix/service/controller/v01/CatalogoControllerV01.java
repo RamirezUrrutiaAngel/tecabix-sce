@@ -74,6 +74,8 @@ public class CatalogoControllerV01 extends Auth{
 		if (isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, CatalogoTipo.SIZE_DESCRIPCION,
 				catalogoTipo.getDescripcion())) {
 			return new ResponseEntity<CatalogoTipo>(HttpStatus.BAD_REQUEST);
+		}else {
+			catalogoTipo.setDescripcion(catalogoTipo.getDescripcion().strip());
 		}
 		Optional<CatalogoTipo> optionalCatalogoTipo = catalogoTipoService.findByNombre(catalogoTipo.getNombre());
 		if (optionalCatalogoTipo.isPresent()) {
@@ -91,9 +93,13 @@ public class CatalogoControllerV01 extends Auth{
 				}
 				if (isNotValid(TIPO_ALFA_NUMERIC_SPACE, Catalogo.SIZE_DESCRIPCION, catalogo.getDescripcion())) {
 					return new ResponseEntity<CatalogoTipo>(HttpStatus.BAD_REQUEST);
+				} else {
+					catalogo.setDescripcion(catalogo.getDescripcion().strip());
 				}
 				if (isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Catalogo.SIZE_NOMBRE_COMPLETO, catalogo.getNombreCompleto())) {
 					return new ResponseEntity<CatalogoTipo>(HttpStatus.BAD_REQUEST);
+				} else {
+					catalogo.setNombreCompleto(catalogo.getNombreCompleto().strip());
 				}
 			}
 			for (int i = 0; i < catalogos.size(); i++) {
@@ -145,15 +151,19 @@ public class CatalogoControllerV01 extends Auth{
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Catalogo.SIZE_DESCRIPCION, catalogo.getDescripcion())) {
 			return new ResponseEntity<Catalogo>(HttpStatus.BAD_REQUEST);
+		} else {
+			catalogo.setDescripcion(catalogo.getDescripcion().strip());
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Catalogo.SIZE_NOMBRE_COMPLETO, catalogo.getNombreCompleto())) {
 			return new ResponseEntity<Catalogo>(HttpStatus.BAD_REQUEST);
+		}else {
+			catalogo.setNombreCompleto(catalogo.getNombreCompleto().strip());
 		}
 		if(catalogo.getCatalogoTipo() == null || catalogo.getCatalogoTipo().getId() == null) {
 			return new ResponseEntity<Catalogo>(HttpStatus.BAD_REQUEST);
 		}
 		Optional<CatalogoTipo> optionalCatalogo = catalogoTipoService.findById(catalogo.getCatalogoTipo().getId());
-		if(!optionalCatalogo.isPresent()) {
+		if(optionalCatalogo.isEmpty()) {
 			return new ResponseEntity<Catalogo>(HttpStatus.NOT_FOUND);
 		}
 		catalogo.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
@@ -184,15 +194,19 @@ public class CatalogoControllerV01 extends Auth{
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Catalogo.SIZE_DESCRIPCION, catalogo.getDescripcion())) {
 			return new ResponseEntity<Catalogo>(HttpStatus.BAD_REQUEST);
+		}else {
+			catalogo.setDescripcion(catalogo.getDescripcion().strip());
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Catalogo.SIZE_NOMBRE_COMPLETO, catalogo.getNombreCompleto())) {
 			return new ResponseEntity<Catalogo>(HttpStatus.BAD_REQUEST);
+		}else {
+			catalogo.setNombreCompleto(catalogo.getNombreCompleto().strip());
 		}
 		if(catalogo.getCatalogoTipo() == null || catalogo.getCatalogoTipo().getId() == null) {
 			return new ResponseEntity<Catalogo>(HttpStatus.BAD_REQUEST);
 		}
 		Optional<Catalogo> optionalCatalogo = catalogoService.findById(catalogo.getId());
-		if(!optionalCatalogo.isPresent()) {
+		if(optionalCatalogo.isEmpty()) {
 			return new ResponseEntity<Catalogo>(HttpStatus.NOT_FOUND);
 		}
 		Catalogo catalogoAux = optionalCatalogo.get();
@@ -219,9 +233,11 @@ public class CatalogoControllerV01 extends Auth{
 			return new ResponseEntity<CatalogoTipo>(HttpStatus.BAD_REQUEST);
 		}if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, CatalogoTipo.SIZE_DESCRIPCION, catalogoTipo.getDescripcion())) {
 			return new ResponseEntity<CatalogoTipo>(HttpStatus.BAD_REQUEST);
+		}else {
+			catalogoTipo.setDescripcion(catalogoTipo.getDescripcion().strip());
 		}
 		Optional<CatalogoTipo> optionalCatalogoTipo = catalogoTipoService.findByClave(catalogoTipo.getClave());
-		if(!optionalCatalogoTipo.isPresent()) {
+		if(optionalCatalogoTipo.isEmpty()) {
 			return new ResponseEntity<CatalogoTipo>(HttpStatus.NOT_FOUND);
 		}
 		CatalogoTipo catalogoTipoAux = optionalCatalogoTipo.get();
@@ -245,7 +261,7 @@ public class CatalogoControllerV01 extends Auth{
 			return new ResponseEntity<CatalogoTipo>(HttpStatus.UNAUTHORIZED);
 		}
 		Optional<CatalogoTipo> optionalCatalogoTipo = catalogoTipoService.findByNombre(catalogoTipoNombre);
-		if(!optionalCatalogoTipo.isPresent()) {
+		if(optionalCatalogoTipo.isEmpty()) {
 			return new ResponseEntity<CatalogoTipo>(HttpStatus.NOT_FOUND);
 		}
 		CatalogoTipo tipo = optionalCatalogoTipo.get();
@@ -265,7 +281,7 @@ public class CatalogoControllerV01 extends Auth{
 			return new ResponseEntity<Catalogo>(HttpStatus.UNAUTHORIZED);
 		}
 		Optional<Catalogo> optionalCatalogo = catalogoService.findByTipoAndNombre(catalogoTipoNombre, nombre);
-		if(!optionalCatalogo.isPresent()) {
+		if(optionalCatalogo.isEmpty()) {
 			return new ResponseEntity<Catalogo>(HttpStatus.NOT_FOUND);
 		}
 		Catalogo body = optionalCatalogo.get();

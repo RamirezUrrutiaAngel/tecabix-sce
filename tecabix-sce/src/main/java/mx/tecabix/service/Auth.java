@@ -68,10 +68,10 @@ public class Auth extends Notificacion{
 		Optional<Sesion> optioonalSesion = sesionService.findByToken(token);
 		String usuarioName = auth.getName();
 		Optional<Usuario> OptionalUsuario = usuarioService.findByNombre(usuarioName);
-		if(!optioonalSesion.isPresent()) {
+		if(optioonalSesion.isEmpty()) {
 			return false;
 		}
-		if(!OptionalUsuario.isPresent()) {
+		if(OptionalUsuario.isEmpty()) {
 			return false;
 		}
 		Sesion sesion = optioonalSesion.get();
@@ -96,10 +96,10 @@ public class Auth extends Notificacion{
 		Optional<Sesion> optioonalSesion = sesionService.findByToken(token);
 		String usuarioName = auth.getName();
 		Optional<Usuario> OptionalUsuario = usuarioService.findByNombre(usuarioName);
-		if(!optioonalSesion.isPresent()) {
+		if(optioonalSesion.isEmpty()) {
 			return null;
 		}
-		if(!OptionalUsuario.isPresent()) {
+		if(OptionalUsuario.isEmpty()) {
 			return null;
 		}
 		Sesion sesion = optioonalSesion.get();
@@ -155,7 +155,7 @@ public class Auth extends Notificacion{
 		}
 		if(arg.getClass().equals(String.class) || arg.getClass().equals(StringBuilder.class)) {
 			String text = arg.toString();
-			if(text.trim().isEmpty() || text.length() > size) {
+			if(text.isBlank()|| text.length() > size) {
 				return false;
 			}
 			if(tipo == TIPO_ALFA) {

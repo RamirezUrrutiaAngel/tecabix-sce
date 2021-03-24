@@ -123,9 +123,13 @@ public class PuestoControllerV01 extends Auth{
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Puesto.SIZE_NOMBRE, puesto.getNombre())) {
 			return new ResponseEntity<Puesto>(HttpStatus.BAD_REQUEST);
+		}else {
+			puesto.setNombre(puesto.getNombre().strip());
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Puesto.SIZE_DESCRIPCION, puesto.getDescripcion())) {
 			return new ResponseEntity<Puesto>(HttpStatus.BAD_REQUEST);
+		}else {
+			puesto.setDescripcion(puesto.getDescripcion().strip());
 		}
 		if(isNotValid(puesto.getDepartamento())) {
 			return new ResponseEntity<Puesto>(HttpStatus.BAD_REQUEST);
@@ -134,7 +138,7 @@ public class PuestoControllerV01 extends Auth{
 			return new ResponseEntity<Puesto>(HttpStatus.BAD_REQUEST);
 		}
 		Optional<Departamento> optionalDepartamento = departamentoService.findByClave(puesto.getDepartamento().getClave());
-		if(!optionalDepartamento.isPresent()) {
+		if(optionalDepartamento.isEmpty()) {
 			return new ResponseEntity<Puesto>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Departamento departamento = optionalDepartamento.get();
@@ -166,9 +170,13 @@ public class PuestoControllerV01 extends Auth{
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Puesto.SIZE_NOMBRE, puesto.getNombre())) {
 			return new ResponseEntity<Puesto>(HttpStatus.BAD_REQUEST);
+		}else {
+			puesto.setNombre(puesto.getNombre().strip());
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Puesto.SIZE_DESCRIPCION, puesto.getDescripcion())) {
 			return new ResponseEntity<Puesto>(HttpStatus.BAD_REQUEST);
+		}else {
+			puesto.setDescripcion(puesto.getDescripcion().strip());
 		}
 		if(isNotValid(puesto.getDepartamento())) {
 			return new ResponseEntity<Puesto>(HttpStatus.BAD_REQUEST);
@@ -177,7 +185,7 @@ public class PuestoControllerV01 extends Auth{
 			return new ResponseEntity<Puesto>(HttpStatus.BAD_REQUEST);
 		}
 		Optional<Puesto> optionalPuesto = puestoService.findByClave(puesto.getClave());
-		if(!optionalPuesto.isPresent()) {
+		if(optionalPuesto.isEmpty()) {
 			return new ResponseEntity<Puesto>(HttpStatus.NOT_FOUND);
 		}
 		Puesto puestoEdit = optionalPuesto.get();
@@ -186,7 +194,7 @@ public class PuestoControllerV01 extends Auth{
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		Optional<Departamento> optionalDepartamento = departamentoService.findByClave(puesto.getDepartamento().getClave());
-		if(!optionalDepartamento.isPresent()) {
+		if(optionalDepartamento.isEmpty()) {
 			return new ResponseEntity<Puesto>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		
@@ -215,7 +223,7 @@ public class PuestoControllerV01 extends Auth{
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 		Optional<Puesto> optionalPuesto =  puestoService.findByClave(uuid);
-		if(!optionalPuesto.isPresent()) {
+		if(optionalPuesto.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		Puesto puesto = optionalPuesto.get();

@@ -128,6 +128,8 @@ public class PlantelControllerV01 extends Auth{
 		Long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Plantel.SIZE_NOMBRE, plantel.getNombre())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
+		}else {
+			plantel.setNombre(plantel.getNombre().strip());
 		}
 		if(isNotValid(plantel.getGerente())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
@@ -144,19 +146,27 @@ public class PlantelControllerV01 extends Auth{
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_CALLE, direccion.getCalle())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
+		}else {
+			direccion.setCalle(direccion.getCalle().strip());
 		}
 		if(isNotValid(TIPO_NUMERIC, Direccion.SIZE_CODIGO_POSTAL, direccion.getCodigoPostal())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Direccion.SIZE_ASENTAMIENTO, direccion.getAsentamiento())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
+		}else {
+			direccion.setAsentamiento(direccion.getAsentamiento().strip());
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_NUM_EXT, direccion.getNumExt())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
+		}else {
+			direccion.setNumExt(direccion.getNumExt().strip());
 		}
 		if(isValid(direccion.getNumInt())) {
 			if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_NUM_INT, direccion.getNumInt())) {
 				return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
+			}else {
+				direccion.setNumInt(direccion.getNumInt().strip());
 			}
 		}
 		if(isNotValid(direccion.getMunicipio())) {
@@ -170,14 +180,14 @@ public class PlantelControllerV01 extends Auth{
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_GATEWAY);
 		}
 		Optional<Municipio> municipioOptional = municipioService.findByClave(direccion.getMunicipio().getClave());
-		if(!municipioOptional.isPresent()) {
+		if(municipioOptional.isEmpty()) {
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Municipio municipio = municipioOptional.get();
 		direccion.setMunicipio(municipio);
 		
 		Optional<Trabajador> optionalTrabajador = trabajadorService.findByClave(plantel.getGerente().getClave());
-		if(!optionalTrabajador.isPresent()) {
+		if(optionalTrabajador.isEmpty()) {
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Trabajador gerente = optionalTrabajador.get();
@@ -213,6 +223,8 @@ public class PlantelControllerV01 extends Auth{
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Plantel.SIZE_NOMBRE, plantel.getNombre())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
+		}else {
+			plantel.setNombre(plantel.getNombre().strip());
 		}
 		if(isNotValid(plantel.getGerente())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
@@ -229,19 +241,27 @@ public class PlantelControllerV01 extends Auth{
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_CALLE, direccion.getCalle())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
+		}else {
+			direccion.setCalle(direccion.getCalle().strip());
 		}
 		if(isNotValid(TIPO_NUMERIC, Direccion.SIZE_CODIGO_POSTAL, direccion.getCodigoPostal())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Direccion.SIZE_ASENTAMIENTO, direccion.getAsentamiento())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
+		}else {
+			direccion.setAsentamiento(direccion.getAsentamiento().strip());
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_NUM_EXT, direccion.getNumExt())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
+		}else {
+			direccion.setNumExt(direccion.getNumExt().strip());
 		}
 		if(isValid(direccion.getNumInt())) {
 			if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_NUM_INT, direccion.getNumInt())) {
 				return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
+			}else {
+				direccion.setNumInt(direccion.getNumInt().strip());
 			}
 		}
 		if(isNotValid(direccion.getMunicipio())) {
@@ -251,14 +271,14 @@ public class PlantelControllerV01 extends Auth{
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
 		Optional<Municipio> municipioOptional = municipioService.findByClave(direccion.getMunicipio().getClave());
-		if(!municipioOptional.isPresent()) {
+		if(municipioOptional.isEmpty()) {
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Municipio municipio = municipioOptional.get();
 		direccion.setMunicipio(municipio);
 		
 		Optional<Trabajador> optionalTrabajador = trabajadorService.findByClave(plantel.getGerente().getClave());
-		if(!optionalTrabajador.isPresent()) {
+		if(optionalTrabajador.isEmpty()) {
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Trabajador gerente = optionalTrabajador.get();
@@ -272,7 +292,7 @@ public class PlantelControllerV01 extends Auth{
 			}
 		}
 		optionalPlantel = plantelService.findByClave(plantel.getClave());
-		if(!optionalPlantel.isPresent()) {
+		if(optionalPlantel.isEmpty()) {
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_FOUND);
 		}
 		Plantel plantelEdit = optionalPlantel.get();
@@ -305,7 +325,7 @@ public class PlantelControllerV01 extends Auth{
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 		Optional<Plantel> optionalPlantel = plantelService.findByClave(clave);
-		if(!optionalPlantel.isPresent()) {
+		if(optionalPlantel.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		Plantel plantel =  optionalPlantel.get();

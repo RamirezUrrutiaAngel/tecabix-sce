@@ -129,7 +129,7 @@ public class UsuarioControllerV01 extends Auth {
 			return new ResponseEntity<Boolean>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Optional<Usuario> optionalUsuario = usuarioService.findByNameRegardlessOfStatus(usuario);
-		if(!optionalUsuario.isPresent()) {
+		if(optionalUsuario.isEmpty()) {
 			return new ResponseEntity<Boolean>(HttpStatus.ACCEPTED);
 		}
 		return new ResponseEntity<Boolean>(HttpStatus.NOT_ACCEPTABLE);
@@ -161,7 +161,7 @@ public class UsuarioControllerV01 extends Auth {
 			return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
 		}
 		Optional<Persona> personaOptional = personaService.findByClave(usuario.getUsuarioPersona().getPersona().getClave());
-		if(!personaOptional.isPresent()) {
+		if(personaOptional.isEmpty()) {
 			return new ResponseEntity<Usuario>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Persona persona = personaOptional.get();
@@ -218,7 +218,7 @@ public class UsuarioControllerV01 extends Auth {
 		}
 		Optional<Usuario> usuarioUpdateOptional = usuarioService.findByClave(usuario.getClave());
 		
-		if(!usuarioUpdateOptional.isPresent()) {
+		if(usuarioUpdateOptional.isEmpty()) {
 			return new ResponseEntity<Usuario>(HttpStatus.NOT_FOUND);
 		}
 		Usuario usuarioUpdate = usuarioUpdateOptional.get();
