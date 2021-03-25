@@ -17,10 +17,11 @@
  */
 package mx.tecabix.service.controller.v01;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,8 +29,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.ApiOperation;
 import mx.tecabix.db.entity.Estado;
-import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.service.EstadoService;
 import mx.tecabix.service.Auth;
 /**
@@ -37,6 +38,7 @@ import mx.tecabix.service.Auth;
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
+import mx.tecabix.service.page.EstadoPage;
 @RestController
 @RequestMapping("estado/v1")
 public class EstadoControllerV01 extends Auth{
@@ -44,30 +46,48 @@ public class EstadoControllerV01 extends Auth{
 	@Autowired
 	private EstadoService estadoService;
 	
-	@GetMapping("all")
-	public ResponseEntity<List<Estado>> all(@RequestParam(value="token") UUID token) {
-		Sesion sesion = getSessionIfIsAuthorized(token);
-		if(sesion == null) {
-			return new ResponseEntity<List<Estado>>(HttpStatus.UNAUTHORIZED);
+	/**
+	 * 
+	 * @param by:		NOMBRE, ABREVIATURA
+	 * @param order:	ASC, DESC
+	 * 
+	 */
+	@ApiOperation(value = "Obtiene todo los estados paginado.", 
+			notes = "<b>by:</b> NOMBRE, ABREVIATURA<br/><b>order:</b> ASC, DESC")
+	@GetMapping
+	public ResponseEntity<EstadoPage> find(
+			@RequestParam(value="token") UUID token,
+			@RequestParam(value="search", required = false) String search,
+			@RequestParam(value="by", defaultValue = "NOMBRE") String by,
+			@RequestParam(value="order", defaultValue = "ASC") String order,
+			@RequestParam(value="elements") byte elements,
+			@RequestParam(value="page") short page) {
+		
+		if(isNotAuthorized(token)) {
+			return new ResponseEntity<EstadoPage>(HttpStatus.UNAUTHORIZED);
 		}
-		List<Estado> estados = estadoService.findAll();
-		for (Estado estado : estados) {
-			estado.setMunicipios(null);
+		Page<Estado> estados = null;
+		Sort sort;
+		if(order.equalsIgnoreCase("ASC")) {
+			sort = Sort.by(Sort.Direction.ASC, by.toLowerCase());
+		}else if(order.equalsIgnoreCase("DESC")) {
+			sort = Sort.by(Sort.Direction.DESC, by.toLowerCase());
+		}else {
+			return new ResponseEntity<EstadoPage>(HttpStatus.BAD_REQUEST);
 		}
-		return new ResponseEntity<List<Estado>>(estados, HttpStatus.OK);
+		if(search == null || search.isEmpty()) {
+			estados = estadoService.findByActivo(elements, page, sort);
+		}else {
+			StringBuilder text = new StringBuilder("%").append(search).append("%");
+			if(by.equalsIgnoreCase("NOMBRE")) {
+				estados = estadoService.findByLikeNombre(text.toString(), elements, page, sort);
+			}else if(by.equalsIgnoreCase("ABREVIATURA")) {
+				estados = estadoService.findByLikeAbreviatura(text.toString(), elements, page, sort);
+			}else {
+				return new ResponseEntity<EstadoPage>(HttpStatus.BAD_REQUEST);
+			}
+		}
+		EstadoPage body = new EstadoPage(estados);
+		return new ResponseEntity<EstadoPage>(body,HttpStatus.OK);
 	}
-	
-	// INICIO DE SERVICIO NO PROTEGIDO CON AUTENTIFICACION
-	@GetMapping("all-join-municipio")
-	public ResponseEntity<List<Estado>> allJoinMunicipio(@RequestParam(value="token") UUID token) {
-		Sesion sesion = getSessionIfIsAuthorized(token);
-		if(sesion == null) {
-			return new ResponseEntity<List<Estado>>(HttpStatus.UNAUTHORIZED);
-		}
-		List<Estado> estados = estadoService.findAll();
-		return new ResponseEntity<List<Estado>>(estados, HttpStatus.OK);
-	}
-	// FIN DE SERVICIO NO PROTEGIDO CON AUTENTIFICACION
-	
-	
 }
