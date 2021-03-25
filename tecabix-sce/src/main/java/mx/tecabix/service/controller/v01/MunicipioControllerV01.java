@@ -30,11 +30,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.ApiOperation;
-import mx.tecabix.db.entity.Estado;
-import mx.tecabix.db.service.EstadoService;
+import mx.tecabix.db.entity.Municipio;
+import mx.tecabix.db.service.MunicipioService;
 import mx.tecabix.service.Auth;
-import mx.tecabix.service.page.EstadoPage;
-
+import mx.tecabix.service.page.MunicipioPage;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -42,22 +41,22 @@ import mx.tecabix.service.page.EstadoPage;
  */
 
 @RestController
-@RequestMapping("estado/v1")
-public class EstadoControllerV01 extends Auth{
-	
+@RequestMapping("municipio/v1")
+public class MunicipioControllerV01 extends Auth{
+
 	@Autowired
-	private EstadoService estadoService;
+	private MunicipioService municipioService;
 	
 	/**
 	 * 
-	 * @param by:		NOMBRE, ABREVIATURA
+	 * @param by:		NOMBRE
 	 * @param order:	ASC, DESC
 	 * 
 	 */
-	@ApiOperation(value = "Obtiene todo los estados paginado.", 
-			notes = "<b>by:</b> NOMBRE, ABREVIATURA<br/><b>order:</b> ASC, DESC")
+	@ApiOperation(value = "Obtiene todo los municipios paginado.", 
+			notes = "<b>by:</b> NOMBRE<br/><b>order:</b> ASC, DESC")
 	@GetMapping
-	public ResponseEntity<EstadoPage> find(
+	public ResponseEntity<MunicipioPage> find(
 			@RequestParam(value="token") UUID token,
 			@RequestParam(value="search", required = false) String search,
 			@RequestParam(value="by", defaultValue = "NOMBRE") String by,
@@ -66,33 +65,41 @@ public class EstadoControllerV01 extends Auth{
 			@RequestParam(value="page") short page) {
 		
 		if(isNotAuthorized(token)) {
-			return new ResponseEntity<EstadoPage>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<MunicipioPage>(HttpStatus.UNAUTHORIZED);
 		}
-		Page<Estado> estados = null;
+		Page<Municipio> municipios = null;
 		Sort sort;
 		if(order.equalsIgnoreCase("ASC")) {
 			sort = Sort.by(Sort.Direction.ASC, by.toLowerCase());
 		}else if(order.equalsIgnoreCase("DESC")) {
 			sort = Sort.by(Sort.Direction.DESC, by.toLowerCase());
 		}else {
-			return new ResponseEntity<EstadoPage>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<MunicipioPage>(HttpStatus.BAD_REQUEST);
 		}
 		if(search == null || search.isEmpty()) {
-			estados = estadoService.findByActivo(elements, page, sort);
+			municipios = municipioService.findByActivo(elements, page, sort);
 		}else {
 			StringBuilder text = new StringBuilder("%").append(search).append("%");
 			if(by.equalsIgnoreCase("NOMBRE")) {
-				estados = estadoService.findByLikeNombre(text.toString(), elements, page, sort);
-			}else if(by.equalsIgnoreCase("ABREVIATURA")) {
-				estados = estadoService.findByLikeAbreviatura(text.toString(), elements, page, sort);
+				municipios = municipioService.findByLikeNombre(text.toString(), elements, page, sort);
 			}else {
-				return new ResponseEntity<EstadoPage>(HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<MunicipioPage>(HttpStatus.BAD_REQUEST);
 			}
 		}
-		for (Estado item : estados) {
-			item.setMunicipios(null);
+		MunicipioPage body = new MunicipioPage(municipios);
+		return new ResponseEntity<MunicipioPage>(body,HttpStatus.OK);
+	}
+	
+	@ApiOperation(value = "Obtiene todo los municipios de la clave del estado.")
+	@GetMapping("find-by-estado-clave")
+	public ResponseEntity<MunicipioPage> findByEstadoClave(
+			@RequestParam(value="token") UUID token,@RequestParam(value="clave") UUID clave){
+		if(isNotAuthorized(token)) {
+			return new ResponseEntity<MunicipioPage>(HttpStatus.UNAUTHORIZED);
 		}
-		EstadoPage body = new EstadoPage(estados);
-		return new ResponseEntity<EstadoPage>(body,HttpStatus.OK);
+		Sort sort = Sort.by(Sort.Direction.ASC,"nombre");
+		Page<Municipio> municipios = municipioService.findByEstadoClave(clave, Integer.MAX_VALUE, 0, sort);
+		MunicipioPage body = new MunicipioPage(municipios);
+		return new ResponseEntity<MunicipioPage>(body,HttpStatus.OK);
 	}
 }

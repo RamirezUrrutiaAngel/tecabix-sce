@@ -15,25 +15,39 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.db.service;
+package mx.tecabix.service.page;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.io.Serializable;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 
-import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.Municipio;
+import mx.tecabix.service.PageGeneric;
+
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface MunicipioService extends GenericSevice<Municipio, Integer>{
+public class MunicipioPage extends PageGeneric implements Serializable{
 
-	Page<Municipio> findByLikeNombre(String nombre, int elements, int page, Sort sort);
-	Page<Municipio> findByEstadoClave(UUID estadoClave, int elements, int page, Sort sort);
-	Page<Municipio> findByActivo(int elements, int page, Sort sort);
-	Optional<Municipio> findByClave(UUID uuid);
+	private static final long serialVersionUID = -5331667296255488622L;
+
+	private List<Municipio> data;
+	
+	public MunicipioPage() {}
+	
+	public MunicipioPage(Page<Municipio> data) {
+		super(data);
+		this.data = data.getContent();
+	}
+
+	public List<Municipio> getData() {
+		return data;
+	}
+
+	public void setData(List<Municipio> data) {
+		this.data = data;
+	}
 }

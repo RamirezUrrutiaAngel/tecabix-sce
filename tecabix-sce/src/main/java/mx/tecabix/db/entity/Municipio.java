@@ -28,6 +28,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -41,6 +43,11 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
  */
 @Entity
 @Table(name = "municipio")
+@NamedQueries({
+	@NamedQuery(name = "Municipio.findByLikeNombre",query = "SELECT m FROM Municipio m WHERE UPPER(m.nombre) LIKE UPPER(?1) AND m.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Municipio.findByEstadoClave",query = "SELECT m FROM Municipio m WHERE m.entidadFederativa.clave = ?1 AND m.entidadFederativa.estatus.nombre = 'ACTIVO' AND m.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Municipio.findByActivo",query = "SELECT m FROM Municipio m WHERE m.estatus.nombre = 'ACTIVO' ")
+})
 public class Municipio implements Serializable {
 
 	private static final long serialVersionUID = -9218053756023446113L;

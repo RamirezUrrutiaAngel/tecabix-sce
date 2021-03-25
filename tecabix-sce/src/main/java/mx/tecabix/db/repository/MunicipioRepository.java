@@ -20,6 +20,8 @@ package mx.tecabix.db.repository;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import mx.tecabix.db.entity.Municipio;
@@ -31,5 +33,8 @@ import mx.tecabix.db.entity.Municipio;
  */
 public interface MunicipioRepository extends JpaRepository<Municipio, Integer>{
 
+	Page<Municipio> findByLikeNombre(String nombre, Pageable pageable);
+	Page<Municipio> findByEstadoClave(UUID estadoClave, Pageable pageable);
+	Page<Municipio> findByActivo(Pageable pageable);
 	Optional<Municipio> findByClave(UUID uuid);
 }

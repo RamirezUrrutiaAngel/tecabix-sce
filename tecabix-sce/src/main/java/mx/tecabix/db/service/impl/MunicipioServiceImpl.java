@@ -23,6 +23,10 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.GenericSeviceImpl;
@@ -48,8 +52,25 @@ public class MunicipioServiceImpl extends GenericSeviceImpl<Municipio, Integer> 
 
 	@Override
 	public Optional<Municipio> findByClave(UUID uuid) {
-		Optional<Municipio> result = municipioRepository.findByClave(uuid);
-		return result;
+		return municipioRepository.findByClave(uuid);
+	}
+
+	@Override
+	public Page<Municipio> findByLikeNombre(String nombre, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		return municipioRepository.findByLikeNombre(nombre, pageable);
+	}
+
+	@Override
+	public Page<Municipio> findByEstadoClave(UUID estadoClave, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		return municipioRepository.findByEstadoClave(estadoClave, pageable);
+	}
+
+	@Override
+	public Page<Municipio> findByActivo(int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		return municipioRepository.findByActivo(pageable);
 	}
 	
 
