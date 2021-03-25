@@ -48,13 +48,13 @@ public class TecabixWebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 		.authorizeRequests()
 		
 		// No requieren autentificacion
-		.antMatchers(
-				"/usuario/findIsExist",
-				"/catalogo/findByTipoNombre",
-				"/catalogo/findByTipoAndNombre",
-				"/estado/all",
-				"/estado/all-join-municipio"
-				).permitAll()
+//		.antMatchers(
+//				"/usuario/findIsExist",
+//				"/catalogo/findByTipoNombre",
+//				"/catalogo/findByTipoAndNombre",
+//				"/estado/all",
+//				"/estado/all-join-municipio"
+//				).permitAll()
 		
 		// las peticiones tienen que estar autentificadas
 		.anyRequest().authenticated().and().httpBasic();

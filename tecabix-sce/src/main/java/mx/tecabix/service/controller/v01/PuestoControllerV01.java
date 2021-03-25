@@ -66,6 +66,8 @@ public class PuestoControllerV01 extends Auth{
 	private final String PUESTO_CREAR = "PUESTO_CREAR";
 	private final String PUESTOS_EDITAR = "PUESTOS_EDITAR";
 	private final String PUESTOS_ELIMINAR = "PUESTOS_ELIMINAR";
+	private final String TRABAJADOR_CREAR = "TRABAJADOR_CREAR";
+	private final String TRABAJADOR_EDITAR = "TRABAJADOR_EDITAR";
 	/**
 	 * 
 	 * @param by:		NOMBRE, DESCRIPCION, DEPARTAMENTO
@@ -82,7 +84,8 @@ public class PuestoControllerV01 extends Auth{
 			@RequestParam(value="order", defaultValue = "ASC") String order,
 			@RequestParam(value="elements") byte elements,
 			@RequestParam(value="page") short page) {
-		Sesion sesion = getSessionIfIsAuthorized(token, PUESTO);
+		final String PERMISOS[] = { PUESTO, TRABAJADOR_CREAR, TRABAJADOR_EDITAR };
+		Sesion sesion = getSessionIfIsAuthorized(token, PERMISOS);
 		if(sesion == null) {
 			return new ResponseEntity<PuestoPage>(HttpStatus.UNAUTHORIZED);
 		}

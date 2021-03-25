@@ -57,6 +57,10 @@ public class DepartamentoControllerV01 extends Auth{
 	@Autowired
 	private DepartamentoService departamentoService;
 	
+	private final String TRABAJADOR_CREAR = "TRABAJADOR_CREAR";
+	private final String TRABAJADOR_EDITAR = "TRABAJADOR_EDITAR";
+	private final String PUESTO_CREAR = "PUESTO_CREAR";
+	private final String PUESTOS_EDITAR = "PUESTOS_EDITAR";
 	private final String DEPARTAMENTO = "DEPARTAMENTO";
 	private final String DEPARTAMENTO_CREAR = "DEPARTAMENTO_CREAR";
 	private final String DEPARTAMENTO_EDITAR = "DEPARTAMENTO_EDITAR";
@@ -78,8 +82,8 @@ public class DepartamentoControllerV01 extends Auth{
 			@RequestParam(value="order", defaultValue = "ASC") String order,
 			@RequestParam(value="elements") byte elements,
 			@RequestParam(value="page") short page) {
-		
-		Sesion sesion = getSessionIfIsAuthorized(token, DEPARTAMENTO) ;
+		final String PERMISOS[] = { DEPARTAMENTO, PUESTO_CREAR, PUESTOS_EDITAR, TRABAJADOR_CREAR, TRABAJADOR_EDITAR };
+		Sesion sesion = getSessionIfIsAuthorized(token, PERMISOS);
 		if(sesion == null) {
 			return new ResponseEntity<DepartamentoPage>(HttpStatus.UNAUTHORIZED);
 		}
