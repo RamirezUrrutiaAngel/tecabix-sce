@@ -1,10 +1,11 @@
 
-tecabix-sce/.settings/org.eclipse.m2e.core.prefs
-tecabix-sce/.settings/org.eclipse.jdt.core.prefs
-tecabix-sce/.settings/org.eclipse.core.resources.prefs
-tecabix-sce/.project
-tecabix-sce/.classpath
-tecabix-sce/target/*
 tecabix-sce/.settings/org.springframework.ide.eclipse.prefs
+tecabix-sce/.classpath
+tecabix-sce/.project
+tecabix-sce/.settings/org.eclipse.core.resources.prefs
+tecabix-sce/.settings/org.eclipse.jdt.core.prefs
+tecabix-sce/.settings/org.eclipse.m2e.core.prefs
+*.properties
+tecabix-sce/target/*
+*.log
 tecabix-sce/configuracion.email.properties
-
