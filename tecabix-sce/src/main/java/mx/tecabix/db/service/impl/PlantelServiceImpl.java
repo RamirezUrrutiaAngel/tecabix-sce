@@ -72,4 +72,16 @@ public class PlantelServiceImpl extends GenericSeviceImpl<Plantel, Long> impleme
 		return plantelRepository.findByIdEmpresa(idEmpresa, pageable);
 	}
 
+	@Override
+	public Page<Plantel> findByLikeMunicipio(Long idEmpresa, String municipio, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		return plantelRepository.findByLikeMunicipio(idEmpresa, municipio, pageable);
+	}
+
+	@Override
+	public Page<Plantel> findByLikeEstado(Long idEmpresa, String estado, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		return plantelRepository.findByLikeEstado(idEmpresa, estado, pageable);
+	}
+
 }

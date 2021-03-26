@@ -59,7 +59,6 @@ public class Municipio implements Serializable {
     private Integer id;
 	@Column(name = "nombre")
     private String nombre;
-	@JsonProperty(access = Access.WRITE_ONLY)
 	@ManyToOne
     @JoinColumn(name = "id_estado")
 	private Estado entidadFederativa;

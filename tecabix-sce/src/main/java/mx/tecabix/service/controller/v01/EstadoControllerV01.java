@@ -89,9 +89,6 @@ public class EstadoControllerV01 extends Auth{
 				return new ResponseEntity<EstadoPage>(HttpStatus.BAD_REQUEST);
 			}
 		}
-		for (Estado item : estados) {
-			item.setMunicipios(null);
-		}
 		EstadoPage body = new EstadoPage(estados);
 		return new ResponseEntity<EstadoPage>(body,HttpStatus.OK);
 	}

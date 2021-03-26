@@ -78,6 +78,7 @@ public class Estado implements Serializable{
     @Column(name = "clave")
     @Type(type="pg-uuid")
     private UUID clave;
+    @JsonProperty(access = Access.WRITE_ONLY)
     @OneToMany(fetch = FetchType.LAZY, mappedBy="entidadFederativa", cascade=CascadeType.REMOVE)
     private List<Municipio> municipios;
 	public Integer getId() {

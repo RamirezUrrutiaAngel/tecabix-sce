@@ -75,12 +75,12 @@ public class PlantelControllerV01 extends Auth{
 	
 	/**
 	 * 
-	 * @param by:		NOMBRE
+	 * @param by:		NOMBRE, MUNICIPIO, ESTADO
 	 * @param order:	ASC, DESC
 	 * 
 	 */
 	@ApiOperation(value = "Obtiene todo los Planteles paginado.", 
-			notes = "<b>by:</b> NOMBRE<br/><b>order:</b> ASC, DESC")
+			notes = "<b>by:</b> NOMBRE, MUNICIPIO, ESTADO<br/><b>order:</b> ASC, DESC")
 	@GetMapping
 	private ResponseEntity<PlantelPage> find(
 			@RequestParam(value="token") UUID token,
@@ -110,6 +110,10 @@ public class PlantelControllerV01 extends Auth{
 			StringBuilder text = new StringBuilder("%").append(search).append("%");
 			if(by.equalsIgnoreCase("NOMBRE")) {
 				response = plantelService.findByLikeNombre(idEmpresa, text.toString(), elements, page, sort);
+			}else if(by.equalsIgnoreCase("MUNICIPIO")) {
+				response = plantelService.findByLikeMunicipio(idEmpresa, text.toString(), elements, page, sort);
+			}else if(by.equalsIgnoreCase("ESTADO")) {
+				response = plantelService.findByLikeEstado(idEmpresa, text.toString(), elements, page, sort);
 			}else {
 				return new ResponseEntity<PlantelPage>( HttpStatus.BAD_REQUEST);
 			}

@@ -51,6 +51,8 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @NamedQueries({
 	@NamedQuery(name = "Plantel.findByNombre",query = "SELECT p FROM Plantel p WHERE p.idEmpresa = ?1 AND p.nombre = ?2 AND p.estatus.nombre = 'ACTIVO' "),
 	@NamedQuery(name = "Plantel.findByLikeNombre",query = "SELECT p FROM Plantel p WHERE p.idEmpresa = ?1 AND UPPER(p.nombre) LIKE UPPER(?2) AND p.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Plantel.findByLikeMunicipio",query = "SELECT p FROM Plantel p WHERE p.idEmpresa = ?1 AND UPPER(p.direccion.municipio.nombre) LIKE UPPER(?2) AND p.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Plantel.findByLikeEstado",query = "SELECT p FROM Plantel p WHERE p.idEmpresa = ?1 AND UPPER(p.direccion.municipio.entidadFederativa.nombre) LIKE UPPER(?2) AND p.estatus.nombre = 'ACTIVO' "),
 	@NamedQuery(name = "Plantel.findByIdEmpresa",query = "SELECT p FROM Plantel p WHERE p.idEmpresa = ?1 AND p.estatus.nombre = 'ACTIVO' ")
 })
 public class Plantel implements Serializable{
