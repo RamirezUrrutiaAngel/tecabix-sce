@@ -122,6 +122,37 @@ public class PlantelControllerV01 extends Auth{
 		return new ResponseEntity<PlantelPage>(body, HttpStatus.OK);
 	}
 	
+	/**
+	 * 
+	 * @param by:		NOMBRE, MUNICIPIO, ESTADO
+	 * @param order:	ASC, DESC
+	 * 
+	 */
+	@ApiOperation(value = "Obtiene el gerente del plantel.")
+	@GetMapping("find-manager")
+	private ResponseEntity<Trabajador> findManagerByClave(
+			@RequestParam(value="token") UUID token,
+			@RequestParam(value="clave") UUID clave) {
+		Sesion sesion = getSessionIfIsAuthorized(token, PLANTEL);
+		if(sesion == null){
+			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
+		}
+		Optional<Plantel> optionalPlantel = plantelService.findByClave(clave);
+		if(optionalPlantel.isEmpty()) {
+			return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+		}
+		Plantel plantel = optionalPlantel.get();
+		if(!plantel.getEstatus().equals(singletonUtil.getActivo())) {
+			return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+		}
+		long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		if(!plantel.getIdEmpresa().equals(idEmpresa)) {
+			return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+		}
+		Trabajador trabajador = plantel.getGerente();
+		return new ResponseEntity<Trabajador>(trabajador,HttpStatus.OK);
+	}
+	
 	@ApiOperation(value = "Persiste la entidad del Plantel con sus correspondiente direccion. ")
 	@PostMapping
 	private ResponseEntity<Plantel> save(@RequestParam(value="token") UUID token, @RequestBody Plantel plantel){
