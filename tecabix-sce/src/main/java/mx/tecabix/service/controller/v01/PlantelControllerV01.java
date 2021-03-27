@@ -173,6 +173,11 @@ public class PlantelControllerV01 extends Auth{
 				direccion.setNumInt(direccion.getNumInt().strip());
 			}
 		}
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_REFERENCIA, direccion.getReferencia())) {
+			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
+		}else {
+			direccion.setReferencia(direccion.getReferencia().strip());
+		}
 		if(isNotValid(direccion.getMunicipio())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
@@ -267,6 +272,11 @@ public class PlantelControllerV01 extends Auth{
 			}else {
 				direccion.setNumInt(direccion.getNumInt().strip());
 			}
+		}
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_REFERENCIA, direccion.getReferencia())) {
+			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
+		}else {
+			direccion.setReferencia(direccion.getReferencia().strip());
 		}
 		if(isNotValid(direccion.getMunicipio())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
