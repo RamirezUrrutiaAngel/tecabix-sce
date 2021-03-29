@@ -140,16 +140,16 @@ public class Auth extends Notificacion{
 	protected boolean isValid(Object arg) {
 		return isValid(TIPO_OBJECT,Integer.MAX_VALUE, arg);
 	}
-	protected boolean isNotValid(int size,Object arg) {
+	protected boolean isNotValid(double size,Object arg) {
 		return isNotValid(TIPO_OBJECT,size, arg);
 	}
-	protected boolean isValid(int size,Object arg) {
+	protected boolean isValid(double size,Object arg) {
 		return isValid(TIPO_OBJECT,size, arg);
 	}
-	protected boolean isNotValid(byte tipo,int size, Object arg) {
+	protected boolean isNotValid(byte tipo,double size, Object arg) {
 		return !isValid(tipo,size, arg);
 	}
-	protected boolean isValid(byte tipo,int size, Object arg) {
+	protected boolean isValid(byte tipo,double size, Object arg) {
 		if(arg == null) {
 			return false;
 		}
@@ -177,24 +177,17 @@ public class Auth extends Notificacion{
 			}else if(tipo == TIPO_VARIABLE){
 				return Pattern.matches(VARIABLE, text);
 			}
-		}else if(arg.getClass().equals(Integer.class) || arg.getClass().equals(Long.class)) {
-			Long num = Long.parseLong(arg.toString());
-			if(tipo == TIPO_NUMERIC_NATURAL) {
-				return num > 0;
-			}else if(tipo == TIPO_NUMERIC_POSITIVO) {
-				return num > -1;
-			}else if(tipo == TIPO_NUMERIC_NEGATIVO) {
-				return num < 0;
-			}
-		}else  if(arg.getClass().equals(Float.class) || arg.getClass().equals(Double.class)) {
+		} else if (arg.getClass().equals(Integer.class) || arg.getClass().equals(Long.class)
+				|| arg.getClass().equals(Float.class) || arg.getClass().equals(Double.class)) {
 			Double num = Double.parseDouble(arg.toString());
-			if(tipo == TIPO_NUMERIC_NATURAL) {
-				long aux = num.longValue();
-				return num > 0 && aux == num.doubleValue();
-			}else if(tipo == TIPO_NUMERIC_POSITIVO) {
-				return num > -1;
-			}else if(tipo == TIPO_NUMERIC_NEGATIVO) {
-				return num < 0;
+			if (tipo == TIPO_NUMERIC_NATURAL) {
+				return num >= 0 && num <= size;
+			} else if (tipo == TIPO_NUMERIC_POSITIVO) {
+				return num > 0 && num <= size;
+			} else if (tipo == TIPO_NUMERIC_NEGATIVO) {
+				return num < 0 && num >= ((size < 0) ? size : -1 * size);
+			} else if (tipo == TIPO_NUMERIC) {
+				return num <= size;
 			}
 		}
 		return true;
