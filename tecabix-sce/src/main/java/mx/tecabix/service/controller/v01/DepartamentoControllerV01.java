@@ -125,8 +125,8 @@ public class DepartamentoControllerV01 extends Auth{
 			return new ResponseEntity<Departamento>(HttpStatus.UNAUTHORIZED);
 		}
 		
-		long IdEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
-		boolean canInsert = departamentoService.canInsert(IdEmpresa);
+		long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		boolean canInsert = departamentoService.canInsert(idEmpresa);
 		if(!canInsert) {
 			return new ResponseEntity<Departamento>(HttpStatus.LOCKED);
 		}
@@ -147,7 +147,7 @@ public class DepartamentoControllerV01 extends Auth{
 		departamento.setEstatus(CAT_ACTIVO);
 		departamento.setFechaDeModificacion(LocalDateTime.now());
 		departamento.setIdUsuarioModificado(sesion.getUsuario().getId());
-		departamento.setIdEmpresa(IdEmpresa);
+		departamento.setIdEmpresa(idEmpresa);
 		departamento = departamentoService.save(departamento);
 		return new ResponseEntity<Departamento>(departamento,HttpStatus.OK);
 	}
