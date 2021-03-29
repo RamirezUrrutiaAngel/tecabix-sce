@@ -28,8 +28,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -44,23 +42,18 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
  */
 @Entity()
 @Table(name = "configuracion")
-@NamedQueries({
-    @NamedQuery(name = "Configuracion.findByIdEmpresa",query = "SELECT c FROM Configuracion c WHERE c.estatus.nombre = 'ACTIVO' AND c.idEmpresa = ?1 "),
-    @NamedQuery(name = "Configuracion.findByNombre",query = "SELECT c FROM Configuracion c WHERE c.estatus.nombre = 'ACTIVO' AND c.tipo.nombre = ?1 "),
-    @NamedQuery(name = "Configuracion.findByIdEmpresaAndNombre",query = "SELECT c FROM Configuracion c WHERE c.estatus.nombre = 'ACTIVO' AND c.idEmpresa = ?1 AND c.tipo.nombre = ?2 ")
-})
 public class Configuracion implements Serializable{
 
 	private static final long serialVersionUID = -3454681497916100291L;
+	
+	public static final short SIZE_VALOR = 500;
+	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_configuracion", unique = true, nullable = false)
 	@SequenceGenerator(name = "configuracion_id_configuracion_gen", sequenceName = "tecabix_sce.configuracion_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "configuracion_id_configuracion_gen")
 	private Long id;
-	@Column(name = "id_empresa")
-	@JsonProperty(access = Access.WRITE_ONLY)
-    private Long idEmpresa;
 	@ManyToOne
     @JoinColumn(name = "id_tipo")
     private Catalogo tipo;
@@ -81,12 +74,6 @@ public class Configuracion implements Serializable{
 	}
 	public void setId(Long id) {
 		this.id = id;
-	}
-	public Long getIdEmpresa() {
-		return idEmpresa;
-	}
-	public void setIdEmpresa(Long idEmpresa) {
-		this.idEmpresa = idEmpresa;
 	}
 	public Catalogo getTipo() {
 		return tipo;

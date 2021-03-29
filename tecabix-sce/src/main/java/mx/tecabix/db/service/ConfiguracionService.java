@@ -20,18 +20,15 @@ package mx.tecabix.db.service;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.data.domain.Page;
-
 import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.Configuracion;
+
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
 public interface ConfiguracionService extends GenericSevice<Configuracion, Long> {
-	Page<Configuracion> findByIdEmpresa(long id,int elements, int page);
-	Page<Configuracion> findByNombre(String nombre,int elements, int page);
-	Optional<Configuracion> findByIdEmpresaAndNombre(long idEmpresa, String nombre);
+	
 	Optional<Configuracion> findByClave(UUID uuid);
 }

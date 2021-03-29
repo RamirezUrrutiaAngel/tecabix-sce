@@ -17,27 +17,31 @@
  */
 package mx.tecabix.service.controller.v01;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import mx.tecabix.db.entity.Catalogo;
+import mx.tecabix.db.entity.CatalogoTipo;
+import mx.tecabix.db.entity.Configuracion;
 import mx.tecabix.db.entity.Plan;
 import mx.tecabix.db.entity.Sesion;
-import mx.tecabix.db.entity.Suscripcion;
+import mx.tecabix.db.service.CatalogoTipoService;
+import mx.tecabix.db.service.ConfiguracionService;
 import mx.tecabix.db.service.PlanService;
-import mx.tecabix.db.service.SuscripcionService;
 import mx.tecabix.service.Auth;
+import mx.tecabix.service.SingletonUtil;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -48,83 +52,99 @@ import mx.tecabix.service.Auth;
 public class PlanControllerV01 extends Auth {
 
 	@Autowired
+	private SingletonUtil singletonUtil;
+	@Autowired
 	private PlanService planService;
 	@Autowired
-	private SuscripcionService suscripcionService;
+	private CatalogoTipoService catalogoTipoService;
+	@Autowired
+	private ConfiguracionService configuracionService;
 	
-	private final String PLAN = "PLAN";
-	private final String ROOT_PLAN = "ROOT_PLAN";
-	private final String ROOT_PLAN_CREAR = "ROOT_PLAN_CREAR";
-	private final String ROOT_PLAN_EDITAR = "ROOT_PLAN_EDITAR";
+	private final String PLAN_CREAR = "PLAN_CREAR";
 	
+	private final String CONFIGURACION_PLAN = "CONFIGURACION_PLAN";
 	
-	@GetMapping("findAll")
-	public ResponseEntity<Page<Plan>> findAll(@RequestParam(value="token") UUID token,@RequestParam(value="elements") byte elements,@RequestParam(value="page") short page) {
-		Sesion sesion = getSessionIfIsAuthorized(token,ROOT_PLAN);
-		if(sesion == null){
-			return new ResponseEntity<Page<Plan>>(HttpStatus.UNAUTHORIZED);
-		}
-		Page<Plan> pagePlan = planService.findAll(elements, page);
-		return new ResponseEntity<Page<Plan>>(pagePlan,HttpStatus.OK);
-	}	
-	
-	@GetMapping
-	public ResponseEntity<Plan> get(@RequestParam(value="token") UUID token) {
-		Sesion sesion = getSessionIfIsAuthorized(token,PLAN);
-		if(sesion == null){
-			return new ResponseEntity<Plan>(HttpStatus.UNAUTHORIZED);
-		}
-		long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
-		Optional<Suscripcion> optionalSuscripcion = suscripcionService.findByIdEmpresa(idEmpresa);
-		if(!optionalSuscripcion.isPresent()) {
-			return new ResponseEntity<Plan>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		Plan body =  optionalSuscripcion.get().getPlan();
-		return new ResponseEntity<Plan>(body, HttpStatus.OK);
-	}
 	
 	@PostMapping
-	public ResponseEntity<Plan> post(@RequestParam(value="token") UUID token, @RequestBody Plan plan) {
-		if(isNotAuthorized(token, ROOT_PLAN_CREAR)) {
-			return new ResponseEntity<Plan>(HttpStatus.UNAUTHORIZED);
-		}
-		if(plan.getDescripcion() == null || plan.getDescripcion().isEmpty()) {
-			return new ResponseEntity<Plan>(HttpStatus.BAD_REQUEST);
-		}
-		if(plan.getNombre() == null || plan.getNombre().isEmpty()) {
-			return new ResponseEntity<Plan>(HttpStatus.BAD_REQUEST);
-		}
-		if(plan.getPrecio() == null || plan.getPrecio() < 0) {
-			return new ResponseEntity<Plan>(HttpStatus.BAD_REQUEST);
-		}
-		plan = planService.save(plan);
+	public ResponseEntity<Plan> save(
+			@RequestParam(value="token") UUID token,
+			@RequestBody Plan plan) {
 		
-		return new ResponseEntity<Plan>(plan, HttpStatus.OK);
-	}
-	
-	@PutMapping
-	public ResponseEntity<Plan> put(@RequestParam(value="token") UUID token, @RequestBody Plan plan) {
-		if(isNotAuthorized(token, ROOT_PLAN_EDITAR)) {
+		Sesion sesion = getSessionIfIsAuthorized(token, PLAN_CREAR);
+		if(isNotValid(sesion)) {
 			return new ResponseEntity<Plan>(HttpStatus.UNAUTHORIZED);
 		}
-		if(plan.getId() == null) {
+		if(isNotValid(TIPO_VARIABLE, Plan.SIZE_NOMBRE, plan.getNombre())){
 			return new ResponseEntity<Plan>(HttpStatus.BAD_REQUEST);
 		}
-		if(plan.getDescripcion() == null || plan.getDescripcion().isEmpty()) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Plan.SIZE_DESCRIPCION, plan.getDescripcion())) {
+			return new ResponseEntity<Plan>(HttpStatus.BAD_REQUEST);
+		}else {
+			plan.setDescripcion(plan.getDescripcion().strip());
+		}
+		if(isNotValid(TIPO_NUMERIC_NATURAL, Float.MAX_VALUE, plan.getPrecio())) {
 			return new ResponseEntity<Plan>(HttpStatus.BAD_REQUEST);
 		}
-		if(plan.getNombre() == null || plan.getNombre().isEmpty()) {
-			return new ResponseEntity<Plan>(HttpStatus.BAD_REQUEST);
-		}
-		if(plan.getPrecio() == null || plan.getPrecio() < 0) {
-			return new ResponseEntity<Plan>(HttpStatus.BAD_REQUEST);
-		}
-		Optional<Plan> optionalPlan = planService.findById(plan.getId());
-		if(!optionalPlan.isPresent()) {
+		Catalogo ACTIVO = singletonUtil.getActivo();
+		List<Configuracion> configuraciones = plan.getConfiguraciones();
+		Optional<CatalogoTipo> optionalCatalogoTipo = catalogoTipoService.findByNombre(CONFIGURACION_PLAN);
+		if(optionalCatalogoTipo.isPresent()) {
+			List<Catalogo> catalogos = optionalCatalogoTipo.get().getCatalogos();
+			if(catalogos != null) {
+				final byte NUM_DIGITOS = 9;
+				
+				if(configuraciones == null) {
+					configuraciones = new ArrayList<Configuracion>();
+				}
+				for (Configuracion configuracion : configuraciones) {
+					if(isNotValid(TIPO_NUMERIC, NUM_DIGITOS, configuracion.getValor())) {
+						return new ResponseEntity<Plan>(HttpStatus.BAD_REQUEST);
+					}
+					int select = catalogos.indexOf(configuracion.getTipo());
+					if(select < 0) {
+						return new ResponseEntity<Plan>(HttpStatus.BAD_REQUEST);
+					}
+					Catalogo tipo = catalogos.get(select);
+					catalogos.remove(tipo);
+					if(!tipo.equals(ACTIVO)) {
+						return new ResponseEntity<Plan>(HttpStatus.BAD_REQUEST);
+					}
+					configuracion.setId(null);
+					configuracion.setTipo(tipo);
+					configuracion.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+					configuracion.setFechaDeModificacion(LocalDateTime.now());
+					configuracion.setEstatus(ACTIVO);
+					configuracion.setClave(UUID.randomUUID());
+				}
+				for(Catalogo catalogo: catalogos) {
+					Configuracion configuracion = new Configuracion();
+					configuracion.setId(null);
+					configuracion.setValor("0");
+					configuracion.setTipo(catalogo);
+					configuracion.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+					configuracion.setFechaDeModificacion(LocalDateTime.now());
+					configuracion.setEstatus(ACTIVO);
+					configuracion.setClave(UUID.randomUUID());
+					configuraciones.add(configuracion);
+				}
+			}else {
+				return new ResponseEntity<Plan>(HttpStatus.NOT_FOUND);
+			}
+		}else {
 			return new ResponseEntity<Plan>(HttpStatus.NOT_FOUND);
 		}
+		List<Configuracion> configuracionesAux = new ArrayList<Configuracion>();
+		for (Configuracion configuracion : configuraciones) {
+			configuracion = configuracionService.save(configuracion);
+			configuracionesAux.add(configuracion);
+		}
+		plan.setConfiguraciones(configuracionesAux);
+		plan.setId(null);
+		plan.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+		plan.setFechaDeModificacion(LocalDateTime.now());
+		plan.setEstatus(ACTIVO);
+		plan.setClave(UUID.randomUUID());
 		plan = planService.save(plan);
-		
 		return new ResponseEntity<Plan>(plan, HttpStatus.OK);
 	}
 	

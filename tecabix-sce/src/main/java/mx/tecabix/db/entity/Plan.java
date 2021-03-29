@@ -19,14 +19,18 @@ package mx.tecabix.db.entity;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -45,6 +49,10 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 public class Plan  implements Serializable{
 
 	private static final long serialVersionUID = 696128728517240384L;
+	
+	public static final short SIZE_NOMBRE = 50;
+	public static final short SIZE_DESCRIPCION = 500;
+	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_plan", unique = true, nullable = false)
@@ -67,6 +75,14 @@ public class Plan  implements Serializable{
     @Column(name = "clave")
     @Type(type="pg-uuid")
     private UUID clave;
+    @ManyToMany(cascade = { CascadeType.REMOVE})
+    @JoinTable(
+        name = "plan_configuracion", 
+        joinColumns = { @JoinColumn(name = "id_plan") }, 
+        inverseJoinColumns = { @JoinColumn(name = "id_configuracion") }
+    )
+    private List<Configuracion> configuraciones;
+    
 	public Integer getId() {
 		return id;
 	}
@@ -114,5 +130,11 @@ public class Plan  implements Serializable{
 	}
 	public void setClave(UUID clave) {
 		this.clave = clave;
+	}
+	public List<Configuracion> getConfiguraciones() {
+		return configuraciones;
+	}
+	public void setConfiguraciones(List<Configuracion> configuraciones) {
+		this.configuraciones = configuraciones;
 	}
 }

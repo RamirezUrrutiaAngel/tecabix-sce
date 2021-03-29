@@ -43,6 +43,7 @@ import mx.tecabix.db.service.DepartamentoService;
 import mx.tecabix.service.Auth;
 import mx.tecabix.service.SingletonUtil;
 import mx.tecabix.service.page.DepartamentoPage;
+
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -123,7 +124,12 @@ public class DepartamentoControllerV01 extends Auth{
 		if(sesion == null) {
 			return new ResponseEntity<Departamento>(HttpStatus.UNAUTHORIZED);
 		}
+		
 		long IdEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		boolean canInsert = departamentoService.canInsert(IdEmpresa);
+		if(!canInsert) {
+			return new ResponseEntity<Departamento>(HttpStatus.LOCKED);
+		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Departamento.SIZE_NOMBRE, departamento.getNombre())) {
 			return new ResponseEntity<Departamento>(HttpStatus.BAD_REQUEST);
 		}else {

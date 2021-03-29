@@ -72,5 +72,10 @@ public class DepartamentoServiceImpl extends GenericSeviceImpl<Departamento, Lon
 		Pageable pageable = PageRequest.of(page, elements, sort);
 		return departamentoRepository.findByLikeDescripcion(idEmpresa, descripcion, pageable);
 	}
+
+	@Override
+	public Boolean canInsert(Long idEmpresa) {
+		return departamentoRepository.canInsert(idEmpresa);
+	}
 	
 }

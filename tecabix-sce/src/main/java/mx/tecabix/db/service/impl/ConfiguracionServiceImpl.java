@@ -23,9 +23,6 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.GenericSeviceImpl;
@@ -48,26 +45,6 @@ public class ConfiguracionServiceImpl extends GenericSeviceImpl<Configuracion, L
 	protected void postConstruct() {
 		setJpaRepository(configuracionRepository);
 		
-	}
-	
-	@Override
-	public Page<Configuracion> findByIdEmpresa(long id, int elements, int page) {
-		Pageable pageable = PageRequest.of(page, elements);
-		Page<Configuracion> entitys = configuracionRepository.findByIdEmpresa(id, pageable);
-		return entitys;
-	}
-
-	@Override
-	public Page<Configuracion> findByNombre(String nombre, int elements, int page) {
-		Pageable pageable = PageRequest.of(page, elements);
-		Page<Configuracion> entitys = configuracionRepository.findByNombre(nombre, pageable);
-		return entitys;
-	}
-
-	@Override
-	public Optional<Configuracion> findByIdEmpresaAndNombre(long idEmpresa, String nombre) {
-		Optional<Configuracion> result = configuracionRepository.findByIdEmpresaAndNombre(idEmpresa, nombre);
-		return result;
 	}
 
 	@Override

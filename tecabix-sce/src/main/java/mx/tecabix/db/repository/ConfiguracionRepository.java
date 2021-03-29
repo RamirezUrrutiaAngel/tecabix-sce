@@ -20,8 +20,6 @@ package mx.tecabix.db.repository;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import mx.tecabix.db.entity.Configuracion;
@@ -32,8 +30,5 @@ import mx.tecabix.db.entity.Configuracion;
  */
 public interface ConfiguracionRepository extends JpaRepository<Configuracion, Long>{
 
-	Page<Configuracion> findByIdEmpresa(long id,Pageable pegable);
-	Page<Configuracion> findByNombre(String nombre,Pageable pegable);
-	Optional<Configuracion> findByIdEmpresaAndNombre(long idEmpresa, String nombre);
 	Optional<Configuracion> findByClave(UUID uuid);
 }
