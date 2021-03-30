@@ -82,9 +82,10 @@ public class SesionControllerV01 extends Auth {
 	private final String SESION_ELIMINAR = "SESION_ELIMINAR";
 
 	private final String TIPO_DE_SERVICIO = "TIPO_DE_SERVICIO";
-	private final String WEB = "WEB";
+	private final String MULTIUSUARIO = "MULTIUSUARIO";
+	private final String MONOUSUARIO = "MONOUSUARIO";
 	
-	@GetMapping("validateUsrPasw")
+	@GetMapping("validate-usr-pasw")
 	public ResponseEntity<Boolean> validateUsrPasw() {
 		return new ResponseEntity<Boolean>(true,HttpStatus.OK);
 	}
@@ -96,54 +97,50 @@ public class SesionControllerV01 extends Auth {
 		String usuarioName = auth.getName();
 		Licencia licencia = licenciaService.findByToken(key);
 		if(licencia == null) {
+			LOG.info("NO SE ENCONTRO LA LICENCIA PARA EL KEY: "+key);
 			return new ResponseEntity<Sesion>(HttpStatus.NOT_FOUND); 
 		}
 		Optional<Usuario> optionalUsuario = usuarioService.findByNombre(usuarioName);
 		if(optionalUsuario.isEmpty()) {
+			LOG.info("NO SE ENCONTRO EL USUARIO: "+usuarioName);
 			return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);
 		}
 		Usuario usuario = optionalUsuario.get();
 		Optional<Suscripcion> optionalSuscripcion = suscripcionService.findByIdEmpresaAndValid(licencia.getPlantel().getIdEmpresa());
 		if(optionalSuscripcion.isEmpty()) {
+			LOG.info("NO SE ENCONTRO SUSCRIPCION VALIDA PARA LA EMPRESA: "+licencia.getPlantel().getIdEmpresa());
 			return new ResponseEntity<Sesion>(HttpStatus.LOCKED);
 		}
 		
-		Optional<Catalogo> optionalCatalogoTipoLicencia = catalogoService.findByTipoAndNombre(TIPO_DE_SERVICIO, WEB);
+		Optional<Catalogo> optionalCatalogoTipoLicencia = catalogoService.findByTipoAndNombre(TIPO_DE_SERVICIO, MULTIUSUARIO);
 		if(optionalCatalogoTipoLicencia.isEmpty()) {
+			LOG.info("NO SE ENCONTRO EL CATALOGO MULTIUSUARIO DE TIPO_DE_SERVICIO");
 			return new ResponseEntity<Sesion>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		final Catalogo catalogoTipoLicenciaWeb = optionalCatalogoTipoLicencia.get();
+		final Catalogo catalogoTipoLicenciaMultiusuario = optionalCatalogoTipoLicencia.get();
+		optionalCatalogoTipoLicencia = catalogoService.findByTipoAndNombre(TIPO_DE_SERVICIO, MONOUSUARIO);
+		if(optionalCatalogoTipoLicencia.isEmpty()) {
+			LOG.info("NO SE ENCONTRO EL CATALOGO MONOUSUARIO DE TIPO_DE_SERVICIO");
+			return new ResponseEntity<Sesion>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		final Catalogo catalogoTipoLicenciaMonousuario = optionalCatalogoTipoLicencia.get();
 		Integer peticionesRestantes = 0;
 		LocalDateTime vencimiento = LocalDateTime.now();
-		if(licencia.getServicio().getTipo().getId().intValue() == catalogoTipoLicenciaWeb.getId().intValue()) {
+		if(licencia.getServicio().getTipo().equals(catalogoTipoLicenciaMultiusuario)) {
 			vencimiento = LocalDateTime.of(vencimiento.toLocalDate(),LocalTime.of(23, 59));
-			
-			List<Sesion> sesionesAviertas = sesionService.findByUsuarioAndActive(licencia.getId(), usuario.getId(),Integer.MAX_VALUE,0).getContent();
-			if(sesionesAviertas != null) {
-				LOG.info("SE ENCONTRARON "+sesionesAviertas.size()+" PARA LA KEY: "+ key);
-				for (Sesion sesion : sesionesAviertas) {
-					sesion.setFechaDeModificacion(LocalDateTime.now());
-					sesion.setIdUsuarioModificado(sesion.getUsuario().getId());
-					sesion.setEstatus(singletonUtil.getEliminado());
-					sesionService.update(sesion);
-				}
-			}
 			List<Sesion> sesionesDeHoy = sesionService.findByUsuarioAndNow(licencia.getId(), usuario.getId(), Integer.MAX_VALUE, 0).getContent();
 			if(sesionesDeHoy != null && !sesionesDeHoy.isEmpty()) {
-				LOG.info("SE ENCONTRARON "+sesionesAviertas.size()+" SESIONES DE HOY PARA LA ID_LICENCIA: "+ licencia.getId());
 				peticionesRestantes = sesionesDeHoy.get(0).getPeticionesRestantes();
 				if(peticionesRestantes < 1) {
+					LOG.info("PETICIONES AGOTADAS PARA LA LICENCIA "+ licencia.getId() + "Y EL USUARIO "+ usuario.getId());
 					return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);
 				}
 			}else {
 				Servicio servicio = licencia.getServicio();
 				peticionesRestantes = servicio.getPeticiones();
 			}
-		}else {
-			vencimiento = vencimiento.plusHours(8);
-			Page<Sesion> sesionesAviertas = sesionService.findByLicenciaAndActive(licencia.getId(), Integer.MAX_VALUE, 0);
+			List<Sesion> sesionesAviertas = sesionService.findByUsuarioAndActive(licencia.getId(), usuario.getId(),Integer.MAX_VALUE,0).getContent();
 			if(sesionesAviertas != null) {
-				LOG.info("SE ENCONTRARON "+sesionesAviertas.getSize()+" PARA LA KEY: "+ key);
 				for (Sesion sesion : sesionesAviertas) {
 					sesion.setFechaDeModificacion(LocalDateTime.now());
 					sesion.setIdUsuarioModificado(sesion.getUsuario().getId());
@@ -151,20 +148,52 @@ public class SesionControllerV01 extends Auth {
 					sesionService.update(sesion);
 				}
 			}
+			
+		}else if(licencia.getServicio().getTipo().equals(catalogoTipoLicenciaMonousuario)) {
+			vencimiento = LocalDateTime.of(vencimiento.toLocalDate(),LocalTime.of(23, 59));
 			Page<Sesion> sesionesDeHoy = sesionService.findByNow(licencia.getId(), Integer.MAX_VALUE, 0);
 			if(sesionesDeHoy != null && !sesionesDeHoy.isEmpty()) {
-				LOG.info("SE ENCONTRARON "+sesionesAviertas.getSize()+" SESIONES DE HOY PARA LA ID_LICENCIA: "+ licencia.getId());
 				peticionesRestantes = sesionesDeHoy.getContent().get(0).getPeticionesRestantes();
 				if(peticionesRestantes < 1) {
+					LOG.info("PETICIONES AGOTADAS PARA LA LICENCIA "+ licencia.getId());
 					return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);
 				}
 			}else {
 				Servicio servicio = licencia.getServicio();
 				peticionesRestantes = servicio.getPeticiones();
 			}
-			
+			Page<Sesion> sesionesAviertas = sesionService.findByLicenciaAndActive(licencia.getId(), Integer.MAX_VALUE, 0);
+			if(sesionesAviertas != null) {
+				for (Sesion sesion : sesionesAviertas) {
+					sesion.setFechaDeModificacion(LocalDateTime.now());
+					sesion.setIdUsuarioModificado(sesion.getUsuario().getId());
+					sesion.setEstatus(singletonUtil.getEliminado());
+					sesionService.update(sesion);
+				}
+			}
+		}else{
+			vencimiento = vencimiento.plusHours(8);
+			Page<Sesion> sesionesDeHoy = sesionService.findByNow(licencia.getId(), Integer.MAX_VALUE, 0);
+			if(sesionesDeHoy != null && !sesionesDeHoy.isEmpty()) {
+				peticionesRestantes = sesionesDeHoy.getContent().get(0).getPeticionesRestantes();
+				if(peticionesRestantes < 1) {
+					LOG.info("PETICIONES AGOTADAS PARA LA LICENCIA "+ licencia.getId());
+					return new ResponseEntity<Sesion>(HttpStatus.UNAUTHORIZED);
+				}
+			}else {
+				Servicio servicio = licencia.getServicio();
+				peticionesRestantes = servicio.getPeticiones();
+			}
+			Page<Sesion> sesionesAviertas = sesionService.findByLicenciaAndActive(licencia.getId(), Integer.MAX_VALUE, 0);
+			if(sesionesAviertas != null) {
+				for (Sesion sesion : sesionesAviertas) {
+					sesion.setFechaDeModificacion(LocalDateTime.now());
+					sesion.setIdUsuarioModificado(sesion.getUsuario().getId());
+					sesion.setEstatus(singletonUtil.getEliminado());
+					sesionService.update(sesion);
+				}
+			}
 		}
-		
 		Sesion sesion = new Sesion();
 		sesion.setUsuario(usuario);
 		sesion.setEstatus(singletonUtil.getActivo());
@@ -180,7 +209,7 @@ public class SesionControllerV01 extends Auth {
 	}
 	
 	
-	@GetMapping("thisSesion")
+	@GetMapping("this-sesion")
 	public ResponseEntity<Sesion> thisSesion(@RequestParam(value="token") UUID token){
 
 		Sesion sesion = getSessionIfIsAuthorized(token);
@@ -205,7 +234,7 @@ public class SesionControllerV01 extends Auth {
 		return new ResponseEntity<Sesion>(sesion,HttpStatus.OK);
 	}
 	
-	@DeleteMapping("deleteByClave")
+	@DeleteMapping("delete-by-clave")
 	public ResponseEntity<Sesion> deleteById(@RequestParam(value="token") UUID token, @RequestParam(value="clave") UUID uuid){
 		Sesion sesion = getSessionIfIsAuthorized(token,SESION_ELIMINAR);
 		if(sesion == null) {
@@ -226,7 +255,7 @@ public class SesionControllerV01 extends Auth {
 		return new ResponseEntity<Sesion>(sesion,HttpStatus.NOT_FOUND);
 	}
 	
-	@DeleteMapping("deleteRoot")
+	@DeleteMapping("delete-root")
 	public ResponseEntity<Sesion> deleteRoot(@RequestParam(value="token") UUID token, @RequestParam(value="clave") UUID uuid){
 		Sesion sesion = getSessionIfIsAuthorized(token,ROOT_SESION_ELIMINAR);
 		if(sesion == null) {

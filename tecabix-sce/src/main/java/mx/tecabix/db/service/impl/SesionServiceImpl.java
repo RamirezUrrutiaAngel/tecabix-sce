@@ -17,8 +17,6 @@
  */
 package mx.tecabix.db.service.impl;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,10 +32,9 @@ import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.GenericSeviceImpl;
 import mx.tecabix.db.entity.Sesion;
-import mx.tecabix.db.entity.Suscripcion;
 import mx.tecabix.db.repository.SesionRepository;
 import mx.tecabix.db.service.SesionService;
-import mx.tecabix.db.service.SuscripcionService;
+
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -50,14 +47,11 @@ public class SesionServiceImpl extends GenericSeviceImpl<Sesion, Long> implement
 	
 	@Autowired
 	private SesionRepository sesionRepository;
-	@Autowired 
-	private SuscripcionService suscripcionService;
 
 	@PostConstruct
 	@Override
 	protected void postConstruct() {
 		setJpaRepository(sesionRepository);
-		
 	}
 
 	@Override
@@ -89,37 +83,11 @@ public class SesionServiceImpl extends GenericSeviceImpl<Sesion, Long> implement
 
 	@Override
 	public Optional<Sesion> findByToken(UUID keyToken) {
+		Optional<Sesion> response = null;
 		synchronized (LOG) {
-			try {
-				Optional<Sesion> optionalSesion  = sesionRepository.findByToken(keyToken);
-				if(optionalSesion.isPresent()) {
-					Sesion response = optionalSesion.get();
-					LocalDateTime hoy = LocalDateTime.now();
-					if(response.getLicencia().getServicio().getTipo().getNombre().equals("WEB")) {
-						if(response.getVencimiento().isBefore(hoy)) {
-							Long idEmpresa = response.getLicencia().getPlantel().getIdEmpresa();
-							Optional<Suscripcion> optionalSuscripsion = suscripcionService.findByIdEmpresaAndValid(idEmpresa);
-							if(optionalSuscripsion.isEmpty()) {
-								LOG.warn("SUSCRIPCION CADUCADA PARA EL ID "+idEmpresa);
-								return Optional.empty();
-							}
-							LocalDateTime vencimiento = LocalDateTime.of(hoy.toLocalDate(),LocalTime.of(23, 59));
-							response.setVencimiento(vencimiento);
-							response.setPeticionesRestantes(response.getLicencia().getServicio().getPeticiones());
-						}
-					}
-					Integer numeroDePeticionesRestante = response.getPeticionesRestantes();
-					numeroDePeticionesRestante -= 1;
-					response.setPeticionesRestantes(numeroDePeticionesRestante);
-					response = sesionRepository.save(response);
-					return optionalSesion;
-				}
-				return optionalSesion;
-			} catch (Exception e) {
-				LOG.error("Excepcion en findByToken", e.getCause());
-				return  Optional.empty();
-			}	
+			response = sesionRepository.findByToken(keyToken);
 		}
+		return response;
 	}
 
 	@Override
