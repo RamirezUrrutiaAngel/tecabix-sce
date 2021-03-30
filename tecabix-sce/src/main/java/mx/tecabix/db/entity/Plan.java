@@ -25,6 +25,7 @@ import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -32,6 +33,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -75,6 +77,10 @@ public class Plan  implements Serializable{
     @Column(name = "clave")
     @Type(type="pg-uuid")
     private UUID clave;
+    @JsonProperty(access = Access.WRITE_ONLY)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="plan", cascade=CascadeType.REMOVE)
+    private List<Servicio> servicios;
+    @JsonProperty(access = Access.WRITE_ONLY)
     @ManyToMany(cascade = { CascadeType.REMOVE})
     @JoinTable(
         name = "plan_configuracion", 
@@ -82,7 +88,6 @@ public class Plan  implements Serializable{
         inverseJoinColumns = { @JoinColumn(name = "id_configuracion") }
     )
     private List<Configuracion> configuraciones;
-    
 	public Integer getId() {
 		return id;
 	}
@@ -130,6 +135,12 @@ public class Plan  implements Serializable{
 	}
 	public void setClave(UUID clave) {
 		this.clave = clave;
+	}
+	public List<Servicio> getServicios() {
+		return servicios;
+	}
+	public void setServicios(List<Servicio> servicios) {
+		this.servicios = servicios;
 	}
 	public List<Configuracion> getConfiguraciones() {
 		return configuraciones;

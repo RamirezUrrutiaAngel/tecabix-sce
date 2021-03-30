@@ -34,22 +34,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import mx.tecabix.db.entity.Catalogo;
 import mx.tecabix.db.entity.Licencia;
-import mx.tecabix.db.entity.PlanServicio;
 import mx.tecabix.db.entity.Plantel;
 import mx.tecabix.db.entity.Servicio;
 import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.entity.Suscripcion;
 import mx.tecabix.db.service.CatalogoService;
-/**
- * 
- * @author Ramirez Urrutia Angel Abinadi
- * 
- */
 import mx.tecabix.db.service.LicenciaService;
-import mx.tecabix.db.service.PlanServicioService;
 import mx.tecabix.db.service.ServicioService;
 import mx.tecabix.db.service.SuscripcionService;
 import mx.tecabix.service.Auth;
+
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -73,8 +67,6 @@ public class LicenciaControllerV01 extends Auth{
 	private CatalogoService catalogoService;
 	@Autowired
 	private ServicioService servicioService;
-	@Autowired
-	private PlanServicioService planServicioService;
 	@Autowired
 	private SuscripcionService suscripcionService;
 	
@@ -152,15 +144,10 @@ public class LicenciaControllerV01 extends Auth{
 		if(!optionalSuscripcion.isPresent()) {
 			return new ResponseEntity<Licencia>(HttpStatus.LOCKED);
 		}
-		Suscripcion suscripcion = optionalSuscripcion.get();
-		Optional<PlanServicio> optionalPlanServicios = planServicioService.fromByIdPlanAndIdService(suscripcion.getPlan().getId(), servicioTipo.getId());
-		if(!optionalPlanServicios.isPresent()) {
-			return new ResponseEntity<Licencia>(HttpStatus.NOT_FOUND);
-		}
-		PlanServicio planServicio = optionalPlanServicios.get();
-		if (licencias.getSize() >=  planServicio.getNumeroLicencias().intValue()) {
+		if (licencias.getSize() >=  sesion.getLicencia().getServicio().getNumeroLicencias().intValue()) {
 			return new ResponseEntity<Licencia>(HttpStatus.GONE);
 		}
+		
 		Licencia licencia = new Licencia();
 		licencia.setNombre(nombre);
 		licencia.setServicio(servicioTipo);

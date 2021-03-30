@@ -56,6 +56,9 @@ public class Servicio  implements Serializable{
 	@SequenceGenerator(name = "servicio_id_servicio_gen", sequenceName = "tecabix_sce.servicio_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "servicio_id_servicio_gen")
     private Integer id;
+	@ManyToOne
+    @JoinColumn(name = "id_plan")
+	private Plan plan;
     @Column(name = "nombre")
     private String nombre;
     @Column(name = "descripcion")
@@ -65,6 +68,8 @@ public class Servicio  implements Serializable{
     private Catalogo tipo;
     @Column(name = "peticiones")
     private Integer peticiones;
+    @Column(name ="numero_licencias")
+	private Integer numeroLicencias;
     @Column(name = "id_usuario_modificado")
     @JsonProperty(access = Access.WRITE_ONLY)
     private Long idUsuarioModificado;
@@ -82,6 +87,12 @@ public class Servicio  implements Serializable{
 	}
 	public void setId(Integer id) {
 		this.id = id;
+	}
+	public Plan getPlan() {
+		return plan;
+	}
+	public void setPlan(Plan plan) {
+		this.plan = plan;
 	}
 	public String getNombre() {
 		return nombre;
@@ -106,6 +117,12 @@ public class Servicio  implements Serializable{
 	}
 	public void setPeticiones(Integer peticiones) {
 		this.peticiones = peticiones;
+	}
+	public Integer getNumeroLicencias() {
+		return numeroLicencias;
+	}
+	public void setNumeroLicencias(Integer numeroLicencias) {
+		this.numeroLicencias = numeroLicencias;
 	}
 	public Long getIdUsuarioModificado() {
 		return idUsuarioModificado;
