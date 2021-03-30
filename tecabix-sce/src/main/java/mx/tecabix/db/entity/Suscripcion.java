@@ -49,7 +49,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 	@NamedQuery(name = "Suscripcion.findByIdEmpresa", query = "SELECT s FROM Suscripcion s WHERE s.empresa.id = ?1"),
 	@NamedQuery(name = "Suscripcion.findByIdEmpresaAndValid", query = "SELECT s FROM Suscripcion s WHERE s.empresa.id = ?1 AND s.vencimiento > NOW() AND s.estatus.nombre = 'ACTIVO' ")
 })
-public class Suscripcion implements Serializable{
+public final class Suscripcion implements Serializable{
 
 	private static final long serialVersionUID = -6577049550950356830L;
 	@Id
@@ -123,5 +123,28 @@ public class Suscripcion implements Serializable{
 	}
 	public void setClave(UUID clave) {
 		this.clave = clave;
+	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((clave == null) ? 0 : clave.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Suscripcion other = (Suscripcion) obj;
+		if (clave == null) {
+			if (other.clave != null)
+				return false;
+		} else if (!clave.equals(other.clave))
+			return false;
+		return true;
 	}
 }

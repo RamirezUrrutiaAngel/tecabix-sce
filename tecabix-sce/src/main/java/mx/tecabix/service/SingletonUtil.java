@@ -31,7 +31,7 @@ import mx.tecabix.db.service.CatalogoService;
  * 
  */
 @Service
-public class SingletonUtil {
+public final class SingletonUtil {
 	private static boolean instanciado;
 	
 	public static final String ESTATUS = "ESTATUS";

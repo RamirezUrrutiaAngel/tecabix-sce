@@ -36,7 +36,7 @@ import mx.tecabix.db.service.PlanService;
  * 
  */
 @Service
-public class PlanServiceImpl extends GenericSeviceImpl<Plan, Integer> implements PlanService {
+public final class PlanServiceImpl extends GenericSeviceImpl<Plan, Integer> implements PlanService {
 
 	@Autowired
 	private PlanRepository planRepository;

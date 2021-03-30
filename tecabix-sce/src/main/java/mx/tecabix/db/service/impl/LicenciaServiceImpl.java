@@ -38,7 +38,7 @@ import mx.tecabix.db.service.LicenciaService;
  * 
  */
 @Service
-public class LicenciaServiceImpl extends GenericSeviceImpl<Licencia, Long> implements LicenciaService {
+public final class LicenciaServiceImpl extends GenericSeviceImpl<Licencia, Long> implements LicenciaService {
 
 	@Autowired
 	private LicenciaRepository licenciaRepository;

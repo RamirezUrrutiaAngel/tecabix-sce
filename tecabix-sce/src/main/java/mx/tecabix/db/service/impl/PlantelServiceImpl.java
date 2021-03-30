@@ -39,7 +39,7 @@ import mx.tecabix.db.service.PlantelService;
  * 
  */
 @Service
-public class PlantelServiceImpl extends GenericSeviceImpl<Plantel, Long> implements PlantelService{
+public final class PlantelServiceImpl extends GenericSeviceImpl<Plantel, Long> implements PlantelService{
 
 	@Autowired
 	private PlantelRepository plantelRepository;

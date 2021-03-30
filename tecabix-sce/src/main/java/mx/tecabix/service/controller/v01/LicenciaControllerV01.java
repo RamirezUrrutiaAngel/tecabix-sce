@@ -51,7 +51,7 @@ import mx.tecabix.service.Auth;
  */
 @RestController
 @RequestMapping("licencia/v1")
-public class LicenciaControllerV01 extends Auth{
+public final class LicenciaControllerV01 extends Auth{
 	
 	private final String LICENCIA = "LICENCIA";
 	private final String LICENCIA_CREAR = "LICENCIA_CREAR";

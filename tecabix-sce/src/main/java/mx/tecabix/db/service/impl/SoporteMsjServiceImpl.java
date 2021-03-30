@@ -35,7 +35,7 @@ import mx.tecabix.db.service.SoporteMsjService;
  * 
  */
 @Service
-public class SoporteMsjServiceImpl extends GenericSeviceImpl<SoporteMsj, Long> implements SoporteMsjService{
+public final class SoporteMsjServiceImpl extends GenericSeviceImpl<SoporteMsj, Long> implements SoporteMsjService{
 
 	@Autowired
 	private SoporteMsjRepository soporteMsjRepository;

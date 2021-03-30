@@ -65,7 +65,7 @@ import mx.tecabix.service.request.EmpresaRequest;
  */
 @RestController
 @RequestMapping("empresa/v1")
-public class EmpresaControllerV01 extends Auth{
+public final class EmpresaControllerV01 extends Auth{
 	
 	private String ROOT_EMPRESA = "ROOT_EMPRESA";
 	private String ROOT_EMPRESA_CREAR = "ROOT_EMPRESA_CREAR";

@@ -35,7 +35,7 @@ import mx.tecabix.db.service.PersonaFisicaService;
  * 
  */
 @Service
-public class PersonaFisicaServiceImpl extends GenericSeviceImpl<PersonaFisica, Long> implements PersonaFisicaService {
+public final class PersonaFisicaServiceImpl extends GenericSeviceImpl<PersonaFisica, Long> implements PersonaFisicaService {
 
 	@Autowired
 	private PersonaFisicaRepository personaFisicaRepository;

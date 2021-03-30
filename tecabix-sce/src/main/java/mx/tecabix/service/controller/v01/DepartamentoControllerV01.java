@@ -51,7 +51,7 @@ import mx.tecabix.service.page.DepartamentoPage;
  */
 @RestController
 @RequestMapping("departamento/v1")
-public class DepartamentoControllerV01 extends Auth{
+public final class DepartamentoControllerV01 extends Auth{
 	
 	@Autowired
 	private SingletonUtil singletonUtil;

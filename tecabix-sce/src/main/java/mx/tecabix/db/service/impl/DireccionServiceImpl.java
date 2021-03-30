@@ -32,7 +32,7 @@ import mx.tecabix.db.service.DireccionService;
  * 
  */
 @Service
-public class DireccionServiceImpl extends GenericSeviceImpl<Direccion, Long> implements DireccionService {
+public final class DireccionServiceImpl extends GenericSeviceImpl<Direccion, Long> implements DireccionService {
 	
 	@Autowired
 	private DireccionRepository direccionRepository;

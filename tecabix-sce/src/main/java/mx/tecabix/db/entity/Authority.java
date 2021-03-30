@@ -54,7 +54,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 		@NamedQuery(name = "Authority.findByLikeDescripcion",query = "SELECT a FROM Authority a WHERE UPPER(a.descripcion) LIKE UPPER(?1) AND a.estatus.nombre = 'ACTIVO' "),
 		@NamedQuery(name = "Authority.findByNombre",query = "SELECT a FROM Authority a WHERE a.nombre = ?1 AND a.estatus.nombre = 'ACTIVO' ")
 })
-public class Authority implements Serializable{
+public final class Authority implements Serializable{
 
 	private static final long serialVersionUID = 4643106103106362573L;
 	

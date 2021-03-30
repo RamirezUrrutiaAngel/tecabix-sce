@@ -39,7 +39,7 @@ import mx.tecabix.db.service.PerfilService;
  * 
  */
 @Service
-public class PerfilServiceImpl extends GenericSeviceImpl<Perfil, Long> implements PerfilService{
+public final class PerfilServiceImpl extends GenericSeviceImpl<Perfil, Long> implements PerfilService{
 
 	@Autowired
 	private PerfilRepository perfilRepository;

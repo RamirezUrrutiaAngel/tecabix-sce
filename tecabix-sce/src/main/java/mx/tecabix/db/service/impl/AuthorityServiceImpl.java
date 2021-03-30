@@ -39,7 +39,7 @@ import mx.tecabix.db.service.AuthorityService;
  * 
  */
 @Service
-public class AuthorityServiceImpl extends GenericSeviceImpl<Authority, Integer> implements AuthorityService{
+public final class AuthorityServiceImpl extends GenericSeviceImpl<Authority, Integer> implements AuthorityService{
 
 	@Autowired
 	private AuthorityRepository authorityRepository;

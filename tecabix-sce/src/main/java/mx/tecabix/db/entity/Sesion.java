@@ -61,7 +61,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @NamedNativeQueries({
 	@NamedNativeQuery(name = "Sesion.findByToken", query = "SELECT * FROM tecabix_sce.sesion_find_by_token(?1)", resultClass = Sesion.class)
 })
-public class Sesion implements Serializable{
+public final class Sesion implements Serializable{
 
 	private static final long serialVersionUID = -1073408998327677969L;
 	@Id
@@ -144,5 +144,28 @@ public class Sesion implements Serializable{
 	}
 	public void setClave(UUID clave) {
 		this.clave = clave;
+	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((clave == null) ? 0 : clave.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Sesion other = (Sesion) obj;
+		if (clave == null) {
+			if (other.clave != null)
+				return false;
+		} else if (!clave.equals(other.clave))
+			return false;
+		return true;
 	}
 }

@@ -52,7 +52,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 	@NamedQuery(name = "Estado.findByLikeAbreviatura",query = "SELECT e FROM Estado e WHERE UPPER(e.abreviatura) LIKE UPPER(?1) AND e.estatus.nombre = 'ACTIVO' "),
 	@NamedQuery(name = "Estado.findByActivo",query = "SELECT e FROM Estado e WHERE e.estatus.nombre = 'ACTIVO' ")
 })
-public class Estado implements Serializable{
+public final class Estado implements Serializable{
 
 	private static final long serialVersionUID = 8735982161199720818L;
 	

@@ -35,7 +35,7 @@ import mx.tecabix.db.service.UsuarioPersonaService;
  * 
  */
 @Service
-public class UsuarioPersonaServiceImpl extends GenericSeviceImpl<UsuarioPersona, Long> implements UsuarioPersonaService{
+public final class UsuarioPersonaServiceImpl extends GenericSeviceImpl<UsuarioPersona, Long> implements UsuarioPersonaService{
 
 	
 	@Autowired

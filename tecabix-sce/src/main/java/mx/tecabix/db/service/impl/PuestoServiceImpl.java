@@ -39,7 +39,7 @@ import mx.tecabix.db.service.PuestoService;
  * 
  */
 @Service
-public class PuestoServiceImpl extends GenericSeviceImpl<Puesto, Long> implements PuestoService{
+public final class PuestoServiceImpl extends GenericSeviceImpl<Puesto, Long> implements PuestoService{
 
 	@Autowired
 	private PuestoRepository puestoRepository;

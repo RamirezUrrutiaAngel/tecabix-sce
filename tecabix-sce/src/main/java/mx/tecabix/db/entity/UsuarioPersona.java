@@ -47,7 +47,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @NamedQueries({
 	@NamedQuery(name = "UsuarioPersona.findByUsuario",query = "SELECT u FROM UsuarioPersona u WHERE u.usuario.nombre = ?1 AND u.usuario.estatus.nombre = 'ACTIVO' ")
 })
-public class UsuarioPersona  implements Serializable{
+public final class UsuarioPersona  implements Serializable{
 
 	private static final long serialVersionUID = 9003283526926309837L;
 	@Id
@@ -115,5 +115,28 @@ public class UsuarioPersona  implements Serializable{
 	}
 	public void setClave(UUID clave) {
 		this.clave = clave;
+	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((clave == null) ? 0 : clave.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		UsuarioPersona other = (UsuarioPersona) obj;
+		if (clave == null) {
+			if (other.clave != null)
+				return false;
+		} else if (!clave.equals(other.clave))
+			return false;
+		return true;
 	}
 }

@@ -39,7 +39,7 @@ import mx.tecabix.db.service.DepartamentoService;
  * 
  */
 @Service
-public class DepartamentoServiceImpl extends GenericSeviceImpl<Departamento, Long> implements DepartamentoService{
+public final class DepartamentoServiceImpl extends GenericSeviceImpl<Departamento, Long> implements DepartamentoService{
 
 	@Autowired
 	private DepartamentoRepository departamentoRepository;

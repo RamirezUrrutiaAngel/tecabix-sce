@@ -50,7 +50,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
     @NamedQuery(name = "Licencia.findByIdEmpresaAndServicio",query = "SELECT l FROM Licencia l WHERE l.plantel.idEmpresa = ?1 AND l.servicio.id = ?2 AND l.estatus.nombre = 'ACTIVO' "),
     @NamedQuery(name = "Licencia.findAll",query = "SELECT l FROM Licencia l WHERE l.estatus.nombre = 'ACTIVO' ")
 })
-public class Licencia implements Serializable{
+public final class Licencia implements Serializable{
 
 	private static final long serialVersionUID = -7984126238616476436L;
 	@Id
@@ -126,5 +126,28 @@ public class Licencia implements Serializable{
 	}
 	public void setClave(UUID clave) {
 		this.clave = clave;
+	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((clave == null) ? 0 : clave.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Licencia other = (Licencia) obj;
+		if (clave == null) {
+			if (other.clave != null)
+				return false;
+		} else if (!clave.equals(other.clave))
+			return false;
+		return true;
 	}
 }

@@ -53,7 +53,7 @@ import mx.tecabix.service.page.AuthorityPage;
  */
 @RestController
 @RequestMapping("authority/v1")
-public class AuthorityControllerV01 extends Auth{
+public final class AuthorityControllerV01 extends Auth{
 	
 	private static final String AUTHORITY = "AUTHORITY";
 	private static final String PERFIL = "PERFIL";

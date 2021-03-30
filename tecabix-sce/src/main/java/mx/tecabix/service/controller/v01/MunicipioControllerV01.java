@@ -42,7 +42,7 @@ import mx.tecabix.service.page.MunicipioPage;
 
 @RestController
 @RequestMapping("municipio/v1")
-public class MunicipioControllerV01 extends Auth{
+public final class MunicipioControllerV01 extends Auth{
 
 	@Autowired
 	private MunicipioService municipioService;

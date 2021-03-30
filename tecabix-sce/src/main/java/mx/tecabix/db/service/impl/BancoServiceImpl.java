@@ -39,7 +39,7 @@ import mx.tecabix.db.service.BancoService;
  * 
  */
 @Service
-public class BancoServiceImpl extends GenericSeviceImpl<Banco, Integer> implements BancoService{
+public final class BancoServiceImpl extends GenericSeviceImpl<Banco, Integer> implements BancoService{
 
 	@Autowired
 	private BancoRepository bancoRepository;

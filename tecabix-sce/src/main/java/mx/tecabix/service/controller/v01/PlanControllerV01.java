@@ -49,7 +49,7 @@ import mx.tecabix.service.SingletonUtil;
  */
 @RestController
 @RequestMapping("plan/v1")
-public class PlanControllerV01 extends Auth {
+public final class PlanControllerV01 extends Auth {
 
 	@Autowired
 	private SingletonUtil singletonUtil;

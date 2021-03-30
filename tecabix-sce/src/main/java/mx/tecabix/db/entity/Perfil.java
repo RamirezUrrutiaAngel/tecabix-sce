@@ -56,7 +56,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 	@NamedQuery(name = "Perfil.findByNombre",query = "SELECT p FROM Perfil p WHERE p.estatus.nombre = 'ACTIVO' AND p.idEmpresa = ?1 AND p.nombre = ?2 ")
 
 })
-public class Perfil implements Serializable{
+public final class Perfil implements Serializable{
 
 	private static final long serialVersionUID = 1945352087628007583L;
 	

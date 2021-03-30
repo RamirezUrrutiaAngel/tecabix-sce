@@ -42,7 +42,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
  */
 @Entity
 @Table(name = "direccion")
-public class Direccion implements Serializable {
+public final class Direccion implements Serializable {
 
 	private static final long serialVersionUID = 4798658742448338510L;
 	
@@ -166,5 +166,28 @@ public class Direccion implements Serializable {
 	}
 	public void setClave(UUID clave) {
 		this.clave = clave;
+	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((clave == null) ? 0 : clave.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Direccion other = (Direccion) obj;
+		if (clave == null) {
+			if (other.clave != null)
+				return false;
+		} else if (!clave.equals(other.clave))
+			return false;
+		return true;
 	}
 }

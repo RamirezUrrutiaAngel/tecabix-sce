@@ -54,7 +54,7 @@ import mx.tecabix.service.page.UsuarioPage;
  */
 @RestController
 @RequestMapping("usuario/v1")
-public class UsuarioControllerV01 extends Auth {
+public final class UsuarioControllerV01 extends Auth {
 	
 	@Autowired
 	private SingletonUtil singletonUtil;

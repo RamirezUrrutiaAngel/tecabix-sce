@@ -43,7 +43,7 @@ import mx.tecabix.service.page.EstadoPage;
 
 @RestController
 @RequestMapping("estado/v1")
-public class EstadoControllerV01 extends Auth{
+public final class EstadoControllerV01 extends Auth{
 	
 	@Autowired
 	private EstadoService estadoService;

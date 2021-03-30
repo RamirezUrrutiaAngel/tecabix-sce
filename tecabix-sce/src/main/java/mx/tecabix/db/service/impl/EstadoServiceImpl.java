@@ -39,7 +39,7 @@ import mx.tecabix.db.service.EstadoService;
  * 
  */
 @Service
-public class EstadoServiceImpl extends GenericSeviceImpl<Estado, Integer> implements EstadoService{
+public final class EstadoServiceImpl extends GenericSeviceImpl<Estado, Integer> implements EstadoService{
 
 	@Autowired
 	private EstadoRepository estadoRepository;

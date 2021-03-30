@@ -35,7 +35,7 @@ import mx.tecabix.db.service.SuscripcionService;
  * 
  */
 @Service
-public class SuscripcionServiceImpl extends GenericSeviceImpl<Suscripcion, Long> implements SuscripcionService{
+public final class SuscripcionServiceImpl extends GenericSeviceImpl<Suscripcion, Long> implements SuscripcionService{
 
 	@Autowired
 	private SuscripcionRepository suscripcionRepository;

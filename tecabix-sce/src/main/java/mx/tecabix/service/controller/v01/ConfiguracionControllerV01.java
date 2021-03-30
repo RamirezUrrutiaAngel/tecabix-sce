@@ -29,7 +29,7 @@ import mx.tecabix.service.Auth;
  */
 @RestController
 @RequestMapping("configuracion/v1")
-public class ConfiguracionControllerV01 extends Auth{
+public final class ConfiguracionControllerV01 extends Auth{
 	
 		
 	

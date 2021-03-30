@@ -35,7 +35,7 @@ import mx.tecabix.db.service.CorreoService;
  * 
  */
 @Service
-public class CorreoServiceImpl extends GenericSeviceImpl<Correo, Long> implements CorreoService{
+public final class CorreoServiceImpl extends GenericSeviceImpl<Correo, Long> implements CorreoService{
 
 	@Autowired
 	private CorreoRepository correoRepository; 

@@ -35,7 +35,7 @@ import mx.tecabix.db.service.EmpresaService;
  * 
  */
 @Service
-public class EmpresaServiceImpl extends GenericSeviceImpl<Empresa, Long>implements EmpresaService{
+public final class EmpresaServiceImpl extends GenericSeviceImpl<Empresa, Long>implements EmpresaService{
 
 	@Autowired
 	private EmpresaRepository empresaRespository;

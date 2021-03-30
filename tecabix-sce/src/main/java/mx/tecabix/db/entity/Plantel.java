@@ -55,7 +55,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 	@NamedQuery(name = "Plantel.findByLikeEstado",query = "SELECT p FROM Plantel p WHERE p.idEmpresa = ?1 AND UPPER(p.direccion.municipio.entidadFederativa.nombre) LIKE UPPER(?2) AND p.estatus.nombre = 'ACTIVO' "),
 	@NamedQuery(name = "Plantel.findByIdEmpresa",query = "SELECT p FROM Plantel p WHERE p.idEmpresa = ?1 AND p.estatus.nombre = 'ACTIVO' ")
 })
-public class Plantel implements Serializable{
+public final class Plantel implements Serializable{
 	
 	private static final long serialVersionUID = -1144141703432606826L;
 	
@@ -153,5 +153,28 @@ public class Plantel implements Serializable{
 	}
 	public void setTrabajadores(List<Trabajador> trabajadores) {
 		this.trabajadores = trabajadores;
+	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((clave == null) ? 0 : clave.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Plantel other = (Plantel) obj;
+		if (clave == null) {
+			if (other.clave != null)
+				return false;
+		} else if (!clave.equals(other.clave))
+			return false;
+		return true;
 	}
 }

@@ -39,7 +39,7 @@ import mx.tecabix.db.service.TrabajadorService;
  * 
  */
 @Service
-public class TrabajadorServiceimpl extends GenericSeviceImpl<Trabajador, Long> implements TrabajadorService {
+public final class TrabajadorServiceimpl extends GenericSeviceImpl<Trabajador, Long> implements TrabajadorService {
 
 	@Autowired
 	private TrabajadorRepository trabajadorRepository;

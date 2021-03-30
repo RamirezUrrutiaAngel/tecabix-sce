@@ -41,7 +41,7 @@ import mx.tecabix.db.service.SesionService;
  * 
  */
 @Service
-public class SesionServiceImpl extends GenericSeviceImpl<Sesion, Long> implements SesionService{
+public final class SesionServiceImpl extends GenericSeviceImpl<Sesion, Long> implements SesionService{
 
 	private static final Logger LOG = LoggerFactory.getLogger(SesionService.class);
 	

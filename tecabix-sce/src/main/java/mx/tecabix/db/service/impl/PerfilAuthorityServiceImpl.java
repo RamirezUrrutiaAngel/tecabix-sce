@@ -35,7 +35,7 @@ import mx.tecabix.db.service.PerfilAuthorityService;
  * 
  */
 @Service
-public class PerfilAuthorityServiceImpl extends GenericSeviceImpl<PerfilAuthority, Long> implements PerfilAuthorityService{
+public final class PerfilAuthorityServiceImpl extends GenericSeviceImpl<PerfilAuthority, Long> implements PerfilAuthorityService{
 
 	@Autowired
 	private PerfilAuthorityRepository perfilAuthorityRepository;

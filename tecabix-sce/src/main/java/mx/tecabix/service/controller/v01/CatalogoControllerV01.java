@@ -48,7 +48,7 @@ import mx.tecabix.service.SingletonUtil;
  */
 @RestController
 @RequestMapping("catalogo/v1")
-public class CatalogoControllerV01 extends Auth{
+public final class CatalogoControllerV01 extends Auth{
 	
 	private static final String CATALOGO = "CATALOGO";
 	

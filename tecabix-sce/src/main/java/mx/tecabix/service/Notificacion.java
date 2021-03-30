@@ -286,7 +286,7 @@ public class Notificacion extends Encrypt {
 		}
 	}
 
-	protected File getConfiguracionEmailFile() {
+	protected final File getConfiguracionEmailFile() {
 		File file = new File(this.configuracionEmailFile);
 		return file.getAbsoluteFile();
 	}

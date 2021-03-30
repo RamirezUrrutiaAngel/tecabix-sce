@@ -45,43 +45,43 @@ public class PageGeneric implements Serializable{
 		this.totalPages = page.getTotalPages();
 	}
 
-	public int getNumber() {
+	public final int getNumber() {
 		return number;
 	}
 
-	public void setNumber(int number) {
+	public final void setNumber(int number) {
 		this.number = number;
 	}
 
-	public int getNumberOfElements() {
+	public final int getNumberOfElements() {
 		return numberOfElements;
 	}
 
-	public void setNumberOfElements(int numberOfElements) {
+	public final void setNumberOfElements(int numberOfElements) {
 		this.numberOfElements = numberOfElements;
 	}
 
-	public int getSize() {
+	public final int getSize() {
 		return size;
 	}
 
-	public void setSize(int size) {
+	public final void setSize(int size) {
 		this.size = size;
 	}
 
-	public long getTotalElements() {
+	public final long getTotalElements() {
 		return totalElements;
 	}
 
-	public void setTotalElements(long totalElements) {
+	public final void setTotalElements(long totalElements) {
 		this.totalElements = totalElements;
 	}
 
-	public int getTotalPages() {
+	public final int getTotalPages() {
 		return totalPages;
 	}
 
-	public void setTotalPages(int totalPages) {
+	public final void setTotalPages(int totalPages) {
 		this.totalPages = totalPages;
 	}
 }

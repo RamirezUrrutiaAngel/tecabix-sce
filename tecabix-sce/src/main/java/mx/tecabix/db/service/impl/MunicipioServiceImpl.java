@@ -39,7 +39,7 @@ import mx.tecabix.db.service.MunicipioService;
  * 
  */
 @Service
-public class MunicipioServiceImpl extends GenericSeviceImpl<Municipio, Integer> implements MunicipioService{
+public final class MunicipioServiceImpl extends GenericSeviceImpl<Municipio, Integer> implements MunicipioService{
 
 	@Autowired
 	private MunicipioRepository municipioRepository;

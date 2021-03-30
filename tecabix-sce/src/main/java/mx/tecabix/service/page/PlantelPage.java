@@ -29,7 +29,7 @@ import mx.tecabix.service.PageGeneric;
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public class PlantelPage extends PageGeneric implements Serializable{
+public final class PlantelPage extends PageGeneric implements Serializable{
 
 	private static final long serialVersionUID = 7084611172471900332L;
 	

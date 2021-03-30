@@ -47,7 +47,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @NamedQueries({
     @NamedQuery(name = "Catalogo.findByTipoAndNombre",query = "SELECT c FROM Catalogo c WHERE c.catalogoTipo.nombre = ?1 AND c.nombre = ?2 ")
 })
-public class Catalogo implements Serializable{
+public final class Catalogo implements Serializable{
 
 	private static final long serialVersionUID = 8898558749708373148L;
 	

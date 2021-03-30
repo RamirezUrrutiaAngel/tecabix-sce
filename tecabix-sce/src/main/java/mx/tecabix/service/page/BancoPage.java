@@ -29,7 +29,7 @@ import mx.tecabix.service.PageGeneric;
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public class BancoPage extends PageGeneric implements Serializable{
+public final class BancoPage extends PageGeneric implements Serializable{
 
 	private static final long serialVersionUID = 259432992669590749L;
 	

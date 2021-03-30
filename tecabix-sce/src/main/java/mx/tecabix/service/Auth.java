@@ -47,7 +47,7 @@ public class Auth extends Notificacion{
 	private SesionService sesionService;
 	
 	
-	protected boolean hash(Authentication authentication, String... authorities) {
+	protected final boolean hash(Authentication authentication, String... authorities) {
 		Collection<? extends GrantedAuthority> collectionAuthorities = authentication.getAuthorities();
 		List<String> authoritiesList = Arrays.asList(authorities);
 		for (GrantedAuthority grantedAuthority : collectionAuthorities) {
@@ -58,7 +58,7 @@ public class Auth extends Notificacion{
 		return false;
 	}
 	
-	protected boolean isAuthorized(UUID token, String... authorities) {
+	protected final boolean isAuthorized(UUID token, String... authorities) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if(authorities != null && authorities.length > 0) {
 			if(!hash(auth, authorities)) {
@@ -82,11 +82,11 @@ public class Auth extends Notificacion{
 		return true;
 	}
 	
-	protected boolean isNotAuthorized(UUID token, String... authorities) {
+	protected final boolean isNotAuthorized(UUID token, String... authorities) {
 		return !isAuthorized(token, authorities);
 	}
 	
-	protected Sesion getSessionIfIsAuthorized(UUID token, String... authorities) {
+	protected final Sesion getSessionIfIsAuthorized(UUID token, String... authorities) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if(authorities != null && authorities.length > 0) {
 			if(!hash(auth, authorities)) {
@@ -149,7 +149,7 @@ public class Auth extends Notificacion{
 	protected boolean isNotValid(byte tipo,double size, Object arg) {
 		return !isValid(tipo,size, arg);
 	}
-	protected boolean isValid(byte tipo,double size, Object arg) {
+	protected final boolean isValid(byte tipo,double size, Object arg) {
 		if(arg == null) {
 			return false;
 		}

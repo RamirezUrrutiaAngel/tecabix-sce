@@ -48,7 +48,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
  */
 @Entity()
 @Table(name = "plan")
-public class Plan  implements Serializable{
+public final class Plan  implements Serializable{
 
 	private static final long serialVersionUID = 696128728517240384L;
 	
@@ -147,5 +147,28 @@ public class Plan  implements Serializable{
 	}
 	public void setConfiguraciones(List<Configuracion> configuraciones) {
 		this.configuraciones = configuraciones;
+	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((clave == null) ? 0 : clave.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Plan other = (Plan) obj;
+		if (clave == null) {
+			if (other.clave != null)
+				return false;
+		} else if (!clave.equals(other.clave))
+			return false;
+		return true;
 	}
 }

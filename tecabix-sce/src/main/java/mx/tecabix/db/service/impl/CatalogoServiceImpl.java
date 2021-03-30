@@ -35,7 +35,7 @@ import mx.tecabix.db.service.CatalogoService;
  * 
  */
 @Service
-public class CatalogoServiceImpl extends GenericSeviceImpl<Catalogo, Integer> implements CatalogoService {
+public final class CatalogoServiceImpl extends GenericSeviceImpl<Catalogo, Integer> implements CatalogoService {
 
 	@Autowired
 	private CatalogoRepository cataRepository;

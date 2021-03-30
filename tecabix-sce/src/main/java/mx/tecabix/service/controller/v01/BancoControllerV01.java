@@ -50,7 +50,7 @@ import mx.tecabix.service.page.BancoPage;
  */
 @RestController
 @RequestMapping("banco/v1")
-public class BancoControllerV01 extends Auth{
+public final class BancoControllerV01 extends Auth{
 	
 	private String BANCO ="BANCO";
 	private String ROOT_BANCO = "ROOT_BANCO";

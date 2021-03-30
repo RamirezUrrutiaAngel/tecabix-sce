@@ -32,7 +32,7 @@ import mx.tecabix.db.service.ContactoService;
  * 
  */
 @Service
-public class ContactoServiceImpl extends GenericSeviceImpl<Contacto, Long> implements ContactoService{
+public final class ContactoServiceImpl extends GenericSeviceImpl<Contacto, Long> implements ContactoService{
 
 	@Autowired
 	private ContactoRepository contactoRepository;

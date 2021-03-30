@@ -58,7 +58,7 @@ import mx.tecabix.service.Auth;
  */
 @RestController
 @RequestMapping("log/v1")
-public class LogControllerV01 extends Auth{
+public final class LogControllerV01 extends Auth{
 	
 	@Autowired
 	private EmpresaService empresaService;

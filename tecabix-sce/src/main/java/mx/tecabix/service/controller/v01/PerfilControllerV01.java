@@ -53,7 +53,7 @@ import mx.tecabix.service.page.PerfilPage;
  */
 @RestController
 @RequestMapping("perfil/v1")
-public class PerfilControllerV01 extends Auth{
+public final class PerfilControllerV01 extends Auth{
 
 	@Autowired
 	private SingletonUtil singletonUtil;

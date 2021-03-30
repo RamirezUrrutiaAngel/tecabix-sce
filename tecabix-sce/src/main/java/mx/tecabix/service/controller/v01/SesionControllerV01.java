@@ -60,7 +60,7 @@ import mx.tecabix.service.page.SesionPage;
  */
 @RestController
 @RequestMapping("sesion/v1")
-public class SesionControllerV01 extends Auth {
+public final class SesionControllerV01 extends Auth {
 	private static final Logger LOG = LoggerFactory.getLogger(SesionControllerV01.class);
 
 	@Autowired

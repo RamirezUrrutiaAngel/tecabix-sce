@@ -55,7 +55,7 @@ import mx.tecabix.service.page.PlantelPage;
  */
 @RestController
 @RequestMapping("plantel/v1")
-public class PlantelControllerV01 extends Auth{
+public final class PlantelControllerV01 extends Auth{
 
 	@Autowired
 	private SingletonUtil singletonUtil;

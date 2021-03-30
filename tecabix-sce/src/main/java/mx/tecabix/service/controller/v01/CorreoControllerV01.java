@@ -28,6 +28,6 @@ import mx.tecabix.service.Auth;
  */
 @RestController
 @RequestMapping("correo/v1")
-public class CorreoControllerV01 extends Auth{
+public final class CorreoControllerV01 extends Auth{
 
 }

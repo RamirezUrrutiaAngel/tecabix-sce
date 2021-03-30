@@ -62,7 +62,7 @@ import mx.tecabix.service.page.TrabajadorPage;
  */
 @RestController
 @RequestMapping("trabajador/v1")
-public class TrabajadorControllerV01 extends Auth{
+public final class TrabajadorControllerV01 extends Auth{
 
 	@Autowired
 	private SingletonUtil singletonUtil;

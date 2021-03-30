@@ -35,7 +35,7 @@ import mx.tecabix.db.service.ConfiguracionService;
  * 
  */
 @Service
-public class ConfiguracionServiceImpl extends GenericSeviceImpl<Configuracion, Long> implements ConfiguracionService{
+public final class ConfiguracionServiceImpl extends GenericSeviceImpl<Configuracion, Long> implements ConfiguracionService{
 
 	@Autowired
 	private ConfiguracionRepository configuracionRepository;

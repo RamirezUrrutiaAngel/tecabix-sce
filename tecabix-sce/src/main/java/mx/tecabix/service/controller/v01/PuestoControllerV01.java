@@ -53,7 +53,7 @@ import mx.tecabix.service.page.PuestoPage;
  */
 @RestController
 @RequestMapping("puesto/v1")
-public class PuestoControllerV01 extends Auth{
+public final class PuestoControllerV01 extends Auth{
 
 	@Autowired
 	private SingletonUtil singletonUtil;

@@ -48,7 +48,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 	@NamedQuery(name = "Municipio.findByEstadoClave",query = "SELECT m FROM Municipio m WHERE m.entidadFederativa.clave = ?1 AND m.entidadFederativa.estatus.nombre = 'ACTIVO' AND m.estatus.nombre = 'ACTIVO' "),
 	@NamedQuery(name = "Municipio.findByActivo",query = "SELECT m FROM Municipio m WHERE m.estatus.nombre = 'ACTIVO' ")
 })
-public class Municipio implements Serializable {
+public final class Municipio implements Serializable {
 
 	private static final long serialVersionUID = -9218053756023446113L;
 	@Id

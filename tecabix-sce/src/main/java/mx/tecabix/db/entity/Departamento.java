@@ -54,7 +54,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @NamedNativeQueries({
 	@NamedNativeQuery(name = "Departamento.canInsert", query = "SELECT tecabix_sce.departamento_can_insert(?1)")
 })
-public class Departamento implements Serializable{
+public final class Departamento implements Serializable{
 	
 	private static final long serialVersionUID = 7103884461465274188L;
 	

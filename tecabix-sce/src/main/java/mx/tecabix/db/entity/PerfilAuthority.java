@@ -44,7 +44,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 	@NamedQuery(name = "PerfilAuthority.findByPerfil",query = "SELECT p FROM PerfilAuthority p WHERE p.perfil.id = ?1 "),
 	@NamedQuery(name = "PerfilAuthority.findByAuthority",query = "SELECT p FROM PerfilAuthority p WHERE p.authority.id = ?1 ")
 })
-public class PerfilAuthority implements Serializable{
+public final class PerfilAuthority implements Serializable{
 
 	private static final long serialVersionUID = -4911315157724285906L;
 	@Id
