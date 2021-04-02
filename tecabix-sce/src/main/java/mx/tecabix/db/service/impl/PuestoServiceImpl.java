@@ -73,5 +73,9 @@ public final class PuestoServiceImpl extends GenericSeviceImpl<Puesto, Long> imp
 		Pageable pageable = PageRequest.of(page, elements, sort);
 		return puestoRepository.findByLikeDepartamento(departamento, pageable);
 	}
+	@Override
+	public Boolean canInsert(Long idEmpresa) {
+		return puestoRepository.canInsert(idEmpresa);
+	}
 
 }

@@ -28,6 +28,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedNativeQueries;
+import javax.persistence.NamedNativeQuery;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
@@ -49,6 +51,9 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 	@NamedQuery(name = "Puesto.findByLikeDescripcion",query = "SELECT p FROM Puesto p WHERE UPPER(p.descripcion) LIKE UPPER(?1) AND p.estatus.nombre = 'ACTIVO' "),
 	@NamedQuery(name = "Puesto.findByLikeDepartamento",query = "SELECT p FROM Puesto p WHERE UPPER(p.departamento.nombre) LIKE UPPER(?1) AND p.estatus.nombre = 'ACTIVO' "),
 	@NamedQuery(name = "Puesto.findByIdEmpresa",query = "SELECT p FROM Puesto p WHERE p.estatus.nombre = 'ACTIVO' AND p.departamento.idEmpresa = ?1 ")
+})
+@NamedNativeQueries({
+	@NamedNativeQuery(name = "Puesto.canInsert", query = "SELECT tecabix_sce.puesto_can_insert(?1)")
 })
 public final class Puesto implements Serializable{
 

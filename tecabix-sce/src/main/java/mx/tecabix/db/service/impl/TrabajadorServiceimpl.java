@@ -99,4 +99,9 @@ public final class TrabajadorServiceimpl extends GenericSeviceImpl<Trabajador, L
 		Pageable pageable = PageRequest.of(page, elements, sort );
 		return trabajadorRepository.findByLikePlantel(idEmpresa, plantel, pageable);
 	}
+	
+	@Override
+	public Boolean canInsert(Long idEmpresa) {
+		return trabajadorRepository.canInsert(idEmpresa);
+	}
 }

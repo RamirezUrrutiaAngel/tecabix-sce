@@ -32,6 +32,7 @@ import mx.tecabix.db.entity.Puesto;
  */
 public interface PuestoRepository extends JpaRepository<Puesto, Long>{
 
+	Boolean canInsert(Long idEmpresa);
 	Page<Puesto> findByLikeNombre(String nombre, Pageable pageable);
 	Page<Puesto> findByLikeDescripcion(String descripcion, Pageable pageable);
 	Page<Puesto> findByLikeDepartamento(String departamento, Pageable pageable);

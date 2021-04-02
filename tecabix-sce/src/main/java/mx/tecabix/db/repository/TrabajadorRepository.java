@@ -32,6 +32,7 @@ import mx.tecabix.db.entity.Trabajador;
  */
 public interface TrabajadorRepository extends JpaRepository<Trabajador, Long>{
 
+	Boolean canInsert(Long idEmpresa);
 	Page<Trabajador> findByLikePuesto(Long idEmpresa, String puesto, Pageable pageable);
 	Page<Trabajador> findByLikePlantel(Long idEmpresa, String plantel, Pageable pageable);
 	Page<Trabajador> findByLikeCURP(Long idEmpresa, String CURP, Pageable pageable);

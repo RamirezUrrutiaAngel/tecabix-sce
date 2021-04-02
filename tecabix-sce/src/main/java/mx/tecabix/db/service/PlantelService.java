@@ -32,6 +32,7 @@ import mx.tecabix.db.entity.Plantel;
  */
 public interface PlantelService extends GenericSevice<Plantel, Long>{
 	
+	Boolean canInsert(Long idEmpresa);
 	Page<Plantel> findByLikeMunicipio(Long idEmpresa, String municipio, int elements, int page, Sort sort);
 	Page<Plantel> findByLikeEstado(Long idEmpresa, String estado, int elements, int page, Sort sort);
 	Page<Plantel> findByIdEmpresa(Long idEmpresa, int elements, int page, Sort sort);

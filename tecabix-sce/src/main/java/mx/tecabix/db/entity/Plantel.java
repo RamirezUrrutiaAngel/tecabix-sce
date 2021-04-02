@@ -31,6 +31,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedNativeQueries;
+import javax.persistence.NamedNativeQuery;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -54,6 +56,9 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 	@NamedQuery(name = "Plantel.findByLikeMunicipio",query = "SELECT p FROM Plantel p WHERE p.idEmpresa = ?1 AND UPPER(p.direccion.municipio.nombre) LIKE UPPER(?2) AND p.estatus.nombre = 'ACTIVO' "),
 	@NamedQuery(name = "Plantel.findByLikeEstado",query = "SELECT p FROM Plantel p WHERE p.idEmpresa = ?1 AND UPPER(p.direccion.municipio.entidadFederativa.nombre) LIKE UPPER(?2) AND p.estatus.nombre = 'ACTIVO' "),
 	@NamedQuery(name = "Plantel.findByIdEmpresa",query = "SELECT p FROM Plantel p WHERE p.idEmpresa = ?1 AND p.estatus.nombre = 'ACTIVO' ")
+})
+@NamedNativeQueries({
+	@NamedNativeQuery(name = "Plantel.canInsert", query = "SELECT tecabix_sce.plantel_can_insert(?1)")
 })
 public final class Plantel implements Serializable{
 	

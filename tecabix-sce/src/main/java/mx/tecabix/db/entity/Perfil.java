@@ -32,6 +32,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedNativeQueries;
+import javax.persistence.NamedNativeQuery;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
@@ -55,6 +57,9 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 	@NamedQuery(name = "Perfil.findByLikeDescripcion",query = "SELECT p FROM Perfil p WHERE p.estatus.nombre = 'ACTIVO' AND p.idEmpresa = ?1 AND UPPER(p.descripcion) LIKE UPPER(?2) "),
 	@NamedQuery(name = "Perfil.findByNombre",query = "SELECT p FROM Perfil p WHERE p.estatus.nombre = 'ACTIVO' AND p.idEmpresa = ?1 AND p.nombre = ?2 ")
 
+})
+@NamedNativeQueries({
+	@NamedNativeQuery(name = "Perfil.canInsert", query = "SELECT tecabix_sce.perfil_can_insert(?1)")
 })
 public final class Perfil implements Serializable{
 

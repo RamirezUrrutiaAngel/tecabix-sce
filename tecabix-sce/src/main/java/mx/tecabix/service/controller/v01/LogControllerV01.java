@@ -24,16 +24,17 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
-
+import org.springframework.scheduling.annotation.Scheduled;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +52,8 @@ import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.service.CorreoService;
 import mx.tecabix.db.service.EmpresaService;
 import mx.tecabix.service.Auth;
+
+
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -59,6 +62,7 @@ import mx.tecabix.service.Auth;
 @RestController
 @RequestMapping("log/v1")
 public final class LogControllerV01 extends Auth{
+	private static final Logger LOG = LoggerFactory.getLogger(LogControllerV01.class);
 	
 	@Autowired
 	private EmpresaService empresaService;
@@ -73,7 +77,7 @@ public final class LogControllerV01 extends Auth{
 	private List<String> CC			= null;
 	private String FILE_MESSAGE		= null;
 	private String LOG_DIR			= null;
-	
+	private boolean enviar			= false;
 	
 	@PostConstruct
 	private void postConstruct() {
@@ -99,14 +103,10 @@ public final class LogControllerV01 extends Auth{
 						this.FILE_MESSAGE	= properties.getProperty(FILE_MESSAGE);
 						this.LOG_DIR		= properties.getProperty(LOG_DIR);
 						String aux 			= properties.getProperty(CC);
-						if(aux != null && !aux.trim().isEmpty()) {
-							String[] array = aux.split(" ");
-							this.CC = new ArrayList<String>();
-							for (String correo : array) {
-								if(!correo.isEmpty()) {
-									this.CC.add(correo);
-								}
-							}
+						if (aux != null && !aux.trim().isEmpty()) {
+							this.CC = Arrays.asList(aux.split(" "))
+									.stream().filter(x -> !x.isBlank())
+									.collect(Collectors.toList());
 						}
 						fileReader.close();
 					} catch (Exception e) {
@@ -126,19 +126,7 @@ public final class LogControllerV01 extends Auth{
 							isNull = isNull || this.TO.isEmpty();
 							isNull = isNull || this.FILE_MESSAGE.isEmpty();
 							isNull = isNull || this.LOG_DIR.isEmpty();
-							if(!isNull) {
-								TimerTask timerTask = new TimerTask() {
-									@Override
-									public void run() {
-										enviarLogs();
-									}
-								};
-								int minutos = 60000;
-								int hora = minutos * 60;
-								Timer timer = new Timer();
-								timer.schedule(timerTask, 0 * minutos, 3 * hora);
-								
-							}
+							enviar = !isNull;
 						}
 					}
 				}
@@ -166,14 +154,9 @@ public final class LogControllerV01 extends Auth{
 		.append("EMPRESARIAL:    ").append(empresaOptional.get().getNombre()).append("\n")
 		.append("EMPRESARIAL ID: ").append(sesion.getLicencia().getPlantel().getIdEmpresa()).append("\n");
 		if(contactos != null) {
-			for (Contacto contacto : contactos) {
-				if(contacto == null || contacto.getTipo() == null || contacto.getValor() == null) {
-					continue;
-				}
-				mensaje.append(contacto.getTipo().getNombre())
-				.append(": ").append(contacto.getValor())
-				.append("\n");
-			}
+			contactos.stream().filter(x->x.getTipo() != null && x.getValor()!=null && x.getValor() != null).forEach(x->{
+				mensaje.append(x.getTipo().getNombre()).append(":").append(x.getValor()).append("\n");
+			});
 		}
 		
 		mensaje.append("\n")
@@ -191,7 +174,6 @@ public final class LogControllerV01 extends Auth{
 		
 		try {
 			File file = new File(LOG_DIR,sesion.getLicencia().getPlantel().getIdEmpresa().toString());
-			
 			FileWriter fw = new FileWriter(file, true);
 			fw.write(cuerpo);
 			fw.close();
@@ -202,53 +184,58 @@ public final class LogControllerV01 extends Auth{
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
+	@Scheduled(cron = "00 */3 * * *")
 	public void enviarLogs() {
-		File[] logs = new File(LOG_DIR).listFiles();
-		if(logs == null || logs.length == 0) {
-			return;
-		}
-		for (int i = 0; i < logs.length; i++) {
-			File file = logs[i];
-			if(file.getName().startsWith(".")) {
-				file.delete();
+		StringBuilder log = new StringBuilder();
+		log.append(((enviar)?"El envio de logs esta activo.\n":"El envio de logs esta desactivo.\n"));
+		if(enviar) {
+			List<File> logs = Arrays.asList(new File(LOG_DIR).listFiles());
+			if(logs == null || logs.isEmpty()) {
+				log.append("No se encontro log que enviar.\n");
+				return;
 			}
-		}
-		logs = new File(LOG_DIR).listFiles();
-		if(logs == null || logs.length == 0) {
-			return;
-		}
-		String cuerpo = new String();
-	    
-	    try {
-	    	File fileMsg = new File(FILE_MESSAGE);
-	    	if(fileMsg.exists() && fileMsg.canRead()) {
-	    		FileReader fr = new FileReader(fileMsg);
-	    		BufferedReader br = new BufferedReader(fr);
-	    		StringBuilder sb = new StringBuilder();
-	    		String linea;
-	    		while((linea = br.readLine())!=null) {
-	    			sb.append(linea);
-	    		}
-	    		br.close();
-	    		fr.close();
-	    		sb.append("\n\n");
-	    		cuerpo = sb.toString();
-	    	}
-    		for (int i = 0; i < logs.length; i++) {
-				File aux = new File(logs[i].getParent(),logs[i].getName()+".log");
-				logs[i].renameTo(aux);
-				logs[i].deleteOnExit();
-				logs[i] = aux;			
+			logs.stream().filter(file->file.getName().startsWith(".")).forEach(file->file.delete());
+			logs = Arrays.asList(new File(LOG_DIR).listFiles());
+			if(logs == null || logs.isEmpty()) {
+				log.append("No se encontro log que enviar.\n");
+				return;
 			}
-    		sendMailAttached(correo, cuerpo, TO, SUBJECT,CC,logs);
-	        for (int i = 0; i < logs.length; i++) {
-				logs[i].delete();
-			}
-	    }catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} 
+			log.append("Se encontraron ").append(logs.size()).append(" archivos\n");
+			String cuerpo = new String();
+		    
+		    try {
+		    	File fileMsg = new File(FILE_MESSAGE);
+		    	if(fileMsg.exists() && fileMsg.canRead()) {
+		    		FileReader fr = new FileReader(fileMsg);
+		    		BufferedReader br = new BufferedReader(fr);
+		    		StringBuilder sb = new StringBuilder();
+		    		String linea;
+		    		while((linea = br.readLine())!=null) {
+		    			sb.append(linea);
+		    		}
+		    		br.close();
+		    		fr.close();
+		    		sb.append("\n\n");
+		    		cuerpo = sb.toString();
+		    	}
+		    	logs = logs.stream().map(file ->{
+		    		File aux = new File(file.getParent(),file.getName().concat(".log"));
+		    		file.renameTo(aux);
+		    		file.deleteOnExit();
+		    		return aux;
+		    	}).collect(Collectors.toList());
+	    		sendMailAttached(correo, cuerpo, TO, SUBJECT,CC,logs);
+	    		logs.stream().forEach(x->x.delete());
+		        log.append("Se enviaron y borraron los logs\n");
+		    }catch (FileNotFoundException e) {
+				e.printStackTrace();
+				log.append("Se produjo un FileNotFoundException\n");
+			} catch (IOException e) {
+				log.append("Se produjo un IOException\n");
+				e.printStackTrace();
+			} 
+		    LOG.info(log.toString());
+		}
 	}
 }
 

@@ -153,7 +153,7 @@ public class Auth extends Notificacion{
 		if(arg == null) {
 			return false;
 		}
-		if(arg.getClass().equals(String.class) || arg.getClass().equals(StringBuilder.class)) {
+		if(arg instanceof String || arg instanceof StringBuilder) {
 			String text = arg.toString();
 			if(text.isBlank()|| text.length() > size) {
 				return false;
@@ -177,8 +177,7 @@ public class Auth extends Notificacion{
 			}else if(tipo == TIPO_VARIABLE){
 				return Pattern.matches(VARIABLE, text);
 			}
-		} else if (arg.getClass().equals(Integer.class) || arg.getClass().equals(Long.class)
-				|| arg.getClass().equals(Float.class) || arg.getClass().equals(Double.class)) {
+		} else if (arg instanceof Integer || arg instanceof Float || arg instanceof Long || arg instanceof Double) {
 			Double num = Double.parseDouble(arg.toString());
 			if (tipo == TIPO_NUMERIC_NATURAL) {
 				return num >= 0 && num <= size;

@@ -32,6 +32,7 @@ import mx.tecabix.db.entity.Perfil;
  */
 public interface PerfilRepository extends JpaRepository<Perfil, Long>{
 	
+	Boolean canInsert(Long idEmpresa);
 	Perfil findByKey(Long id);
 	Page<Perfil> findAll(Long idEmpresa, Pageable pageable);
 	Page<Perfil> findByLikeNombre(Long idEmpresa, String nombre, Pageable pageable);

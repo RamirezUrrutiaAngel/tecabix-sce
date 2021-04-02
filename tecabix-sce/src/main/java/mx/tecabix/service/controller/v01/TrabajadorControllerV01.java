@@ -21,6 +21,8 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -63,6 +65,8 @@ import mx.tecabix.service.page.TrabajadorPage;
 @RestController
 @RequestMapping("trabajador/v1")
 public final class TrabajadorControllerV01 extends Auth{
+	private static final Logger LOG = LoggerFactory.getLogger(TrabajadorControllerV01.class);
+	private static final String LOG_URL = "/trabajador/v1";
 
 	@Autowired
 	private SingletonUtil singletonUtil;
@@ -162,84 +166,109 @@ public final class TrabajadorControllerV01 extends Auth{
 		if(sesion == null) {
 			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED); 
 		}
-		if(trabajador == null) {
-			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		final long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		final String headerLog = formatLogPost(idEmpresa, LOG_URL);
+		final boolean canInsert = trabajadorService.canInsert(idEmpresa);
+		if(!canInsert) {
+			LOG.info("{}Se a superado el numero máximo de trabajadores.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.LOCKED);
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC, Trabajador.SIZE_CURP, trabajador.getCURP())) {
+			LOG.info("{}El formato de la curp es incorrecto.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(trabajador.getJefe())) {
+			LOG.info("{}No se mando el jefe.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(trabajador.getJefe().getClave())) {
+			LOG.info("{}No se mando la clave del jefe.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
 		if(isValid(trabajador.getPlantel())) {
 			if(isNotValid(trabajador.getPlantel().getClave())) {
+				LOG.info("{}No se mando la clave del plantel.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 			}
 		}
 		if(isNotValid(trabajador.getPuesto())) {
+			LOG.info("{}No se mando el puesto.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(trabajador.getPuesto().getClave())) {
+			LOG.info("{}No se mando la clave del puesto.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
 		PersonaFisica persona = trabajador.getPersonaFisica();
 		if(isNotValid(persona) ) {
+			LOG.info("{}No se mando la persona fisica.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, PersonaFisica.SIZE_NOMBRE, persona.getNombre())) {
+			LOG.info("{}El formato del nombre es incorrecto.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}else {
 			persona.setNombre(persona.getNombre().strip());
 		}
 		if(isNotValid(persona.getSexo())) {
+			LOG.info("{}No se mando el sexo.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(persona.getSexo().getNombre())) {
+			LOG.info("{}No se mando el nombre del sexo.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(persona.getFechaNacimiento())) {
+			LOG.info("{}No se mando la fecha de nacimiento.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(TIPO_ALFA, PersonaFisica.SIZE_APELLIDO_MATERNO, persona.getApellidoMaterno())) {
+			LOG.info("{}El formato del apellido materno es incorrecto.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(TIPO_ALFA, PersonaFisica.SIZE_APELLIDO_PATERNO, persona.getApellidoPaterno())) {
+			LOG.info("{}El formato del apellido paterno es incorrecto.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
 		Direccion direccion = persona.getDireccion();
 		if(isNotValid(direccion)) {
+			LOG.info("{}No se mando la direccion.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC, Direccion.SIZE_CALLE, direccion.getCalle())) {
+			LOG.info("{}El formato de la calle es incorrecto.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(TIPO_NUMERIC, Direccion.SIZE_CODIGO_POSTAL, direccion.getCodigoPostal())) {
+			LOG.info("{}El formato del codigo postal es incorrecto.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Direccion.SIZE_ASENTAMIENTO, direccion.getAsentamiento())) {
+			LOG.info("{}El formato del asentamiento es incorrecto.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}else {
 			direccion.setAsentamiento(direccion.getAsentamiento().strip());
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Direccion.SIZE_NUM_EXT, direccion.getNumExt())) {
+			LOG.info("{}El formato del numero exterior es incorrecto.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}else {
 			direccion.setNumExt(direccion.getNumExt().strip());
 		}
 		if(isValid(direccion.getNumInt())) {
 			if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Direccion.SIZE_NUM_INT, direccion.getNumInt())) {
+				LOG.info("{}El formato del numero interior es incorrecto.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 			}else {
 				direccion.setNumInt(direccion.getNumInt().strip());
 			}
 		}
 		if(isNotValid(direccion.getMunicipio())) {
+			LOG.info("{}No se mando el municipio.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(direccion.getMunicipio().getClave())) {
+			LOG.info("{}No se mando la clave del municipio.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
 		
@@ -247,10 +276,12 @@ public final class TrabajadorControllerV01 extends Auth{
 		Optional<Catalogo> optionalCatalogoTipoPersona = catalogoService.findByTipoAndNombre(TIPO_DE_PERSONA, FISICA);
 		
 		if(optionalCatalogoSexo.isEmpty()) {
+			LOG.info("{}No se encontro el sexo.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
 		
 		if(optionalCatalogoTipoPersona.isEmpty()) {
+			LOG.info("{}No se encontro el tipo de persona.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		final Catalogo CAT_SEXO = optionalCatalogoSexo.get();
@@ -259,16 +290,19 @@ public final class TrabajadorControllerV01 extends Auth{
 		
 		Optional<Municipio> municipioOptional = municipioService.findByClave(direccion.getMunicipio().getClave());
 		if(municipioOptional.isEmpty()) {
+			LOG.info("{}No se encontro el municipio.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Municipio municipio = municipioOptional.get();
 		
 		Optional<Trabajador> opcionalTrabajador =  trabajadorService.findByClave(trabajador.getJefe().getClave());
 		if(opcionalTrabajador.isEmpty()) {
+			LOG.info("{}No se encontro el trabajador (jefe).",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Trabajador jefe = opcionalTrabajador.get();
-		if(jefe.getPlantel().getIdEmpresa().equals(sesion.getLicencia().getPlantel().getIdEmpresa())) {
+		if(jefe.getPlantel().getIdEmpresa().equals(idEmpresa)) {
+			LOG.info("{}El trabajador (jefe) no pertenece a la empresa.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Plantel plantel = trabajador.getPlantel();

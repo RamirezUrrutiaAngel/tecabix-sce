@@ -32,6 +32,7 @@ import mx.tecabix.db.entity.Plantel;
  */
 public interface PlantelRepository extends JpaRepository<Plantel, Long>{
 
+	Boolean canInsert(Long idEmpresa);
 	Page<Plantel> findByLikeMunicipio(Long idEmpresa, String municipio, Pageable pageable);
 	Page<Plantel> findByLikeEstado(Long idEmpresa, String estado, Pageable pageable);
 	Page<Plantel> findByIdEmpresa(Long idEmpresa, Pageable pageable);

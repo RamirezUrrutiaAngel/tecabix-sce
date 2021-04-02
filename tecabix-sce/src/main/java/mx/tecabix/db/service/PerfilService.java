@@ -32,6 +32,7 @@ import mx.tecabix.db.entity.Perfil;
  */
 public interface PerfilService extends GenericSevice<Perfil, Long>{
 
+	Boolean canInsert(Long idEmpresa);
 	Page<Perfil> findByNombre(Long idEmpresa, String nombre, int elements, int page);
 	Page<Perfil> findAll(Long idEmpresa, int elements, int page, Sort sort);
 	Page<Perfil> findByLikeNombre(Long idEmpresa, String nombre, int elements, int page, Sort sort);

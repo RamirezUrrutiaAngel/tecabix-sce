@@ -83,5 +83,10 @@ public final class PlantelServiceImpl extends GenericSeviceImpl<Plantel, Long> i
 		Pageable pageable = PageRequest.of(page, elements, sort );
 		return plantelRepository.findByLikeEstado(idEmpresa, estado, pageable);
 	}
+	
+	@Override
+	public Boolean canInsert(Long idEmpresa) {
+		return plantelRepository.canInsert(idEmpresa);
+	}
 
 }

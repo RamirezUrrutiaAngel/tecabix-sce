@@ -20,6 +20,7 @@ package mx.tecabix.service;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
@@ -47,9 +48,35 @@ import mx.tecabix.db.service.CorreoService;
  * 
  */
 public class Notificacion extends Encrypt {
-
+	
 	@Value("${configuracion.email}")
 	private String configuracionEmailFile;
+	
+	private static final String LOGMS = "\nEMPRESA: :EMPRESA \n:PET : :PATH \n";
+	
+	private static final String GET = "GET";
+	private static final String PUT = "PUT";
+	private static final String POST = "POST";
+	private static final String DELETE = "DELETE";
+	
+	private String formatHeaderOfLogger(long idEmpresa, String peticion, String path) {
+		return LOGMS.replaceFirst(":EMPRESA", String.valueOf(idEmpresa)).replaceFirst(":PET", peticion)
+				.replaceFirst(":PATH", path);
+	}
+	protected String formatLogGet(long idEmpresa, String path){
+		return formatHeaderOfLogger(idEmpresa, GET, path);
+	}
+	protected String formatLogPost(long idEmpresa, String path){
+		return formatHeaderOfLogger(idEmpresa, POST, path);
+	}
+	protected String formatLogPut(long idEmpresa, String path){
+		return formatHeaderOfLogger(idEmpresa, PUT, path);
+	}
+	protected String formatLogDelete(long idEmpresa, String path){
+		return formatHeaderOfLogger(idEmpresa, DELETE, path);
+	}
+
+	
 	
 
 	@Autowired
@@ -212,14 +239,14 @@ public class Notificacion extends Encrypt {
 	
 	protected void sendMailAttached(Correo correo, String msj, String to, String subject, File... adjunto) {
 		String[] auxCC = null;
-		sendMailAttached(correo, msj, to, subject, auxCC, adjunto);
+		sendMailAttached(correo, msj, to, subject, auxCC, Arrays.asList(adjunto));
 	}
 	
 	protected void sendMailAttached(Correo correo, String msj, String to, String subject, String cc , File adjunto) {
 		sendMailAttached(correo, msj, to, subject, cc, adjunto);
 	}
 	
-	protected void sendMailAttached(Correo correo, String msj, String to, String subject, List<String> cc , File[] adjunto) {
+	protected void sendMailAttached(Correo correo, String msj, String to, String subject, List<String> cc , List<File> adjunto) {
 		String[] auxCC = null;
 		int size = 0;
 		if(cc != null) {
@@ -235,7 +262,7 @@ public class Notificacion extends Encrypt {
 		sendMailAttached(correo, msj, to, subject, auxCC, adjunto);
 	}
 	
-	protected void sendMailAttached(Correo correo, String msj, String to, String subject, String[] cc , File[] adjunto) {
+	protected void sendMailAttached(Correo correo, String msj, String to, String subject, String[] cc , List<File> adjunto) {
 		try {
 			Properties props = System.getProperties();
 		    props.put(MAIL_SMTP_HOST, correo.getSmtpServidor());
@@ -252,8 +279,8 @@ public class Notificacion extends Encrypt {
 	        multiParte.addBodyPart(texto);
 	        
 	        if(adjunto != null) {
-	        	for (int i = 0; i < adjunto.length; i++) {
-					File file = adjunto[i];
+	        	for (int i = 0; i < adjunto.size(); i++) {
+					File file = adjunto.get(i);
 					if(file != null) {
 						if(file.isFile() && file.canRead()) {
 							BodyPart BodyPartAdjunto = new MimeBodyPart();

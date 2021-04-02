@@ -21,6 +21,8 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -57,6 +59,9 @@ import mx.tecabix.service.page.PlantelPage;
 @RequestMapping("plantel/v1")
 public final class PlantelControllerV01 extends Auth{
 
+	private static final Logger LOG = LoggerFactory.getLogger(PlantelControllerV01.class);
+	private static final String LOG_URL = "/plantel/v1";
+	
 	@Autowired
 	private SingletonUtil singletonUtil;
 	@Autowired
@@ -160,67 +165,84 @@ public final class PlantelControllerV01 extends Auth{
 		if(sesion == null){
 			return new ResponseEntity<Plantel>(HttpStatus.UNAUTHORIZED);
 		}
-		Long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		final Long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		final String headerLog = formatLogPost(idEmpresa, LOG_URL);
+		final boolean canInsert = plantelService.canInsert(idEmpresa);
+		if(!canInsert) {
+			LOG.info("{}Se a superado el numero máximo de planteles.",headerLog);
+			return new ResponseEntity<Plantel>(HttpStatus.LOCKED);
+		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Plantel.SIZE_NOMBRE, plantel.getNombre())) {
+			LOG.info("{}El formato del nombre es incorrecto.",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}else {
 			plantel.setNombre(plantel.getNombre().strip());
 		}
 		if(isNotValid(plantel.getGerente())) {
+			LOG.info("{}No se proporciono el gerente",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(plantel.getGerente().getClave())) {
-			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
-		}
-		if(isNotValid(plantel.getDireccion())) {
+			LOG.info("{}No se proporciono la clave del gerente",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
 		Direccion direccion = plantel.getDireccion();
 		if(isNotValid(direccion)) {
+			LOG.info("{}No se proporciono la direccion",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_CALLE, direccion.getCalle())) {
+			LOG.info("{}El formato de la calle es incorrecto.",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}else {
 			direccion.setCalle(direccion.getCalle().strip());
 		}
 		if(isNotValid(TIPO_NUMERIC, Direccion.SIZE_CODIGO_POSTAL, direccion.getCodigoPostal())) {
+			LOG.info("{}El formato del codigo postal es incorrecto.",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Direccion.SIZE_ASENTAMIENTO, direccion.getAsentamiento())) {
+			LOG.info("{}El formato del asentamiento es incorrecto.",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}else {
 			direccion.setAsentamiento(direccion.getAsentamiento().strip());
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_NUM_EXT, direccion.getNumExt())) {
+			LOG.info("{}El formato del numero externo es incorrecto.",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}else {
 			direccion.setNumExt(direccion.getNumExt().strip());
 		}
 		if(isValid(direccion.getNumInt())) {
 			if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_NUM_INT, direccion.getNumInt())) {
+				LOG.info("{}El formato del numero interno es incorrecto.",headerLog);
 				return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 			}else {
 				direccion.setNumInt(direccion.getNumInt().strip());
 			}
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_REFERENCIA, direccion.getReferencia())) {
+			LOG.info("{}El formato de la referencia es incorrecto.",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}else {
 			direccion.setReferencia(direccion.getReferencia().strip());
 		}
 		if(isNotValid(direccion.getMunicipio())) {
+			LOG.info("{}No se proporciono el municipio.",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(direccion.getMunicipio().getClave())) {
+			LOG.info("{}No se proporciono la clave del municipio.",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
 		Optional<Plantel> optionalPlantel = plantelService.findByNombre(idEmpresa, plantel.getNombre());
 		if(optionalPlantel.isPresent()) {
+			LOG.info("{}Se encontro el mismo nombre del plantel",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_GATEWAY);
 		}
 		Optional<Municipio> municipioOptional = municipioService.findByClave(direccion.getMunicipio().getClave());
 		if(municipioOptional.isEmpty()) {
+			LOG.info("{}No se encontro el municipio con clave {}.",headerLog,direccion.getMunicipio().getClave());
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Municipio municipio = municipioOptional.get();
@@ -228,10 +250,12 @@ public final class PlantelControllerV01 extends Auth{
 		
 		Optional<Trabajador> optionalTrabajador = trabajadorService.findByClave(plantel.getGerente().getClave());
 		if(optionalTrabajador.isEmpty()) {
+			LOG.info("{}No se encontro el trabajador con clave {}.",headerLog, plantel.getGerente().getClave());
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Trabajador gerente = optionalTrabajador.get();
 		if(!gerente.getIdEmpresa().equals(idEmpresa)) {
+			LOG.info("{}El trabajador con clave {} no pertenece a la empresa.",headerLog, gerente.getClave());
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		direccion.setClave(UUID.randomUUID());
@@ -257,66 +281,77 @@ public final class PlantelControllerV01 extends Auth{
 		if(sesion == null){
 			return new ResponseEntity<Plantel>(HttpStatus.UNAUTHORIZED);
 		}
-		Long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		final Long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		final String headerLog = formatLogPut(idEmpresa, LOG_URL);
 		if(isNotValid(plantel.getClave())) {
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Plantel.SIZE_NOMBRE, plantel.getNombre())) {
+			LOG.info("{}El formato del nombre es incorrecto.",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}else {
 			plantel.setNombre(plantel.getNombre().strip());
 		}
 		if(isNotValid(plantel.getGerente())) {
+			LOG.info("{}No se envio el gerente.",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(plantel.getGerente().getClave())) {
-			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
-		}
-		if(isNotValid(plantel.getDireccion())) {
+			LOG.info("{}No se envio la clave del gerente.",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
 		Direccion direccion = plantel.getDireccion();
 		if(isNotValid(direccion)) {
+			LOG.info("{}No se envio la direccion.",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_CALLE, direccion.getCalle())) {
+			LOG.info("{}El formato de la calle es incorrecto.",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}else {
 			direccion.setCalle(direccion.getCalle().strip());
 		}
 		if(isNotValid(TIPO_NUMERIC, Direccion.SIZE_CODIGO_POSTAL, direccion.getCodigoPostal())) {
+			LOG.info("{}El formato del codigo postal es incorrecto.",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Direccion.SIZE_ASENTAMIENTO, direccion.getAsentamiento())) {
+			LOG.info("{}El formato del asentamiento es incorrecto.",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}else {
 			direccion.setAsentamiento(direccion.getAsentamiento().strip());
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_NUM_EXT, direccion.getNumExt())) {
+			LOG.info("{}El formato del numero exterior es incorrecto.",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}else {
 			direccion.setNumExt(direccion.getNumExt().strip());
 		}
 		if(isValid(direccion.getNumInt())) {
 			if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_NUM_INT, direccion.getNumInt())) {
+				LOG.info("{}El formato del numero interior es incorrecto.",headerLog);
 				return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 			}else {
 				direccion.setNumInt(direccion.getNumInt().strip());
 			}
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_REFERENCIA, direccion.getReferencia())) {
+			LOG.info("{}El formato de la referencia es incorrecto.",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}else {
 			direccion.setReferencia(direccion.getReferencia().strip());
 		}
 		if(isNotValid(direccion.getMunicipio())) {
+			LOG.info("{}No se envio el municipio.",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(direccion.getMunicipio().getClave())) {
+			LOG.info("{}No se envio la clave del municipio.",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.BAD_REQUEST);
 		}
 		Optional<Municipio> municipioOptional = municipioService.findByClave(direccion.getMunicipio().getClave());
 		if(municipioOptional.isEmpty()) {
+			LOG.info("{}No se encontro el municipio con la clave {}.",headerLog, direccion.getMunicipio().getClave());
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Municipio municipio = municipioOptional.get();
@@ -324,27 +359,33 @@ public final class PlantelControllerV01 extends Auth{
 		
 		Optional<Trabajador> optionalTrabajador = trabajadorService.findByClave(plantel.getGerente().getClave());
 		if(optionalTrabajador.isEmpty()) {
+			LOG.info("{}No se encontro el trabajador con la clave {}.",headerLog, plantel.getGerente().getClave());
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Trabajador gerente = optionalTrabajador.get();
 		if(!gerente.getIdEmpresa().equals(idEmpresa)) {
+			LOG.info("{}El trabajador no pertenece a la empresa.",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Optional<Plantel> optionalPlantel = plantelService.findByNombre(idEmpresa, plantel.getNombre());
 		if(optionalPlantel.isPresent()) {
 			if(!optionalPlantel.get().getClave().equals(plantel.getClave())) {
+				LOG.info("{}Ya existe un plantel con el mismo nombre.",headerLog);
 				return new ResponseEntity<Plantel>(HttpStatus.BAD_GATEWAY);
 			}
 		}
 		optionalPlantel = plantelService.findByClave(plantel.getClave());
 		if(optionalPlantel.isEmpty()) {
+			LOG.info("{}No se encontro el plantel.",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_FOUND);
 		}
 		Plantel plantelEdit = optionalPlantel.get();
 		if(!plantelEdit.getEstatus().equals(singletonUtil.getActivo())) {
+			LOG.info("{}El plantel no se encuentra activo.",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_FOUND);
 		}
 		if(!plantelEdit.getIdEmpresa().equals(idEmpresa)) {
+			LOG.info("{}El plantel no pertenece a la empresa.",headerLog);
 			return new ResponseEntity<Plantel>(HttpStatus.NOT_FOUND);
 		}
 		direccion.setId(plantelEdit.getDireccion().getId());

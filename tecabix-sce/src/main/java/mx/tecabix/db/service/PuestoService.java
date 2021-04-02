@@ -32,6 +32,7 @@ import mx.tecabix.db.entity.Puesto;
  */
 public interface PuestoService extends GenericSevice<Puesto, Long>{
 
+	Boolean canInsert(Long idEmpresa);
 	Page<Puesto> findByLikeNombre(String nombre, int elements, int page, Sort sort);
 	Page<Puesto> findByLikeDescripcion(String descripcion, int elements, int page, Sort sort);
 	Page<Puesto> findByLikeDepartamento(String departamento, int elements, int page, Sort sort);

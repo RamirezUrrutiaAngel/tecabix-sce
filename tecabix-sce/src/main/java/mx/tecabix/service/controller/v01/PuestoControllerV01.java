@@ -21,6 +21,8 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -54,7 +56,9 @@ import mx.tecabix.service.page.PuestoPage;
 @RestController
 @RequestMapping("puesto/v1")
 public final class PuestoControllerV01 extends Auth{
-
+	private static final Logger LOG = LoggerFactory.getLogger(PuestoControllerV01.class);
+	private static final String LOG_URL = "/puesto/v1";
+	
 	@Autowired
 	private SingletonUtil singletonUtil;
 	@Autowired
@@ -124,32 +128,46 @@ public final class PuestoControllerV01 extends Auth{
 		if(sesion == null) {
 			return new ResponseEntity<Puesto>(HttpStatus.UNAUTHORIZED);
 		}
+		final long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		final String headerLog = formatLogPost(idEmpresa, LOG_URL);
+		boolean canInsert = departamentoService.canInsert(idEmpresa);
+		if(!canInsert) {
+			LOG.info("{}Se a superado el numero máximo de puestos.",headerLog);
+			return new ResponseEntity<Puesto>(HttpStatus.LOCKED);
+		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Puesto.SIZE_NOMBRE, puesto.getNombre())) {
+			LOG.info("{}El formato del nombre es incorrecto.",headerLog);
 			return new ResponseEntity<Puesto>(HttpStatus.BAD_REQUEST);
 		}else {
 			puesto.setNombre(puesto.getNombre().strip());
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Puesto.SIZE_DESCRIPCION, puesto.getDescripcion())) {
+			LOG.info("{}El formato de la descripcion es incorrecto.",headerLog);
 			return new ResponseEntity<Puesto>(HttpStatus.BAD_REQUEST);
 		}else {
 			puesto.setDescripcion(puesto.getDescripcion().strip());
 		}
 		if(isNotValid(puesto.getDepartamento())) {
+			LOG.info("{}No se envio el departamento.",headerLog);
 			return new ResponseEntity<Puesto>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(puesto.getDepartamento().getClave())) {
+			LOG.info("{}No se envio la clave del departamento.",headerLog);
 			return new ResponseEntity<Puesto>(HttpStatus.BAD_REQUEST);
 		}
 		Optional<Departamento> optionalDepartamento = departamentoService.findByClave(puesto.getDepartamento().getClave());
 		if(optionalDepartamento.isEmpty()) {
+			LOG.info("{}No se encontro el departamento con clave {}.",headerLog, puesto.getDepartamento().getClave());
 			return new ResponseEntity<Puesto>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Departamento departamento = optionalDepartamento.get();
 		final Catalogo CAT_ACTIVO = singletonUtil.getActivo();
-		if(!departamento.getIdEmpresa().equals(sesion.getLicencia().getPlantel().getIdEmpresa())) {
+		if(!departamento.getIdEmpresa().equals(idEmpresa)) {
+			LOG.info("{}El departamento no pertenece a la empresa.",headerLog);
 			return new ResponseEntity<Puesto>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		if(!departamento.getEstatus().equals(CAT_ACTIVO)) {
+			LOG.info("{}El departamento no esta activo.",headerLog);
 			return new ResponseEntity<Puesto>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		puesto.setClave(UUID.randomUUID());
@@ -168,45 +186,56 @@ public final class PuestoControllerV01 extends Auth{
 		if(sesion == null) {
 			return new ResponseEntity<Puesto>(HttpStatus.UNAUTHORIZED);
 		}
+		final long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		final String headerLog = formatLogPut(idEmpresa, LOG_URL);
 		if (isNotValid(puesto.getClave())) {
+			LOG.info("{}No se mando la clave.",headerLog);
 			return new ResponseEntity<Puesto>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Puesto.SIZE_NOMBRE, puesto.getNombre())) {
+			LOG.info("{}El formato del nombre es incorrecto.",headerLog);
 			return new ResponseEntity<Puesto>(HttpStatus.BAD_REQUEST);
 		}else {
 			puesto.setNombre(puesto.getNombre().strip());
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Puesto.SIZE_DESCRIPCION, puesto.getDescripcion())) {
+			LOG.info("{}El formato de la descipcion es incorrecto.",headerLog);
 			return new ResponseEntity<Puesto>(HttpStatus.BAD_REQUEST);
 		}else {
 			puesto.setDescripcion(puesto.getDescripcion().strip());
 		}
 		if(isNotValid(puesto.getDepartamento())) {
+			LOG.info("{}No se mando el departamento.",headerLog);
 			return new ResponseEntity<Puesto>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(puesto.getDepartamento().getClave())) {
+			LOG.info("{}No se mando la clave del departamento.",headerLog);
 			return new ResponseEntity<Puesto>(HttpStatus.BAD_REQUEST);
 		}
 		Optional<Puesto> optionalPuesto = puestoService.findByClave(puesto.getClave());
 		if(optionalPuesto.isEmpty()) {
+			LOG.info("{}No se encontro el puesto con la clave {}.",headerLog, puesto.getClave());
 			return new ResponseEntity<Puesto>(HttpStatus.NOT_FOUND);
 		}
 		Puesto puestoEdit = optionalPuesto.get();
-		Long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
 		if(!puestoEdit.getDepartamento().getIdEmpresa().equals(idEmpresa)) {
+			LOG.info("{}El puesto no pertenece a la empresa.",headerLog);
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		Optional<Departamento> optionalDepartamento = departamentoService.findByClave(puesto.getDepartamento().getClave());
 		if(optionalDepartamento.isEmpty()) {
+			LOG.info("{}No se encontro el departamento con la clave {}.",headerLog, puesto.getDepartamento().getClave());
 			return new ResponseEntity<Puesto>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		
 		Departamento departamento = optionalDepartamento.get();
 		final Catalogo CAT_ACTIVO = singletonUtil.getActivo();
 		if(!departamento.getIdEmpresa().equals(idEmpresa)) {
+			LOG.info("{}El departamento no pertenece a la empresa.",headerLog);
 			return new ResponseEntity<Puesto>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		if(!departamento.getEstatus().equals(CAT_ACTIVO)) {
+			LOG.info("{}El departamento no esta activo.",headerLog);
 			return new ResponseEntity<Puesto>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		puestoEdit.setNombre(puesto.getNombre());

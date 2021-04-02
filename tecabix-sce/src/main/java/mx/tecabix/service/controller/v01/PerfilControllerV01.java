@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -54,6 +56,8 @@ import mx.tecabix.service.page.PerfilPage;
 @RestController
 @RequestMapping("perfil/v1")
 public final class PerfilControllerV01 extends Auth{
+	private static final Logger LOG = LoggerFactory.getLogger(PerfilControllerV01.class);
+	private static final String LOG_URL = "/perfil/v1";
 
 	@Autowired
 	private SingletonUtil singletonUtil;
@@ -122,12 +126,21 @@ public final class PerfilControllerV01 extends Auth{
 		if(isNotValid(sesion)){
 			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
 		}
+		final long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		final String headerLog = formatLogPost(idEmpresa, LOG_URL);
+		final boolean canInsert = perfilService.canInsert(idEmpresa);
+		if(!canInsert) {
+			LOG.info("{}Se a superado el numero máximo de perfiles.",headerLog);
+			return new ResponseEntity<Perfil>(HttpStatus.LOCKED);
+		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Perfil.SIZE_DESCRIPCION, perfil.getDescripcion())) {
+			LOG.info("{}El formato de la descripción es incorrecto.",headerLog);
 			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 		}else {
 			perfil.setDescripcion(perfil.getDescripcion().strip());
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Perfil.SIZE_NOMBRE, perfil.getNombre())) {
+			LOG.info("{}El formato del nombre es incorrecto.",headerLog);
 			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 		}else {
 			perfil.setNombre(perfil.getNombre().strip());
@@ -135,6 +148,7 @@ public final class PerfilControllerV01 extends Auth{
 		
 		Page<Perfil> pagePerfil = perfilService.findByNombre(sesion.getLicencia().getPlantel().getIdEmpresa(), perfil.getNombre(),Integer.MAX_VALUE,0);
 		if(!pagePerfil.isEmpty()) {
+			LOG.info("{}El nombre ya existe .",headerLog);
 			return new ResponseEntity<Perfil>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		List<Authority> list = perfil.getAuthorities();
@@ -143,6 +157,7 @@ public final class PerfilControllerV01 extends Auth{
 			for (Authority authority : list) {
 				Optional<Authority> authOptional = authorityService.findByClave(authority.getClave());
 				if(authOptional.isEmpty()) {
+					LOG.info("{}No existe el Authority con la clave {} .",headerLog, authority.getClave());
 					return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 				}else {
 					listAux.add(authOptional.get());
@@ -156,7 +171,7 @@ public final class PerfilControllerV01 extends Auth{
 		perfil.setIdUsuarioModificado(sesion.getUsuario().getId());
 		perfil.setFechaDeModificacion(LocalDateTime.now());
 		perfil.setClave(UUID.randomUUID());
-		perfilService.save(perfil);
+		perfil = perfilService.save(perfil);
 		return new ResponseEntity<Perfil>(perfil,HttpStatus.OK);
 	}
 	
@@ -168,31 +183,40 @@ public final class PerfilControllerV01 extends Auth{
 		if(isNotValid(sesion)){
 			return new ResponseEntity<Perfil>(HttpStatus.UNAUTHORIZED);
 		}
+		final long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		final String headerLog = formatLogPut(idEmpresa, LOG_URL);
+		
 		if(isNotValid(perfil.getClave())) {
+			LOG.info("{}La Clave no es valida.",headerLog);
 			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Perfil.SIZE_DESCRIPCION, perfil.getDescripcion())) {
+			LOG.info("{}El formato de la descripción es incorrecto.",headerLog);
 			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 		}else {
 			perfil.setDescripcion(perfil.getDescripcion().strip());
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Perfil.SIZE_NOMBRE, perfil.getNombre())) {
+			LOG.info("{}El formato del nombre es incorrecto.",headerLog);
 			return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 		}else {
 			perfil.setNombre(perfil.getNombre().strip());
 		}
 		Optional<Perfil> perfilAuxOptional = perfilService.findByClave(perfil.getClave());
 		if(perfilAuxOptional.isEmpty()) {
+			LOG.info("{}No se encontro el perfil para la clave: {} ",headerLog, perfil.getClave());
 			return new ResponseEntity<Perfil>(HttpStatus.NOT_FOUND);
 		}
 		Perfil perfilAux = perfilAuxOptional.get();
-		if(perfilAux.getIdEmpresa().longValue() != sesion.getLicencia().getPlantel().getIdEmpresa().longValue()) {
+		if(perfilAux.getIdEmpresa().longValue() != idEmpresa) {
+			LOG.info("{}El perfil con clave {}, no pertenece a la empresa.",headerLog, perfilAux.getClave());
 			return new ResponseEntity<Perfil>(HttpStatus.NOT_FOUND);
 		}
 		if(!perfilAux.getEstatus().equals(singletonUtil.getActivo())) {
+			LOG.info("{}El perfil con clave {}, no esta activo.",headerLog, perfilAux.getClave());
 			return new ResponseEntity<Perfil>(HttpStatus.NOT_FOUND);
 		}
-		Page<Perfil> pagePerfil = perfilService.findByNombre(sesion.getLicencia().getPlantel().getIdEmpresa(), perfil.getNombre(),Integer.MAX_VALUE,0);
+		Page<Perfil> pagePerfil = perfilService.findByNombre(idEmpresa, perfil.getNombre(),Integer.MAX_VALUE,0);
 		for (Perfil perfilExistente : pagePerfil) {
 			if(perfilExistente != null && !perfilExistente.equals(perfil)) {
 				return new ResponseEntity<Perfil>(HttpStatus.NOT_ACCEPTABLE);
@@ -205,10 +229,12 @@ public final class PerfilControllerV01 extends Auth{
 			for (int i = 0; i < list.size() ; i++) {
 				Authority authority = list.get(i);
 				if(authority.getClave() == null) {
+					LOG.info("{}Uno o más sub Authority no tienen clave.",headerLog);
 					return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 				}
 				Optional<Authority> optionalAuthority = authorityService.findByClave(authority.getClave());
 				if(optionalAuthority.isEmpty()) {
+					LOG.info("{}No se encontro el sub Authority con clave {}.",headerLog, authority.getClave());
 					return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 				}
 				authority = optionalAuthority.get();

@@ -83,4 +83,9 @@ public final class PerfilServiceImpl extends GenericSeviceImpl<Perfil, Long> imp
 		Page<Perfil> perfiles = perfilRepository.findByLikeDescripcion(idEmpresa, descripcion, pageable);
 		return perfiles;
 	}	
+	
+	@Override
+	public Boolean canInsert(Long idEmpresa) {
+		return perfilRepository.canInsert(idEmpresa);
+	}
 }
