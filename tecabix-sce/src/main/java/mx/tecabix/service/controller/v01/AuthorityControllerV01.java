@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -54,6 +56,8 @@ import mx.tecabix.service.page.AuthorityPage;
 @RestController
 @RequestMapping("authority/v1")
 public final class AuthorityControllerV01 extends Auth{
+	private static final Logger LOG = LoggerFactory.getLogger(AuthorityControllerV01.class);
+	private static final String LOG_URL = "/authority/v1";
 	
 	private static final String AUTHORITY = "AUTHORITY";
 	private static final String PERFIL = "PERFIL";
@@ -76,10 +80,14 @@ public final class AuthorityControllerV01 extends Auth{
 		if(isNotValid(sesion)) {
 			return new ResponseEntity<Authority>(HttpStatus.UNAUTHORIZED);
 		}
+		final long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		final String headerLog = formatLogPost(idEmpresa, LOG_URL);
 		if(isNotValid(TIPO_VARIABLE, Authority.SIZE_NOMBRE, authority.getNombre())){
+			LOG.info("{}El formato del nombre es incorrecto.",headerLog);
 			return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Authority.SIZE_DESCRIPCION, authority.getDescripcion())) {
+			LOG.info("{}El formato de la descripcioon es incorrecto.",headerLog);
 			return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 		}else {
 			authority.setDescripcion(authority.getDescripcion().strip());
@@ -92,14 +100,17 @@ public final class AuthorityControllerV01 extends Auth{
 					return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 				}
 				if(isNotValid(TIPO_VARIABLE, Authority.SIZE_NOMBRE, aux.getNombre())){
+					LOG.info("{}El formato del nombre  de un sub authority es incorrecto.",headerLog);
 					return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 				}
 				if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Authority.SIZE_DESCRIPCION, aux.getDescripcion())) {
+					LOG.info("{}El formato de la descripcion de un sub authority es incorrecto.",headerLog);
 					return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 				}else {
 					aux.setDescripcion(aux.getDescripcion().strip());
 				}
 				if(authority.getNombre().equalsIgnoreCase(aux.getNombre())) {
+					LOG.info("{}Hay nombres repetidos.",headerLog);
 					return new ResponseEntity<Authority>(HttpStatus.CONFLICT);
 				}
 			}
@@ -108,6 +119,7 @@ public final class AuthorityControllerV01 extends Auth{
 				for (int j = i + 1; j < list.size(); j++) {
 					Authority auxB = list.get(j);
 					if(auxA.getNombre().equalsIgnoreCase(auxB.getNombre())) {
+						LOG.info("{}Hay nombres repetidos.",headerLog);
 						return new ResponseEntity<Authority>(HttpStatus.CONFLICT);
 					}
 				}
@@ -123,12 +135,14 @@ public final class AuthorityControllerV01 extends Auth{
 				Authority aux = list.get(i);
 				Optional<Authority> authoritiesAux = authorityService.findByNombre(aux.getNombre());
 				if(authoritiesAux.isPresent()) {
+					LOG.info("{}Uno de los nombre ya existe.",headerLog);
 					return new ResponseEntity<Authority>(HttpStatus.CONFLICT);
 				}
 			}
 		}
 		Optional<Authority> authorityPadreOptional = authorityService.findByNombre(AUTENTIFICADOS);
 		if(authorityPadreOptional.isEmpty()) {
+			LOG.info("{}No se encontro el autority AUTENTIFICADO.",headerLog);
 			return new ResponseEntity<Authority>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		Authority authorityPadre = authorityPadreOptional.get(); 
@@ -157,6 +171,7 @@ public final class AuthorityControllerV01 extends Auth{
 		}
 		Optional<Authority>authorityOptional = authorityService.findById(authority.getId());
 		if(authorityOptional.isEmpty()) {
+			LOG.info("{}No pudo recuperar el id del authority guardado.",headerLog);
 			return new ResponseEntity<Authority>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		authority = authorityOptional.get();
@@ -254,24 +269,31 @@ public final class AuthorityControllerV01 extends Auth{
 		if(sesion == null) {
 			return new ResponseEntity<Authority>(HttpStatus.UNAUTHORIZED);
 		}
+		final long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		final String headerLog = formatLogPut(idEmpresa, LOG_URL);
 		if(authority.getClave() == null) {
+			LOG.info("{}No se mando la clave.",headerLog);
 			return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(TIPO_VARIABLE, Authority.SIZE_NOMBRE, authority.getNombre())) {
+			LOG.info("{}El formato del nombre es incorrecto.",headerLog);
 			return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Authority.SIZE_DESCRIPCION, authority.getDescripcion())) {
+			LOG.info("{}El formato de la descripcion es incorrecto.",headerLog);
 			return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 		}else {
 			authority.setDescripcion(authority.getDescripcion().strip());
 		}
 		Optional<Authority> optionalAuthorityViejo =  authorityService.findByClave(authority.getClave());
 		if(optionalAuthorityViejo.isEmpty()) {
+			LOG.info("{}No se encontro el authority con la clave {}.",headerLog, authority.getClave());
 			return new ResponseEntity<Authority>(HttpStatus.NOT_FOUND);
 		}
 		
 		Authority authorityViejo = optionalAuthorityViejo.get();
 		if(!authorityViejo.getEstatus().equals(singletonUtil.getActivo())) {
+			LOG.info("{}El authority no esta activo.",headerLog);
 			return new ResponseEntity<Authority>(HttpStatus.NOT_FOUND);
 		}
 		authority.setId(authorityViejo.getId());
@@ -282,10 +304,12 @@ public final class AuthorityControllerV01 extends Auth{
 		
 		Optional<Authority> authorityPadreOptional = authorityService.findByNombre(AUTENTIFICADOS);
 		if(authorityPadreOptional.isEmpty()) {
+			LOG.info("{}No se encontro el authority AUTENTIFICADOS.",headerLog);
 			return new ResponseEntity<Authority>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		Authority authorityPadre = authorityPadreOptional.get(); 
 		if(!authorityPadre.equals(authorityViejo.getPreAuthority())) {
+			LOG.info("{}El auhority que se esta intentando modificar no ereda de AUTENTIFICADO.",headerLog);
 			return new ResponseEntity<Authority>(HttpStatus.UNAUTHORIZED);
 		}
 		
@@ -294,17 +318,21 @@ public final class AuthorityControllerV01 extends Auth{
 			for (int i = 0; i < listaDeSubAuthoritysActualizados.size(); i++) {
 				Authority aux = listaDeSubAuthoritysActualizados.get(i);
 				if(aux == null) {
+					LOG.info("{}Un sub Authority es nulo.",headerLog);
 					return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 				}
 				if(isNotValid(TIPO_VARIABLE, Authority.SIZE_NOMBRE, aux.getNombre())){
+					LOG.info("{}El formato del nombre de un sub authority es incorrecto.",headerLog);
 					return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 				}
 				if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Authority.SIZE_DESCRIPCION, aux.getDescripcion())) {
+					LOG.info("{}El formato de la descripcion de un sub authority es incorrecto.",headerLog);
 					return new ResponseEntity<Authority>(HttpStatus.BAD_REQUEST);
 				}else {
 					aux.setDescripcion(aux.getDescripcion().strip());
 				}
 				if(authority.getNombre().equalsIgnoreCase(aux.getNombre())) {
+					LOG.info("{}El nombre de un sub authority esta repetido.",headerLog);
 					return new ResponseEntity<Authority>(HttpStatus.CONFLICT);
 				}
 			}
@@ -313,6 +341,7 @@ public final class AuthorityControllerV01 extends Auth{
 				for (int j = i + 1; j < listaDeSubAuthoritysActualizados.size(); j++) {
 					Authority auxB = listaDeSubAuthoritysActualizados.get(j);
 					if(auxA.getNombre().equalsIgnoreCase(auxB.getNombre())) {
+						LOG.info("{}El nombre de un sub authority esta repetido.",headerLog);
 						return new ResponseEntity<Authority>(HttpStatus.CONFLICT);
 					}
 				}
@@ -322,6 +351,7 @@ public final class AuthorityControllerV01 extends Auth{
 		if( !authority.getNombre().equals(authorityViejo.getNombre())) {
 			Optional<Authority> optionalAuthority = authorityService.findByNombre(authority.getNombre());
 			if(optionalAuthority.isPresent()) {
+				LOG.info("{}El nombre de un authority esta repetido.",headerLog);
 				return new ResponseEntity<Authority>(HttpStatus.CONFLICT);
 			}
 		}
@@ -336,6 +366,7 @@ public final class AuthorityControllerV01 extends Auth{
 					if(optionalSubAuthorityViejo.isPresent()) {
 						Authority subAuthorityViejo = optionalSubAuthorityViejo.get();
 						if(!subAuthorityViejo.getPreAuthority().equals(authority)) {
+							LOG.info("{}Un authority hijo no pertenece al padre.",headerLog);
 							return new ResponseEntity<Authority>(HttpStatus.CONFLICT);
 						}
 						listaDeAuthoritiesPorBorrar.remove(subAuthorityViejo);
@@ -353,8 +384,10 @@ public final class AuthorityControllerV01 extends Auth{
 				if(optionalSubAuthorityAux.isPresent()) {
 					Authority authority2 = optionalSubAuthorityAux.get();
 					if(subAuthorityActualizado.getClave() == null ) {
+						LOG.info("{}Falta la clave para uno de los sub Authority.",headerLog);
 						return new ResponseEntity<Authority>(HttpStatus.CONFLICT);
 					}else if(!authority2.getClave().equals(subAuthorityActualizado.getClave())) {
+						LOG.info("{}El nombre de un authority esta repetido.",headerLog);
 						return new ResponseEntity<Authority>(HttpStatus.CONFLICT);
 					}
 				}
