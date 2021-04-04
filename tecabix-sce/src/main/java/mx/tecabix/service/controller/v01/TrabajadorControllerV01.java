@@ -235,7 +235,7 @@ public final class TrabajadorControllerV01 extends Auth{
 			LOG.info("{}No se mando la direccion.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
-		if(isNotValid(TIPO_ALFA_NUMERIC, Direccion.SIZE_CALLE, direccion.getCalle())) {
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_CALLE, direccion.getCalle())) {
 			LOG.info("{}El formato de la calle es incorrecto.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
@@ -332,7 +332,7 @@ public final class TrabajadorControllerV01 extends Auth{
 		prs.setEstatus(CAT_ACTIVO);
 		prs = personaService.save(prs);
 		persona.setClave(UUID.randomUUID());
-		persona.setPresona(prs);
+		persona.setPersona(prs);
 		persona.setDireccion(direccion);
 		persona.setSexo(CAT_SEXO);
 		persona.setFechaDeModificacion(LocalDateTime.now());
@@ -375,10 +375,10 @@ public final class TrabajadorControllerV01 extends Auth{
 		}
 		PersonaFisica personaFisica = trabajador.getPersonaFisica();
 		personaFisica.setEstatus(CAT_ELIMINADO);
-		Persona persona = personaFisica.getPresona();
+		Persona persona = personaFisica.getPersona();
 		persona.setEstatus(CAT_ELIMINADO);
 		persona = personaService.update(persona);
-		personaFisica.setPresona(persona);
+		personaFisica.setPersona(persona);
 		Direccion direccion = personaFisica.getDireccion();
 		direccion.setEstatus(CAT_ELIMINADO);
 		direccion = direccionService.update(direccion);

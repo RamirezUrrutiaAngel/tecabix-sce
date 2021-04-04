@@ -152,16 +152,16 @@ public final class EmpresaControllerV01 extends Auth{
 		if(trabajador.getPersonaFisica() == null) {
 			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
-		if(trabajador.getPersonaFisica().getPresona() == null) {
+		if(trabajador.getPersonaFisica().getPersona() == null) {
 			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
-		if(trabajador.getPersonaFisica().getPresona().getUsuarioPersona() == null) {
+		if(trabajador.getPersonaFisica().getPersona().getUsuarioPersona() == null) {
 			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
-		if(trabajador.getPersonaFisica().getPresona().getUsuarioPersona().getUsuario() == null) {
+		if(trabajador.getPersonaFisica().getPersona().getUsuarioPersona().getUsuario() == null) {
 			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
-		Usuario usuario = trabajador.getPersonaFisica().getPresona().getUsuarioPersona().getUsuario();
+		Usuario usuario = trabajador.getPersonaFisica().getPersona().getUsuarioPersona().getUsuario();
 		
 		if(empresa == null) {
 			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
@@ -338,7 +338,7 @@ public final class EmpresaControllerV01 extends Auth{
 		persona.setIdEmpresa(empresa.getId());
 		empresaService.update(empresa);
 
-		personaFisicaCEO.setPresona(persona);
+		personaFisicaCEO.setPersona(persona);
 		personaFisicaCEO.setDireccion(direccionCEO);
 		personaFisicaCEO.setSexo(CAT_SEXO);
 		personaFisicaCEO.setFechaDeModificacion(LocalDateTime.now());

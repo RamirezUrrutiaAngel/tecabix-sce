@@ -59,7 +59,7 @@ public final class PersonaFisica implements Serializable{
     private Long id;
 	@OneToOne
     @JoinColumn(name = "id_persona")   
-    private Persona presona;
+    private Persona persona;
     @Column(name = "nombre")
     private String nombre;
     @Column(name = "apellido_paterno")
@@ -91,11 +91,11 @@ public final class PersonaFisica implements Serializable{
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public Persona getPresona() {
-		return presona;
+	public Persona getPersona() {
+		return persona;
 	}
-	public void setPresona(Persona presona) {
-		this.presona = presona;
+	public void setPersona(Persona presona) {
+		this.persona = presona;
 	}
 	public String getNombre() {
 		return nombre;
