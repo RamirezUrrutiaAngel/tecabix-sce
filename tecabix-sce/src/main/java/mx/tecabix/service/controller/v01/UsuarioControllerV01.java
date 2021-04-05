@@ -123,16 +123,16 @@ public final class UsuarioControllerV01 extends Auth {
 	public ResponseEntity<?> exists(@RequestParam(value="token") UUID token,@RequestParam(value="username") String usuario){
 		Sesion sesion = getSessionIfIsAuthorized(token,USUARIO);
 		if(sesion == null) {
-			return new ResponseEntity<UsuarioPage>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 		if(isNotValid(TIPO_VARIABLE, Usuario.SIZE_NOMBRE, usuario)) {
-			return new ResponseEntity<Boolean>(HttpStatus.NOT_ACCEPTABLE);
+			return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Optional<Usuario> optionalUsuario = usuarioService.findByNameRegardlessOfStatus(usuario);
 		if(optionalUsuario.isEmpty()) {
-			return new ResponseEntity<Boolean>(HttpStatus.ACCEPTED);
+			return new ResponseEntity<>(HttpStatus.ACCEPTED);
 		}
-		return new ResponseEntity<Boolean>(HttpStatus.NOT_ACCEPTABLE);
+		return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
 	}
 	
 	@PostMapping()
