@@ -52,6 +52,12 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 public final class Correo implements Serializable{
 
 	private static final long serialVersionUID = 3322361249577115212L;
+	
+	public static final short SIZE_REMITENTE = 35;
+	public static final short SIZE_PSW = 50;
+	public static final short SIZE_SMTP_SERVIDOR = 20;
+	public static final short SIZE_SMTP_PORT = 5;
+	
 
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
@@ -59,6 +65,9 @@ public final class Correo implements Serializable{
 	@SequenceGenerator(name = "correo_id_correo_gen", sequenceName = "tecabix_sce.correo_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "correo_id_correo_gen")
     private Long id;
+	@ManyToOne
+    @JoinColumn(name = "id_persona")
+    private Persona persona;
 	@Column(name="remitente")
 	private String remitente;
 	@JsonProperty(access = Access.WRITE_ONLY)
@@ -90,6 +99,12 @@ public final class Correo implements Serializable{
 	}
 	public void setId(Long id) {
 		this.id = id;
+	}
+	public Persona getPersona() {
+		return persona;
+	}
+	public void setPersona(Persona persona) {
+		this.persona = persona;
 	}
 	public String getRemitente() {
 		return remitente;

@@ -18,11 +18,11 @@
 package mx.tecabix.service;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.Properties;
 
 import javax.activation.DataHandler;
@@ -37,11 +37,9 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import mx.tecabix.db.entity.Correo;
-import mx.tecabix.db.service.CorreoService;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -52,12 +50,41 @@ public class Notificacion extends Encrypt {
 	@Value("${configuracion.email}")
 	private String configuracionEmailFile;
 	
+	private static String SEED;
+	
 	private static final String LOGMS = "\nEMPRESA: :EMPRESA \n:PET : :PATH \n";
 	
 	private static final String GET = "GET";
 	private static final String PUT = "PUT";
 	private static final String POST = "POST";
 	private static final String DELETE = "DELETE";
+	
+	protected static final String SMTP							= "smtp";
+	protected static final String TRUE							= "true";
+	protected static final String MAIL_SMTP_HOST				= "mail.smtp.host";
+	protected static final String MAIL_SMTP_USER				= "mail.smtp.user";
+	protected static final String MAIL_SMTP_PORT				= "mail.smtp.port";
+	protected static final String MAIL_SMTP_AUTH				= "mail.smtp.auth";
+	protected static final String MAIL_SMTP_CLAVE				= "mail.smtp.clave";
+	protected static final String MAIL_SMTP_STARTTLS_ENABLE		= "mail.smtp.starttls.enable";
+	
+	@PostConstruct
+	private void postConstruct() {
+		if(SEED == null) {
+			try {
+				Properties properties = new Properties();
+				FileReader fileReader;
+				fileReader = new FileReader(getConfiguracionEmailFile());
+				properties.load(fileReader);
+				SEED = properties.getProperty("SEED");
+				fileReader.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 	
 	private String formatHeaderOfLogger(long idEmpresa, String peticion, String path) {
 		return LOGMS.replaceFirst(":EMPRESA", String.valueOf(idEmpresa)).replaceFirst(":PET", peticion)
@@ -77,151 +104,6 @@ public class Notificacion extends Encrypt {
 	}
 
 	
-	
-
-	@Autowired
-	private CorreoService correoService;
-	
-	protected static final String SMTP							= "smtp";
-	protected static final String TRUE							= "true";
-	protected static final String MAIL_SMTP_HOST				= "mail.smtp.host";
-	protected static final String MAIL_SMTP_USER				= "mail.smtp.user";
-	protected static final String MAIL_SMTP_PORT				= "mail.smtp.port";
-	protected static final String MAIL_SMTP_AUTH				= "mail.smtp.auth";
-	protected static final String MAIL_SMTP_CLAVE				= "mail.smtp.clave";
-	protected static final String MAIL_SMTP_STARTTLS_ENABLE	= "mail.smtp.starttls.enable";
-	
-	
-	private static Correo correoInfo = null;
-	private String INFO_SUBJECT = null;
-	private String INFO_TO = null;
-	private List<String> INFO_CC = null;
-	private String INF_FILE_MESSAGE = null;
-	
-	private static Correo correoConfirmacion = null;
-	private String CONF_SUBJECT = null;
-	private String CONF_TO = null;
-	private List<String> CONF_CC = null;
-	private String CONF_FILE_MESSAGE = null;
-	
-	@PostConstruct
-	private void postConstruct() {
-		if(correoInfo == null) {
-			initCorreoINF();
-		}
-		if(correoConfirmacion == null) {
-			initCorreoCON();
-		}
-	}
-	
-	private void initCorreoINF() {
-		try {
-			String REMITENTE 		= "INF_REMITENTE";
-			String SUBJECT			= "INF_SUBJECT";
-			String TO				= "INF_TO";
-			String CC				= "INF_CC";
-			String FILE_MESSAGE		= "INF_FILE_MESSAGE";
-			String SEED				= "SEED";
-			Properties properties = new Properties();
-			FileReader fileReader = new FileReader(getConfiguracionEmailFile());
-			properties.load(fileReader);
-			SEED				= properties.getProperty(SEED);
-			REMITENTE			= properties.getProperty(REMITENTE);
-			this.INFO_SUBJECT	= properties.getProperty(SUBJECT);
-			this.INFO_TO		= properties.getProperty(TO);
-			this.INFO_SUBJECT	= properties.getProperty(FILE_MESSAGE);
-			String aux 			= properties.getProperty(CC);
-			if(aux != null && !aux.trim().isEmpty()) {
-				String[] array = aux.split(" ");
-				this.INFO_CC = new ArrayList<String>();
-				for (String correo : array) {
-					if(!correo.isEmpty()) {
-						this.INFO_CC.add(correo);
-					}
-				}
-			}
-			fileReader.close();
-			boolean isNull = REMITENTE == null;
-			isNull = isNull || this.INFO_TO == null || this.INFO_SUBJECT == null;
-			isNull = isNull || this.INF_FILE_MESSAGE == null;
-			if(!isNull) {
-				isNull = this.INFO_SUBJECT.isEmpty();
-				isNull = isNull || this.INFO_TO.isEmpty();
-				isNull = isNull || this.INF_FILE_MESSAGE.isEmpty();
-				if(!isNull) {
-					Optional<Correo> optionalCorreo = correoService.findByRemitente(REMITENTE);
-					if(optionalCorreo.isPresent()) {
-						correoInfo = optionalCorreo.get();
-						String psw = correoInfo.getPassword();
-						psw = desencriptar(psw, SEED);
-						correoInfo.setPassword(psw);
-					}
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			correoInfo = null;
-			INFO_SUBJECT = null;
-			INFO_TO = null;
-			INFO_CC = null;
-			INF_FILE_MESSAGE = null;
-		}
-	}
-
-
-	private void initCorreoCON() {
-		try {
-			String REMITENTE 		= "CON_REMITENTE";
-			String SUBJECT			= "CON_SUBJECT";
-			String TO				= "CON_TO";
-			String CC				= "CON_CC";
-			String FILE_MESSAGE		= "CON_FILE_MESSAGE";
-			String SEED				= "SEED";
-			Properties properties = new Properties();
-			FileReader fileReader = new FileReader(this.getConfiguracionEmailFile());
-			properties.load(fileReader);
-			SEED				= properties.getProperty(SEED);
-			REMITENTE			= properties.getProperty(REMITENTE);
-			this.CONF_SUBJECT	= properties.getProperty(SUBJECT);
-			this.CONF_TO		= properties.getProperty(TO);
-			this.CONF_SUBJECT	= properties.getProperty(FILE_MESSAGE);
-			String aux 			= properties.getProperty(CC);
-			if(aux != null && !aux.trim().isEmpty()) {
-				String[] array = aux.split(" ");
-				this.CONF_CC = new ArrayList<String>();
-				for (String correo : array) {
-					if(!correo.isEmpty()) {
-						this.CONF_CC.add(correo);
-					}
-				}
-			}
-			fileReader.close();
-			boolean isNull = REMITENTE == null;
-			isNull = isNull || this.CONF_TO == null || this.CONF_SUBJECT == null;
-			isNull = isNull || this.CONF_FILE_MESSAGE == null;
-			if(!isNull) {
-				isNull = this.CONF_SUBJECT.isEmpty();
-				isNull = isNull || this.CONF_TO.isEmpty();
-				isNull = isNull || this.CONF_FILE_MESSAGE.isEmpty();
-				if(!isNull) {
-					Optional<Correo> optionalCorreo = correoService.findByRemitente(REMITENTE);
-					if(optionalCorreo.isPresent()) {
-						correoInfo = optionalCorreo.get();
-						String psw = correoInfo.getPassword();
-						psw = desencriptar(psw, SEED);
-						correoInfo.setPassword(psw);
-					}
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			correoConfirmacion = null;
-			CONF_SUBJECT = null;
-			CONF_TO = null;
-			CONF_CC = null;
-			CONF_FILE_MESSAGE = null;
-		}
-	}
 	
 	protected void sendMail(Correo correo, String msj, String to, String subject, List<String> cc) {
 		String[] auxCC = null;
@@ -314,8 +196,12 @@ public class Notificacion extends Encrypt {
 	}
 
 	protected final File getConfiguracionEmailFile() {
-		File file = new File(this.configuracionEmailFile);
+		File file = new File(configuracionEmailFile);
 		return file.getAbsoluteFile();
+	}
+
+	protected String getSEED() {
+		return Notificacion.SEED;
 	}
 	
 }

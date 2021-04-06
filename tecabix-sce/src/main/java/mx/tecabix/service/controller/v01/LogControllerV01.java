@@ -68,9 +68,7 @@ public final class LogControllerV01 extends Auth{
 	private EmpresaService empresaService;
 	@Autowired
 	private CorreoService correoService;
-	
-		
-	
+
 	private Correo correo			= null;
 	private String SUBJECT			= null;
 	private String TO				= null;
