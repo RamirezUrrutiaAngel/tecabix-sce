@@ -28,6 +28,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,6 +48,8 @@ import mx.tecabix.db.entity.PersonaFisica;
 import mx.tecabix.db.entity.Plantel;
 import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.entity.Trabajador;
+import mx.tecabix.db.entity.Usuario;
+import mx.tecabix.db.entity.UsuarioPersona;
 import mx.tecabix.db.service.CatalogoService;
 import mx.tecabix.db.service.DireccionService;
 import mx.tecabix.db.service.MunicipioService;
@@ -54,6 +57,8 @@ import mx.tecabix.db.service.PersonaFisicaService;
 import mx.tecabix.db.service.PersonaService;
 import mx.tecabix.db.service.PlantelService;
 import mx.tecabix.db.service.TrabajadorService;
+import mx.tecabix.db.service.UsuarioPersonaService;
+import mx.tecabix.db.service.UsuarioService;
 import mx.tecabix.service.Auth;
 import mx.tecabix.service.SingletonUtil;
 import mx.tecabix.service.page.TrabajadorPage;
@@ -84,6 +89,10 @@ public final class TrabajadorControllerV01 extends Auth{
 	private DireccionService direccionService;
 	@Autowired
 	private PlantelService plantelService;
+	@Autowired
+	private UsuarioService usuarioService;
+	@Autowired
+	private UsuarioPersonaService usuarioPersonaService;
 	
 	private final String TIPO_DE_PERSONA = "TIPO_DE_PERSONA";
 	private final String FISICA = "FISICA";
@@ -317,6 +326,38 @@ public final class TrabajadorControllerV01 extends Auth{
 				return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 			}
 		}
+		
+		Usuario usuario = null;
+		if (persona.getPersona() != null && persona.getPersona().getUsuarioPersona() != null
+				&& persona.getPersona().getUsuarioPersona().getUsuario() != null) {
+			usuario = persona.getPersona().getUsuarioPersona().getUsuario();
+			usuario.setId(null);
+			if(isNotValid(TIPO_EMAIL, Usuario.SIZE_CORREO, usuario.getCorreo())) {
+				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+			}
+			if(isNotValid(TIPO_VARIABLE, Usuario.SIZE_NOMBRE, usuario.getNombre())) {
+				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+			}
+			if(usuario.getNombre().length()>8) {
+				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+			}
+			if(isNotValid(usuario.getUsuarioPersona())) {
+				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+			}
+			if(isNotValid(usuario.getUsuarioPersona().getClave())) {
+				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+			}
+			if(usuarioService.findByNameRegardlessOfStatus(usuario.getNombre())!= null) {
+				return new ResponseEntity<Trabajador>(HttpStatus.CONFLICT);
+			}
+			usuario.setPassword("TCBX-".concat(String.valueOf((int)(1000+Math.random() * 8000))));
+			BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+			usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+			usuario.setFechaDeModificacion(LocalDateTime.now());
+			usuario.setIdUsuarioModificado(sesion.getUsuario().getId());
+			usuario.setEstatus(CAT_ACTIVO);
+		}
+		direccion.setId(null);
 		direccion.setClave(UUID.randomUUID());
 		direccion.setEstatus(CAT_ACTIVO);
 		direccion.setMunicipio(municipio);
@@ -331,6 +372,7 @@ public final class TrabajadorControllerV01 extends Auth{
 		prs.setFechaDeModificacion(LocalDateTime.now());
 		prs.setEstatus(CAT_ACTIVO);
 		prs = personaService.save(prs);
+		persona.setId(null);
 		persona.setClave(UUID.randomUUID());
 		persona.setPersona(prs);
 		persona.setDireccion(direccion);
@@ -340,6 +382,7 @@ public final class TrabajadorControllerV01 extends Auth{
 		persona.setEstatus(CAT_ACTIVO);
 		
 		persona = personaFisicaService.save(persona);
+		trabajador.setId(null);
 		trabajador.setClave(UUID.randomUUID());
 		trabajador.setEstatus(CAT_ACTIVO);
 		trabajador.setFechaDeModificacion(LocalDateTime.now());
@@ -349,6 +392,17 @@ public final class TrabajadorControllerV01 extends Auth{
 		trabajador.setPersonaFisica(persona);
 		trabajador.setPlantel(plantel);
 		trabajador = trabajadorService.save(trabajador);
+		if(usuario != null) {
+			usuario = usuarioService.save(usuario);
+			UsuarioPersona usuarioPersona = new UsuarioPersona();
+			usuarioPersona.setUsuario(usuario);
+			usuarioPersona.setPersona(prs);
+			usuarioPersona.setFechaDeModificacion(LocalDateTime.now());
+			usuarioPersona.setIdUsuarioModificado(sesion.getUsuario().getId());
+			usuarioPersona.setEstatus(CAT_ACTIVO);
+			usuarioPersona = usuarioPersonaService.save(usuarioPersona);
+			prs.setUsuarioPersona(usuarioPersona);
+		}
 		return new ResponseEntity<Trabajador>(trabajador, HttpStatus.OK);
 	}
 	
