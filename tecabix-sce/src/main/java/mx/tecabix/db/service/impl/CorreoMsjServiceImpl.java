@@ -15,28 +15,41 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.db.repository;
+package mx.tecabix.db.service.impl;
 
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
+import javax.annotation.PostConstruct;
 
-import mx.tecabix.db.entity.Puesto;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import mx.tecabix.db.GenericSeviceImpl;
+import mx.tecabix.db.entity.CorreoMsj;
+import mx.tecabix.db.repository.CorreoMsjRepository;
+import mx.tecabix.db.service.CorreoMsjService;
+
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface PuestoRepository extends JpaRepository<Puesto, Long>{
+@Service
+public class CorreoMsjServiceImpl extends GenericSeviceImpl<CorreoMsj, Long> implements CorreoMsjService{
 
-	Boolean canInsert(Long idEmpresa);
-	Page<Puesto> findByLikeNombre(String nombre, Pageable pageable);
-	Page<Puesto> findByLikeDescripcion(String descripcion, Pageable pageable);
-	Page<Puesto> findByLikeDepartamento(String departamento, Pageable pageable);
-	Page<Puesto> findByIdEmpresa(Long idEmpresa, Pageable pageable);
-	Page<Puesto> findByDepartamentoClave(UUID departamentoClave, Pageable pageable);
-	Optional<Puesto> findByClave(UUID uuid);
+	@Autowired
+	private CorreoMsjRepository correoMsjRepository;
+	
+	@PostConstruct
+	@Override
+	protected void postConstruct() {
+		setJpaRepository(correoMsjRepository);
+	}
+	
+	@Override
+	public Optional<CorreoMsj> findByClave(UUID uuid) {
+		return correoMsjRepository.findByClave(uuid);
+	}
+
 }

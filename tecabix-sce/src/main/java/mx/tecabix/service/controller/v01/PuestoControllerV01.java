@@ -121,6 +121,34 @@ public final class PuestoControllerV01 extends Auth{
 		return new ResponseEntity<PuestoPage>(body,HttpStatus.OK);
 	}
 	
+	@ApiOperation(value = "Obtiene todo los puestos de un departamento. ")
+	@GetMapping("find-by-departamento-clave")
+	public ResponseEntity<PuestoPage> findByDepartamentoClave(
+			@RequestParam(value="token") UUID token,
+			@RequestParam(value="clave") UUID clave,
+			@RequestParam(value="by", defaultValue = "NOMBRE") String by,
+			@RequestParam(value="order", defaultValue = "ASC") String order,
+			@RequestParam(value="elements") byte elements,
+			@RequestParam(value="page") short page) {
+		final String PERMISOS[] = { PUESTO, TRABAJADOR_CREAR, TRABAJADOR_EDITAR };
+		Sesion sesion = getSessionIfIsAuthorized(token, PERMISOS);
+		if(sesion == null) {
+			return new ResponseEntity<PuestoPage>(HttpStatus.UNAUTHORIZED);
+		}
+		Page<Puesto> response = null;
+		Sort sort;
+		if(order.equalsIgnoreCase("ASC")) {
+			sort = Sort.by(Sort.Direction.ASC, by.toLowerCase());
+		}else if(order.equalsIgnoreCase("DESC")) {
+			sort = Sort.by(Sort.Direction.DESC, by.toLowerCase());
+		}else {
+			return new ResponseEntity<PuestoPage>(HttpStatus.BAD_REQUEST);
+		}
+		response = puestoService.findByDepartamentoClave(clave, elements, page, sort);
+		PuestoPage body = new PuestoPage(response);
+		return new ResponseEntity<PuestoPage>(body,HttpStatus.OK);
+	}
+	
 	@ApiOperation(value = "Persiste la entidad del Puesto. ")
 	@PostMapping
 	public ResponseEntity<Puesto> save(@RequestParam(value="token") UUID token,@RequestBody Puesto puesto){

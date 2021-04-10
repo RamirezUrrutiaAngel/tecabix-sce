@@ -20,14 +20,18 @@ package mx.tecabix.db.entity;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -79,6 +83,14 @@ public final class Empresa implements Serializable {
 	@Column(name = "clave")
     @Type(type="pg-uuid")
     private UUID clave;
+	@JsonProperty(access = Access.WRITE_ONLY)
+    @ManyToMany(cascade = { CascadeType.REMOVE})
+    @JoinTable(
+        name = "persona_moral_configuracion", 
+        joinColumns = { @JoinColumn(name = "id_persona_moral") }, 
+        inverseJoinColumns = { @JoinColumn(name = "id_configuracion") }
+    )
+    private List<Configuracion> configuraciones;
 	public Long getId() {
 		return id;
 	}
@@ -138,6 +150,12 @@ public final class Empresa implements Serializable {
 	}
 	public void setClave(UUID clave) {
 		this.clave = clave;
+	}
+	public List<Configuracion> getConfiguraciones() {
+		return configuraciones;
+	}
+	public void setConfiguraciones(List<Configuracion> configuraciones) {
+		this.configuraciones = configuraciones;
 	}
 	@Override
 	public int hashCode() {

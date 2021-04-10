@@ -15,28 +15,20 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.db.repository;
+package mx.tecabix.db.service;
 
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
+import mx.tecabix.db.GenericSevice;
+import mx.tecabix.db.entity.CorreoMsjItem;
 
-import mx.tecabix.db.entity.Puesto;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface PuestoRepository extends JpaRepository<Puesto, Long>{
+public interface CorreoMsjItemService extends GenericSevice<CorreoMsjItem, Long>{
 
-	Boolean canInsert(Long idEmpresa);
-	Page<Puesto> findByLikeNombre(String nombre, Pageable pageable);
-	Page<Puesto> findByLikeDescripcion(String descripcion, Pageable pageable);
-	Page<Puesto> findByLikeDepartamento(String departamento, Pageable pageable);
-	Page<Puesto> findByIdEmpresa(Long idEmpresa, Pageable pageable);
-	Page<Puesto> findByDepartamentoClave(UUID departamentoClave, Pageable pageable);
-	Optional<Puesto> findByClave(UUID uuid);
+	Optional<CorreoMsjItem> findByClave(UUID uuid);
 }

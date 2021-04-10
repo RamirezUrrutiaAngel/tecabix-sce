@@ -18,6 +18,7 @@
 package mx.tecabix.service.controller.v01;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,7 +42,12 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import mx.tecabix.db.entity.Catalogo;
+import mx.tecabix.db.entity.Configuracion;
+import mx.tecabix.db.entity.Correo;
+import mx.tecabix.db.entity.CorreoMsj;
+import mx.tecabix.db.entity.CorreoMsjItem;
 import mx.tecabix.db.entity.Direccion;
+import mx.tecabix.db.entity.Empresa;
 import mx.tecabix.db.entity.Municipio;
 import mx.tecabix.db.entity.Persona;
 import mx.tecabix.db.entity.PersonaFisica;
@@ -51,7 +57,11 @@ import mx.tecabix.db.entity.Trabajador;
 import mx.tecabix.db.entity.Usuario;
 import mx.tecabix.db.entity.UsuarioPersona;
 import mx.tecabix.db.service.CatalogoService;
+import mx.tecabix.db.service.CorreoMsjItemService;
+import mx.tecabix.db.service.CorreoMsjService;
+import mx.tecabix.db.service.CorreoService;
 import mx.tecabix.db.service.DireccionService;
+import mx.tecabix.db.service.EmpresaService;
 import mx.tecabix.db.service.MunicipioService;
 import mx.tecabix.db.service.PersonaFisicaService;
 import mx.tecabix.db.service.PersonaService;
@@ -93,9 +103,30 @@ public final class TrabajadorControllerV01 extends Auth{
 	private UsuarioService usuarioService;
 	@Autowired
 	private UsuarioPersonaService usuarioPersonaService;
+	@Autowired
+	private EmpresaService empresaService;
+	@Autowired
+	private CorreoService correoService;
+	@Autowired
+	private CorreoMsjService correoMsjService;
+	@Autowired
+	private CorreoMsjItemService correoMsjItemService;
 	
 	private final String TIPO_DE_PERSONA = "TIPO_DE_PERSONA";
 	private final String FISICA = "FISICA";
+	
+	private final String ALTA_USR_CORREO	= "ALTA_USR_CORREO";
+	private final String ALTA_USR_ASUNTO	= "ALTA_USR_ASUNTO";
+	private final String ALTA_USR_PLANTILLA	= "ALTA_USR_PLANTILLA";
+	
+	
+	private final String NOMBRE					= "NOMBRE";
+	private final String USUARIO				= "USUARIO";
+	private final String PASSWORD				= "PASSWORD";
+	private final String RAZON_SOCIAL			= "RAZON_SOCIAL";
+	private final String CLAVE_USUARIO			= "CLAVE_USUARIO";
+	private final String CLAVE_EMPRESA			= "CLAVE_EMPRESA";
+	private final String TIPO_ELEMENTO_CORREO	= "TIPO_ELEMENTO_CORREO";
 	
 	private final String SEXO = "SEXO";
 	
@@ -328,14 +359,52 @@ public final class TrabajadorControllerV01 extends Auth{
 		}
 		
 		Usuario usuario = null;
+		CorreoMsj correoMsj = null;
 		if (persona.getPersona() != null && persona.getPersona().getUsuarioPersona() != null
 				&& persona.getPersona().getUsuarioPersona().getUsuario() != null) {
+			Optional<Empresa> optionalEmpresa = empresaService.findById(idEmpresa);
+			if(optionalEmpresa.isEmpty()) {
+				LOG.info("{}No encontro el id de la empresa.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			Empresa empresa = optionalEmpresa.get();
+			Configuracion configuracion = empresa.getConfiguraciones().stream()
+					.filter(x -> x.getTipo().getNombre().equals(ALTA_USR_CORREO)).findFirst().orElse(null);
+			if(configuracion == null || configuracion.getValor().isBlank()) {
+				LOG.info("{}No encontro la configuracion del remitente.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+			}
+			Optional<Correo> optionalCorreo = correoService.findByRemitente(configuracion.getValor());
+			if(optionalCorreo.isEmpty()) {
+				LOG.info("{}No encontro el correo del remitente.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+			}
 			usuario = persona.getPersona().getUsuarioPersona().getUsuario();
 			usuario.setId(null);
+			correoMsj = new CorreoMsj();
+			correoMsj.setCorreo(optionalCorreo.get());
+			correoMsj.setCorreoMsjItems(new ArrayList<>());
+			correoMsj.setProgramado(LocalDateTime.now());
+			
+			configuracion = empresa.getConfiguraciones().stream()
+					.filter(x -> x.getTipo().getNombre().equals(ALTA_USR_ASUNTO)).findFirst().orElse(null);
+			if(configuracion == null || configuracion.getValor().isBlank()) {
+				LOG.info("{}No encontro el asunto del correo que envia la contraseña al nuevo usuario.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+			}
+			correoMsj.setAsunto(configuracion.getValor());
+			configuracion = empresa.getConfiguraciones().stream()
+					.filter(x -> x.getTipo().getNombre().equals(ALTA_USR_PLANTILLA)).findFirst().orElse(null);
+			if(configuracion == null || configuracion.getValor().isBlank()) {
+				LOG.info("{}No encontro el path de la plantilla del correo que envia la contraseña al nuevo usuario.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+			}
+			correoMsj.setMensaje(configuracion.getValor());
 			if(isNotValid(TIPO_EMAIL, Usuario.SIZE_CORREO, usuario.getCorreo())) {
 				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 			}
-			if(isNotValid(TIPO_VARIABLE, Usuario.SIZE_NOMBRE, usuario.getNombre())) {
+			if(isNotValid(TIPO_VARIABLE, Usuario.SIZE_NOMBRE, usuario.getNombre()) &&
+					isNotValid(TIPO_EMAIL, Usuario.SIZE_NOMBRE, usuario.getNombre())) {
 				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 			}
 			if(usuario.getNombre().length()>8) {
@@ -350,7 +419,101 @@ public final class TrabajadorControllerV01 extends Auth{
 			if(usuarioService.findByNameRegardlessOfStatus(usuario.getNombre())!= null) {
 				return new ResponseEntity<Trabajador>(HttpStatus.CONFLICT);
 			}
-			usuario.setPassword("TCBX-".concat(String.valueOf((int)(1000+Math.random() * 8000))));
+			Optional<Catalogo> optionalCatalogo = catalogoService.findByTipoAndNombre(TIPO_ELEMENTO_CORREO, NOMBRE);
+			if(optionalCatalogo.isEmpty()) {
+				LOG.info("{}No encontro el catalogo nombre de tipo_elemento_correo.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			CorreoMsjItem correoMsjItem = new CorreoMsjItem();
+			correoMsjItem.setTipo(optionalCatalogo.get());
+			
+			correoMsjItem.setFechaDeModificacion(LocalDateTime.now());
+			correoMsjItem.setIdUsuarioModificado(sesion.getUsuario().getId());
+			correoMsjItem.setEstatus(CAT_ACTIVO);
+			correoMsjItem.setClave(UUID.randomUUID());
+			correoMsjItem.setCorreoMsj(correoMsj);
+			correoMsjItem.setDato(persona.getNombre()
+					.concat(" ").concat(persona.getApellidoPaterno())
+					.concat(" ").concat(persona.getApellidoPaterno()));
+			correoMsj.getCorreoMsjItems().add(correoMsjItem);
+			
+			optionalCatalogo = catalogoService.findByTipoAndNombre(TIPO_ELEMENTO_CORREO, RAZON_SOCIAL);
+			if(optionalCatalogo.isEmpty()) {
+				LOG.info("{}No encontro el catalogo razon social de tipo_elemento_correo.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			correoMsjItem = new CorreoMsjItem();
+			correoMsjItem.setTipo(optionalCatalogo.get());
+			correoMsjItem.setFechaDeModificacion(LocalDateTime.now());
+			correoMsjItem.setIdUsuarioModificado(sesion.getUsuario().getId());
+			correoMsjItem.setEstatus(CAT_ACTIVO);
+			correoMsjItem.setClave(UUID.randomUUID());
+			correoMsjItem.setCorreoMsj(correoMsj);
+			correoMsjItem.setDato(empresa.getNombre());
+			correoMsj.getCorreoMsjItems().add(correoMsjItem);
+			
+			optionalCatalogo = catalogoService.findByTipoAndNombre(TIPO_ELEMENTO_CORREO, USUARIO);
+			if(optionalCatalogo.isEmpty()) {
+				LOG.info("{}No encontro el catalogo usuario de tipo_elemento_correo.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			correoMsjItem = new CorreoMsjItem();
+			correoMsjItem.setTipo(optionalCatalogo.get());
+			correoMsjItem.setFechaDeModificacion(LocalDateTime.now());
+			correoMsjItem.setIdUsuarioModificado(sesion.getUsuario().getId());
+			correoMsjItem.setEstatus(CAT_ACTIVO);
+			correoMsjItem.setClave(UUID.randomUUID());
+			correoMsjItem.setCorreoMsj(correoMsj);
+			correoMsjItem.setDato(usuario.getNombre());
+			correoMsj.getCorreoMsjItems().add(correoMsjItem);
+			
+			optionalCatalogo = catalogoService.findByTipoAndNombre(TIPO_ELEMENTO_CORREO, CLAVE_USUARIO);
+			if(optionalCatalogo.isEmpty()) {
+				LOG.info("{}No encontro el catalogo clave de usuario de tipo_elemento_correo.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			correoMsjItem = new CorreoMsjItem();
+			correoMsjItem.setTipo(optionalCatalogo.get());
+			correoMsjItem.setFechaDeModificacion(LocalDateTime.now());
+			correoMsjItem.setIdUsuarioModificado(sesion.getUsuario().getId());
+			correoMsjItem.setEstatus(CAT_ACTIVO);
+			correoMsjItem.setClave(UUID.randomUUID());
+			correoMsjItem.setCorreoMsj(correoMsj);
+			correoMsj.getCorreoMsjItems().add(correoMsjItem);
+			
+			optionalCatalogo = catalogoService.findByTipoAndNombre(TIPO_ELEMENTO_CORREO, CLAVE_EMPRESA);
+			if(optionalCatalogo.isEmpty()) {
+				LOG.info("{}No encontro el catalogo clave de la empresa de tipo_elemento_correo.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			correoMsjItem = new CorreoMsjItem();
+			correoMsjItem.setTipo(optionalCatalogo.get());
+			correoMsjItem.setFechaDeModificacion(LocalDateTime.now());
+			correoMsjItem.setIdUsuarioModificado(sesion.getUsuario().getId());
+			correoMsjItem.setEstatus(CAT_ACTIVO);
+			correoMsjItem.setClave(UUID.randomUUID());
+			correoMsjItem.setCorreoMsj(correoMsj);
+			correoMsjItem.setDato(String.valueOf(idEmpresa));
+			correoMsj.getCorreoMsjItems().add(correoMsjItem);
+			
+			optionalCatalogo = catalogoService.findByTipoAndNombre(TIPO_ELEMENTO_CORREO, PASSWORD);
+			if(optionalCatalogo.isEmpty()) {
+				LOG.info("{}No encontro el catalogo password de tipo_elemento_correo.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			correoMsjItem = new CorreoMsjItem();
+			correoMsjItem.setTipo(optionalCatalogo.get());
+			correoMsjItem.setFechaDeModificacion(LocalDateTime.now());
+			correoMsjItem.setIdUsuarioModificado(sesion.getUsuario().getId());
+			correoMsjItem.setEstatus(CAT_ACTIVO);
+			correoMsjItem.setClave(UUID.randomUUID());
+			correoMsjItem.setCorreoMsj(correoMsj);
+			correoMsjItem.setDato("TCBX-".concat(String.valueOf((int)(1000+Math.random() * 8000))));
+			usuario.setPassword(correoMsjItem.getDato());
+			correoMsj.getCorreoMsjItems().add(correoMsjItem);
+			
+			correoMsj.setDestinatario(usuario.getCorreo());
+			
 			BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 			usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
 			usuario.setFechaDeModificacion(LocalDateTime.now());
@@ -392,6 +555,7 @@ public final class TrabajadorControllerV01 extends Auth{
 		trabajador.setPersonaFisica(persona);
 		trabajador.setPlantel(plantel);
 		trabajador = trabajadorService.save(trabajador);
+		
 		if(usuario != null) {
 			usuario = usuarioService.save(usuario);
 			UsuarioPersona usuarioPersona = new UsuarioPersona();
@@ -402,6 +566,14 @@ public final class TrabajadorControllerV01 extends Auth{
 			usuarioPersona.setEstatus(CAT_ACTIVO);
 			usuarioPersona = usuarioPersonaService.save(usuarioPersona);
 			prs.setUsuarioPersona(usuarioPersona);
+			correoMsjService.save(correoMsj);
+			String idUsuario = usuario.getId().toString();
+			correoMsj.getCorreoMsjItems().stream().forEach(x->{
+				if(x.getTipo().getNombre().equals(CLAVE_USUARIO)) {
+					x.setDato(idUsuario);
+				}
+				correoMsjItemService.save(x);
+			});
 		}
 		return new ResponseEntity<Trabajador>(trabajador, HttpStatus.OK);
 	}

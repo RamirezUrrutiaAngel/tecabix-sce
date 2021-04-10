@@ -125,7 +125,8 @@ public final class UsuarioControllerV01 extends Auth {
 		if(sesion == null) {
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
-		if(isNotValid(TIPO_VARIABLE, Usuario.SIZE_NOMBRE, usuario)) {
+		if(isNotValid(TIPO_VARIABLE, Usuario.SIZE_NOMBRE, usuario) &&
+				isNotValid(TIPO_EMAIL, Usuario.SIZE_NOMBRE, usuario)) {
 			return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Optional<Usuario> optionalUsuario = usuarioService.findByNameRegardlessOfStatus(usuario);
@@ -145,7 +146,8 @@ public final class UsuarioControllerV01 extends Auth {
 		if(isNotValid(TIPO_EMAIL, Usuario.SIZE_CORREO, usuario.getCorreo())) {
 			return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
 		}
-		if(isNotValid(TIPO_VARIABLE, Usuario.SIZE_NOMBRE, usuario.getNombre())) {
+		if(isNotValid(TIPO_VARIABLE, Usuario.SIZE_NOMBRE, usuario.getNombre()) &&
+				isNotValid(TIPO_EMAIL, Usuario.SIZE_NOMBRE, usuario.getNombre())) {
 			return new ResponseEntity<Usuario>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, TIPO_ALFA, usuario.getPassword())) {

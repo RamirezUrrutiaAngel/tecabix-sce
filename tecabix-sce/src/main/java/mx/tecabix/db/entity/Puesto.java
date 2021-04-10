@@ -50,6 +50,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 	@NamedQuery(name = "Puesto.findByLikeNombre",query = "SELECT p FROM Puesto p WHERE UPPER(p.nombre) LIKE UPPER(?1) AND p.estatus.nombre = 'ACTIVO' "),
 	@NamedQuery(name = "Puesto.findByLikeDescripcion",query = "SELECT p FROM Puesto p WHERE UPPER(p.descripcion) LIKE UPPER(?1) AND p.estatus.nombre = 'ACTIVO' "),
 	@NamedQuery(name = "Puesto.findByLikeDepartamento",query = "SELECT p FROM Puesto p WHERE UPPER(p.departamento.nombre) LIKE UPPER(?1) AND p.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Puesto.findByDepartamentoClave",query = "SELECT p FROM Puesto p WHERE p.departamento.clave = ?1 AND p.estatus.nombre = 'ACTIVO' "),
 	@NamedQuery(name = "Puesto.findByIdEmpresa",query = "SELECT p FROM Puesto p WHERE p.estatus.nombre = 'ACTIVO' AND p.departamento.idEmpresa = ?1 ")
 })
 @NamedNativeQueries({

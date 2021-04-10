@@ -77,5 +77,10 @@ public final class PuestoServiceImpl extends GenericSeviceImpl<Puesto, Long> imp
 	public Boolean canInsert(Long idEmpresa) {
 		return puestoRepository.canInsert(idEmpresa);
 	}
+	@Override
+	public Page<Puesto> findByDepartamentoClave(UUID departamentoClave, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort);
+		return puestoRepository.findByDepartamentoClave(departamentoClave, pageable);
+	}
 
 }

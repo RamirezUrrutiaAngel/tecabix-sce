@@ -37,5 +37,6 @@ public interface PuestoService extends GenericSevice<Puesto, Long>{
 	Page<Puesto> findByLikeDescripcion(String descripcion, int elements, int page, Sort sort);
 	Page<Puesto> findByLikeDepartamento(String departamento, int elements, int page, Sort sort);
 	Page<Puesto> findByIdEmpresa(Long idEmpresa, int elements, int page, Sort sort);
+	Page<Puesto> findByDepartamentoClave(UUID departamentoClave, int elements, int page, Sort sort);
 	Optional<Puesto> findByClave(UUID uuid);
 }
