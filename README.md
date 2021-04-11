@@ -13,12 +13,34 @@ Creemos que la educción debe ser publica y accesible para todo aquel que desee 
 
 El proyecto **Tecabix SCE** permite gestionar los recursos de una institución educativa, como son los maestros, estudiantes, siclos escolares, etc. 
 
-## Ambientación
+## Ambientación de desarrollo
 El proyecto fue desarrollado en Java 11 con eclipse, usando el motor de base de datos PostgreSQL, por lo que se recomienda usar estas mismas tecnologías para su desarrollo o implementación. 
 
 - Instale la JDK 11, recomendamos openJDK de https://adoptopenjdk.net. 
 - Instale PostgreSQL de https://www.postgresql.org/download/
 - Instale eclipse de https://www.eclipse.org/downloads/
+
+Una vez instalado lo anterior, es necesario que se ejecute los scripts que se encuentran en el siguiente repositorio:
+https://github.com/RamirezUrrutiaAngel/tecabix-sce-sql
+
+Configure los properties del proyecto acorde a sus necesidades.
+
+Levanta el proyecto y diríjase a la siguiente dirección : 
+
+http://localhost:8080/swagger-ui.html#/
+
+Se le solicitara que se autentifique, use las siguientes credenciales para loguearse:
+
+|   |   |
+| ------------ | ------------ |
+| Nombre de usuario   | root  |
+| Contraseña  | admin  |
+
+Si todo esta correcto, podrá ver el swagger.
+
+![swagger](https://www.tecabix.com/wp-content/uploads/2021/04/swagger.png "swagger")
+
+
 
 
 
