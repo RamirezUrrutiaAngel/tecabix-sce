@@ -38,7 +38,7 @@ Se le solicitara que se autentifique, use las siguientes credenciales para logue
 
 Si todo esta correcto, podrá ver el swagger.
 
-![swagger](https://www.tecabix.com/wp-content/uploads/2021/04/swagger.png "swagger")
+[![swagger](https://www.tecabix.com/wp-content/uploads/2021/04/swagger.png "swagger")](https://www.tecabix.com/ "swagger")
 
 
 
