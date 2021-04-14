@@ -19,6 +19,7 @@ package mx.tecabix.service.controller.v01;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -49,9 +50,11 @@ import mx.tecabix.db.entity.CorreoMsjItem;
 import mx.tecabix.db.entity.Direccion;
 import mx.tecabix.db.entity.Empresa;
 import mx.tecabix.db.entity.Municipio;
+import mx.tecabix.db.entity.Perfil;
 import mx.tecabix.db.entity.Persona;
 import mx.tecabix.db.entity.PersonaFisica;
 import mx.tecabix.db.entity.Plantel;
+import mx.tecabix.db.entity.Puesto;
 import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.entity.Trabajador;
 import mx.tecabix.db.entity.Usuario;
@@ -63,9 +66,11 @@ import mx.tecabix.db.service.CorreoService;
 import mx.tecabix.db.service.DireccionService;
 import mx.tecabix.db.service.EmpresaService;
 import mx.tecabix.db.service.MunicipioService;
+import mx.tecabix.db.service.PerfilService;
 import mx.tecabix.db.service.PersonaFisicaService;
 import mx.tecabix.db.service.PersonaService;
 import mx.tecabix.db.service.PlantelService;
+import mx.tecabix.db.service.PuestoService;
 import mx.tecabix.db.service.TrabajadorService;
 import mx.tecabix.db.service.UsuarioPersonaService;
 import mx.tecabix.db.service.UsuarioService;
@@ -100,6 +105,10 @@ public final class TrabajadorControllerV01 extends Auth{
 	@Autowired
 	private PlantelService plantelService;
 	@Autowired
+	private PuestoService puestoService;
+	@Autowired
+	private PerfilService perfilService;
+	@Autowired
 	private UsuarioService usuarioService;
 	@Autowired
 	private UsuarioPersonaService usuarioPersonaService;
@@ -119,13 +128,16 @@ public final class TrabajadorControllerV01 extends Auth{
 	private final String ALTA_USR_ASUNTO	= "ALTA_USR_ASUNTO";
 	private final String ALTA_USR_PLANTILLA	= "ALTA_USR_PLANTILLA";
 	
+	private final String TIPO_DE_CORREO		= "TIPO_DE_CORREO";
+	private final String CONFIRMAR_CORREO	= "CONFIRMAR_CORREO";
+	
 	
 	private final String NOMBRE					= "NOMBRE";
 	private final String USUARIO				= "USUARIO";
 	private final String PASSWORD				= "PASSWORD";
 	private final String RAZON_SOCIAL			= "RAZON_SOCIAL";
-	private final String CLAVE_USUARIO			= "CLAVE_USUARIO";
-	private final String CLAVE_EMPRESA			= "CLAVE_EMPRESA";
+	private final String ID_TRABAJADOR			= "ID_TRABAJADOR";
+	private final String ID_EMPRESA				= "ID_EMPRESA";
 	private final String TIPO_ELEMENTO_CORREO	= "TIPO_ELEMENTO_CORREO";
 	
 	private final String SEXO = "SEXO";
@@ -341,7 +353,7 @@ public final class TrabajadorControllerV01 extends Auth{
 			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Trabajador jefe = opcionalTrabajador.get();
-		if(jefe.getPlantel().getIdEmpresa().equals(idEmpresa)) {
+		if(!jefe.getPlantel().getIdEmpresa().equals(idEmpresa)) {
 			LOG.info("{}El trabajador (jefe) no pertenece a la empresa.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 		}
@@ -356,6 +368,20 @@ public final class TrabajadorControllerV01 extends Auth{
 			}else {
 				return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 			}
+		}
+		Optional<Puesto> optionalPuesto = puestoService.findByClave(trabajador.getPuesto().getClave());
+		if(optionalPuesto.isEmpty()) {
+			LOG.info("{}No encontro el puesto.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+		}
+		Puesto puesto = optionalPuesto.get();
+		if(!puesto.getEstatus().equals(CAT_ACTIVO)) {
+			LOG.info("{}El puesto no esta activo.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+		}
+		if(!puesto.getDepartamento().getIdEmpresa().equals(idEmpresa)) {
+			LOG.info("{}El puesto no pertenece a la empresa.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
 		}
 		
 		Usuario usuario = null;
@@ -385,6 +411,10 @@ public final class TrabajadorControllerV01 extends Auth{
 			correoMsj.setCorreo(optionalCorreo.get());
 			correoMsj.setCorreoMsjItems(new ArrayList<>());
 			correoMsj.setProgramado(LocalDateTime.now());
+			correoMsj.setFechaDeModificacion(LocalDateTime.now());
+			correoMsj.setIdUsuarioModificado(sesion.getUsuario().getId());
+			correoMsj.setEstatus(CAT_ACTIVO);
+			correoMsj.setClave(UUID.randomUUID());
 			
 			configuracion = empresa.getConfiguraciones().stream()
 					.filter(x -> x.getTipo().getNombre().equals(ALTA_USR_ASUNTO)).findFirst().orElse(null);
@@ -401,29 +431,60 @@ public final class TrabajadorControllerV01 extends Auth{
 			}
 			correoMsj.setMensaje(configuracion.getValor());
 			if(isNotValid(TIPO_EMAIL, Usuario.SIZE_CORREO, usuario.getCorreo())) {
+				LOG.info("{}El correo no cumple con el formato.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 			}
 			if(isNotValid(TIPO_VARIABLE, Usuario.SIZE_NOMBRE, usuario.getNombre()) &&
 					isNotValid(TIPO_EMAIL, Usuario.SIZE_NOMBRE, usuario.getNombre())) {
+				LOG.info("{}El username no cumple con el formato.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 			}
-			if(usuario.getNombre().length()>8) {
+			if(isNotValid(usuario.getPerfil())) {
+				LOG.info("{}No se mando el perfil.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 			}
-			if(isNotValid(usuario.getUsuarioPersona())) {
+			if(isNotValid(usuario.getPerfil().getClave())) {
+				LOG.info("{}No se mando la clave del perfil.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 			}
-			if(isNotValid(usuario.getUsuarioPersona().getClave())) {
+			
+			if(usuario.getNombre().length()<8) {
+				LOG.info("{}El username debe tener almenos 8 caracteres.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 			}
-			if(usuarioService.findByNameRegardlessOfStatus(usuario.getNombre())!= null) {
+			
+			if(usuarioService.findByNameRegardlessOfStatus(usuario.getNombre()).isPresent()) {
+				LOG.info("{}El username ya existe.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.CONFLICT);
 			}
-			Optional<Catalogo> optionalCatalogo = catalogoService.findByTipoAndNombre(TIPO_ELEMENTO_CORREO, NOMBRE);
+			Optional<Perfil> optionalPerfil = perfilService.findByClave(usuario.getPerfil().getClave());
+			if(optionalPerfil.isEmpty()) {
+				LOG.info("{}No encontro el perfil.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+			}
+			Perfil perfil = optionalPerfil.get();
+			if(!perfil.getEstatus().equals(CAT_ACTIVO)) {
+				LOG.info("{}El perfil no esta activo.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+			}
+			if(!perfil.getIdEmpresa().equals(idEmpresa)) {
+				LOG.info("{}El perfil no pertenece a la empresa.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+			}
+			
+			Optional<Catalogo> optionalCatalogo = catalogoService.findByTipoAndNombre(TIPO_DE_CORREO, CONFIRMAR_CORREO);
 			if(optionalCatalogo.isEmpty()) {
 				LOG.info("{}No encontro el catalogo nombre de tipo_elemento_correo.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
+			correoMsj.setTipo(optionalCatalogo.get());
+			
+			optionalCatalogo = catalogoService.findByTipoAndNombre(TIPO_ELEMENTO_CORREO, NOMBRE);
+			if(optionalCatalogo.isEmpty()) {
+				LOG.info("{}No encontro el catalogo nombre de tipo_elemento_correo.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			
 			CorreoMsjItem correoMsjItem = new CorreoMsjItem();
 			correoMsjItem.setTipo(optionalCatalogo.get());
 			
@@ -467,7 +528,7 @@ public final class TrabajadorControllerV01 extends Auth{
 			correoMsjItem.setDato(usuario.getNombre());
 			correoMsj.getCorreoMsjItems().add(correoMsjItem);
 			
-			optionalCatalogo = catalogoService.findByTipoAndNombre(TIPO_ELEMENTO_CORREO, CLAVE_USUARIO);
+			optionalCatalogo = catalogoService.findByTipoAndNombre(TIPO_ELEMENTO_CORREO, ID_TRABAJADOR);
 			if(optionalCatalogo.isEmpty()) {
 				LOG.info("{}No encontro el catalogo clave de usuario de tipo_elemento_correo.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -481,7 +542,7 @@ public final class TrabajadorControllerV01 extends Auth{
 			correoMsjItem.setCorreoMsj(correoMsj);
 			correoMsj.getCorreoMsjItems().add(correoMsjItem);
 			
-			optionalCatalogo = catalogoService.findByTipoAndNombre(TIPO_ELEMENTO_CORREO, CLAVE_EMPRESA);
+			optionalCatalogo = catalogoService.findByTipoAndNombre(TIPO_ELEMENTO_CORREO, ID_EMPRESA);
 			if(optionalCatalogo.isEmpty()) {
 				LOG.info("{}No encontro el catalogo clave de la empresa de tipo_elemento_correo.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -515,6 +576,8 @@ public final class TrabajadorControllerV01 extends Auth{
 			correoMsj.setDestinatario(usuario.getCorreo());
 			
 			BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+			usuario.setClave(UUID.randomUUID());
+			usuario.setPerfil(perfil);
 			usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
 			usuario.setFechaDeModificacion(LocalDateTime.now());
 			usuario.setIdUsuarioModificado(sesion.getUsuario().getId());
@@ -534,6 +597,7 @@ public final class TrabajadorControllerV01 extends Auth{
 		prs.setIdUsuarioModificado(sesion.getUsuario().getId());
 		prs.setFechaDeModificacion(LocalDateTime.now());
 		prs.setEstatus(CAT_ACTIVO);
+		prs.setIdEmpresa(idEmpresa);
 		prs = personaService.save(prs);
 		persona.setId(null);
 		persona.setClave(UUID.randomUUID());
@@ -554,6 +618,7 @@ public final class TrabajadorControllerV01 extends Auth{
 		trabajador.setJefe(jefe);
 		trabajador.setPersonaFisica(persona);
 		trabajador.setPlantel(plantel);
+		trabajador.setPuesto(puesto);
 		trabajador = trabajadorService.save(trabajador);
 		
 		if(usuario != null) {
@@ -564,16 +629,17 @@ public final class TrabajadorControllerV01 extends Auth{
 			usuarioPersona.setFechaDeModificacion(LocalDateTime.now());
 			usuarioPersona.setIdUsuarioModificado(sesion.getUsuario().getId());
 			usuarioPersona.setEstatus(CAT_ACTIVO);
+			usuarioPersona.setClave(UUID.randomUUID());
 			usuarioPersona = usuarioPersonaService.save(usuarioPersona);
 			prs.setUsuarioPersona(usuarioPersona);
 			correoMsjService.save(correoMsj);
-			String idUsuario = usuario.getId().toString();
-			correoMsj.getCorreoMsjItems().stream().forEach(x->{
-				if(x.getTipo().getNombre().equals(CLAVE_USUARIO)) {
-					x.setDato(idUsuario);
+			List<CorreoMsjItem> correoMsjItems = correoMsj.getCorreoMsjItems();
+			for(CorreoMsjItem item:correoMsjItems) {
+				if(item.getTipo().getNombre().equals(ID_TRABAJADOR)) {
+					item.setDato(trabajador.getId().toString());
 				}
-				correoMsjItemService.save(x);
-			});
+				correoMsjItemService.save(item);
+			}
 		}
 		return new ResponseEntity<Trabajador>(trabajador, HttpStatus.OK);
 	}
