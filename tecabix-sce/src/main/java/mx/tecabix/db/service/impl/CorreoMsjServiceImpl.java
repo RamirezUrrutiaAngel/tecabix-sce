@@ -23,6 +23,10 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.GenericSeviceImpl;
@@ -50,6 +54,12 @@ public class CorreoMsjServiceImpl extends GenericSeviceImpl<CorreoMsj, Long> imp
 	@Override
 	public Optional<CorreoMsj> findByClave(UUID uuid) {
 		return correoMsjRepository.findByClave(uuid);
+	}
+
+	@Override
+	public Page<CorreoMsj> findLast(int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		return correoMsjRepository.findLast(pageable);
 	}
 
 }

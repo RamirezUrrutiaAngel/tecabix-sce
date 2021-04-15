@@ -21,6 +21,8 @@ package mx.tecabix.db.repository;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import mx.tecabix.db.entity.CorreoMsj;
@@ -32,5 +34,6 @@ import mx.tecabix.db.entity.CorreoMsj;
  */
 public interface CorreoMsjRepository  extends JpaRepository<CorreoMsj, Long>{
 
+	Page<CorreoMsj> findLast(Pageable pageable);
 	Optional<CorreoMsj> findByClave(UUID uuid);
 }

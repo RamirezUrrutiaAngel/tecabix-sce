@@ -20,6 +20,9 @@ package mx.tecabix.db.service;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+
 import mx.tecabix.db.GenericSevice;
 import mx.tecabix.db.entity.CorreoMsj;
 
@@ -30,5 +33,6 @@ import mx.tecabix.db.entity.CorreoMsj;
  */
 public interface CorreoMsjService extends GenericSevice<CorreoMsj, Long>{
 
+	Page<CorreoMsj> findLast(int elements, int page, Sort sort);
 	Optional<CorreoMsj> findByClave(UUID uuid);
 }
