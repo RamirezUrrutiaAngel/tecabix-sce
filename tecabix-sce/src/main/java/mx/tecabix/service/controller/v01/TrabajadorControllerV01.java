@@ -132,12 +132,12 @@ public final class TrabajadorControllerV01 extends Auth{
 	private final String CONFIRMAR_CORREO	= "CONFIRMAR_CORREO";
 	
 	
-	private final String NOMBRE					= "NOMBRE";
-	private final String USUARIO				= "USUARIO";
-	private final String PASSWORD				= "PASSWORD";
-	private final String RAZON_SOCIAL			= "RAZON_SOCIAL";
-	private final String ID_TRABAJADOR			= "ID_TRABAJADOR";
-	private final String ID_EMPRESA				= "ID_EMPRESA";
+	private final String NOMBRE					= "[NOMBRE]";
+	private final String USUARIO				= "[USUARIO]";
+	private final String PASSWORD				= "[PASSWORD]";
+	private final String RAZON_SOCIAL			= "[RAZON_SOCIAL]";
+	private final String ID_TRABAJADOR			= "[ID_TRABAJADOR]";
+	private final String ID_EMPRESA				= "[ID_EMPRESA]";
 	private final String TIPO_ELEMENTO_CORREO	= "TIPO_ELEMENTO_CORREO";
 	
 	private final String SEXO = "SEXO";
@@ -474,14 +474,14 @@ public final class TrabajadorControllerV01 extends Auth{
 			
 			Optional<Catalogo> optionalCatalogo = catalogoService.findByTipoAndNombre(TIPO_DE_CORREO, CONFIRMAR_CORREO);
 			if(optionalCatalogo.isEmpty()) {
-				LOG.info("{}No encontro el catalogo nombre de tipo_elemento_correo.",headerLog);
+				LOG.info("{}No encontro el catalogo TIPO_DE_CORREO CONFIRMAR_CORREO.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 			correoMsj.setTipo(optionalCatalogo.get());
 			
 			optionalCatalogo = catalogoService.findByTipoAndNombre(TIPO_ELEMENTO_CORREO, NOMBRE);
 			if(optionalCatalogo.isEmpty()) {
-				LOG.info("{}No encontro el catalogo nombre de tipo_elemento_correo.",headerLog);
+				LOG.info("{}No encontro el catalogo nombre TIPO_ELEMENTO_CORREO NOMBRE.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 			
@@ -495,12 +495,12 @@ public final class TrabajadorControllerV01 extends Auth{
 			correoMsjItem.setCorreoMsj(correoMsj);
 			correoMsjItem.setDato(persona.getNombre()
 					.concat(" ").concat(persona.getApellidoPaterno())
-					.concat(" ").concat(persona.getApellidoPaterno()));
+					.concat(" ").concat(persona.getApellidoMaterno()));
 			correoMsj.getCorreoMsjItems().add(correoMsjItem);
 			
 			optionalCatalogo = catalogoService.findByTipoAndNombre(TIPO_ELEMENTO_CORREO, RAZON_SOCIAL);
 			if(optionalCatalogo.isEmpty()) {
-				LOG.info("{}No encontro el catalogo razon social de tipo_elemento_correo.",headerLog);
+				LOG.info("{}No encontro el catalogo TIPO_ELEMENTO_CORREO RAZON_SOCIAL.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 			correoMsjItem = new CorreoMsjItem();
@@ -515,7 +515,7 @@ public final class TrabajadorControllerV01 extends Auth{
 			
 			optionalCatalogo = catalogoService.findByTipoAndNombre(TIPO_ELEMENTO_CORREO, USUARIO);
 			if(optionalCatalogo.isEmpty()) {
-				LOG.info("{}No encontro el catalogo usuario de tipo_elemento_correo.",headerLog);
+				LOG.info("{}No encontro el catalogo TIPO_ELEMENTO_CORREO USUARIO.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 			correoMsjItem = new CorreoMsjItem();
@@ -530,7 +530,7 @@ public final class TrabajadorControllerV01 extends Auth{
 			
 			optionalCatalogo = catalogoService.findByTipoAndNombre(TIPO_ELEMENTO_CORREO, ID_TRABAJADOR);
 			if(optionalCatalogo.isEmpty()) {
-				LOG.info("{}No encontro el catalogo clave de usuario de tipo_elemento_correo.",headerLog);
+				LOG.info("{}No encontro el catalogo TIPO_ELEMENTO_CORREO ID_TRABAJADOR.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 			correoMsjItem = new CorreoMsjItem();
@@ -544,7 +544,7 @@ public final class TrabajadorControllerV01 extends Auth{
 			
 			optionalCatalogo = catalogoService.findByTipoAndNombre(TIPO_ELEMENTO_CORREO, ID_EMPRESA);
 			if(optionalCatalogo.isEmpty()) {
-				LOG.info("{}No encontro el catalogo clave de la empresa de tipo_elemento_correo.",headerLog);
+				LOG.info("{}No encontro el catalogo TIPO_ELEMENTO_CORREO ID_EMPRESA.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 			correoMsjItem = new CorreoMsjItem();
@@ -559,7 +559,7 @@ public final class TrabajadorControllerV01 extends Auth{
 			
 			optionalCatalogo = catalogoService.findByTipoAndNombre(TIPO_ELEMENTO_CORREO, PASSWORD);
 			if(optionalCatalogo.isEmpty()) {
-				LOG.info("{}No encontro el catalogo password de tipo_elemento_correo.",headerLog);
+				LOG.info("{}No encontro el catalogo TIPO_ELEMENTO_CORREO PASSWORD.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 			correoMsjItem = new CorreoMsjItem();

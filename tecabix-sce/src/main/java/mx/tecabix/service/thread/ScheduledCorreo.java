@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -90,8 +91,25 @@ public class ScheduledCorreo extends Auth{
 	@Autowired
 	private CorreoMsjItemService correoMsjItemService;
 	
+	private HashMap<String, String> carcaterEspeciales;
+	
 	@PostConstruct
 	private void postConstruct() {
+		carcaterEspeciales = new HashMap<>();
+		carcaterEspeciales.put("á", "&aacute;");
+		carcaterEspeciales.put("é", "&eacute;");
+		carcaterEspeciales.put("í", "&iacute;");
+		carcaterEspeciales.put("ó", "&oacute;");
+		carcaterEspeciales.put("ú", "&uacute;");
+		carcaterEspeciales.put("ñ", "&ntilde;");
+		carcaterEspeciales.put("Ñ", "&Ntilde;");
+		carcaterEspeciales.put("Á", "&Aacute;");
+		carcaterEspeciales.put("É", "&Eacute;");
+		carcaterEspeciales.put("Í", "&Iacute;");
+		carcaterEspeciales.put("Ó", "&Oacute;");
+		carcaterEspeciales.put("Ú", "&Uacute;");
+		carcaterEspeciales.put("¿", "&iquest;");
+		
 		if(SEED == null) {
 			try {
 				Properties properties = new Properties();
@@ -143,11 +161,17 @@ public class ScheduledCorreo extends Auth{
 								.filter(x -> !x.getTipo().getNombre().equals("CC")
 										&& !x.getTipo().getNombre().equals("ADJUNTO"))
 								.collect(Collectors.toList());
-						String linea;
+						String linea = null;
 						while ((linea = br.readLine())!= null) {
 							for(CorreoMsjItem item: items) {
 								if(linea.contains(item.getTipo().getNombre())) {
 									linea = linea.replace(item.getTipo().getNombre(), item.getDato());
+								}
+							}
+							
+							for(String key : carcaterEspeciales.keySet()) {
+								if(linea.contains(key)) {
+									linea = linea.replaceAll(key, carcaterEspeciales.get(key));
 								}
 							}
 							text.append(linea);
