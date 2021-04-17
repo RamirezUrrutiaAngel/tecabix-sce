@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -38,7 +39,7 @@ public class CorreoMsjItem implements Serializable{
 	@ManyToOne
     @JoinColumn(name = "id_correo_msj")
     private CorreoMsj correoMsj;
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tipo")
     private Catalogo tipo;
 	@Column(name = "dato")
@@ -47,7 +48,7 @@ public class CorreoMsjItem implements Serializable{
 	private Long idUsuarioModificado;
 	@Column(name="fecha_modificado")
 	private LocalDateTime fechaDeModificacion;
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_estatus")
     private Catalogo estatus;
 	@Column(name = "clave")

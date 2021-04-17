@@ -17,13 +17,19 @@
  */
 package mx.tecabix.service.controller.v01;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.UUID;
 
+import javax.annotation.PostConstruct;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
@@ -31,6 +37,7 @@ import javax.crypto.NoSuchPaddingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -61,6 +68,11 @@ public final class CorreoControllerV01 extends Auth{
 	private static final Logger LOG = LoggerFactory.getLogger(CorreoControllerV01.class);
 	private static final String LOG_URL = "/correo/v1";
 	
+	@Value("${configuracion.email}")
+	private String configuracionEmailFile;
+	
+	private static String SEED;
+	
 	private static final String CORREO_CREAR = "CORREO_CREAR";
 	private static final String TIPO_DE_CORREO = "TIPO_DE_CORREO";
 	
@@ -71,6 +83,25 @@ public final class CorreoControllerV01 extends Auth{
 	private CorreoService correoService;
 	@Autowired
 	private CatalogoService catalogoService;
+	
+	
+	@PostConstruct
+	private void postConstruct() {
+		if(SEED == null) {
+			try {
+				Properties properties = new Properties();
+				FileReader fileReader;
+				fileReader = new FileReader(new File(configuracionEmailFile).getAbsoluteFile());
+				properties.load(fileReader);
+				SEED = properties.getProperty("SEED");
+				fileReader.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
 	@ApiOperation(value = "Persiste la entidad del correo. ")
 	@PostMapping()
@@ -116,7 +147,7 @@ public final class CorreoControllerV01 extends Auth{
 		}
 		correo.setPersona(sesion.getUsuario().getUsuarioPersona().getPersona());
 		try {
-			correo.setPassword(encriptar(correo.getPassword(), getSEED()));
+			correo.setPassword(encriptar(correo.getPassword(), SEED));
 		} catch (InvalidKeyException | UnsupportedEncodingException | NoSuchAlgorithmException | NoSuchPaddingException
 				| IllegalBlockSizeException | BadPaddingException e) {
 			e.printStackTrace();
@@ -193,15 +224,6 @@ public final class CorreoControllerV01 extends Auth{
 			LOG.info("{}No se mando la clave de la persona.",headerLog);
 			return new ResponseEntity<Correo>(HttpStatus.BAD_REQUEST);
 		}
-		if(correo.getPassword() != null && !correo.getPassword().isBlank()) {
-			try {
-				correo.setPassword(encriptar(correo.getPassword(), getSEED()));
-			} catch (InvalidKeyException | UnsupportedEncodingException | NoSuchAlgorithmException | NoSuchPaddingException
-					| IllegalBlockSizeException | BadPaddingException e) {
-				e.printStackTrace();
-				return new ResponseEntity<Correo>(HttpStatus.INTERNAL_SERVER_ERROR);
-			}
-		}
 		Optional<Correo> optionalCorreo = correoService.findByClave(correo.getClave());
 		if(optionalCorreo.isEmpty()) {
 			LOG.info("{}No se encontro el correo con la clave {}.",headerLog, correo.getClave());
@@ -232,7 +254,7 @@ public final class CorreoControllerV01 extends Auth{
 		}
 		if(correo.getPassword() != null && !correo.getPassword().isBlank()) {
 			try {
-				correoUpdate.setPassword(encriptar(correo.getPassword(), getSEED()));
+				correoUpdate.setPassword(encriptar(correo.getPassword(), SEED));
 			} catch (InvalidKeyException | UnsupportedEncodingException | NoSuchAlgorithmException | NoSuchPaddingException
 					| IllegalBlockSizeException | BadPaddingException e) {
 				e.printStackTrace();

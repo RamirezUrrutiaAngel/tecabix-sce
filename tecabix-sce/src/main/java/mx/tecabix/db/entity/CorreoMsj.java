@@ -33,7 +33,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @Entity()
 @Table(name = "correo_msj")
 @NamedQueries({
-	@NamedQuery(name = "CorreoMsj.findLast",query = "SELECT c FROM CorreoMsj c WHERE c.programado > NOW() AND c.estatus.nombre = 'ACTIVO' ")
+	@NamedQuery(name = "CorreoMsj.findLast",query = "SELECT c FROM CorreoMsj c WHERE c.programado < NOW() AND c.estatus.nombre = 'ACTIVO' ")
 })
 public final class CorreoMsj implements Serializable{
 
@@ -45,7 +45,7 @@ public final class CorreoMsj implements Serializable{
 	@SequenceGenerator(name = "correo_msj_id_correo_msj_gen", sequenceName = "tecabix_sce.correo_msj_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "correo_msj_id_correo_msj_gen")
     private Long id;
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_correo")
     private Correo correo;
 	@Column(name = "destinatario")
@@ -54,7 +54,7 @@ public final class CorreoMsj implements Serializable{
     private String asunto;
 	@Column(name = "mensaje")
     private String mensaje;
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tipo")
     private Catalogo tipo;
 	@Column(name="programado")
@@ -70,8 +70,9 @@ public final class CorreoMsj implements Serializable{
     @Type(type="pg-uuid")
     private UUID clave;
 	@JsonProperty(access = Access.WRITE_ONLY)
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="correoMsj", cascade=CascadeType.REMOVE)
+    @OneToMany( mappedBy="correoMsj", cascade=CascadeType.REMOVE, fetch = FetchType.EAGER)
     private List<CorreoMsjItem> correoMsjItems;
+	
 	public Long getId() {
 		return id;
 	}

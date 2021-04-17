@@ -38,15 +38,38 @@ import mx.tecabix.db.service.UsuarioService;
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public class Auth extends Notificacion{
+public class Auth extends Encrypt{
+
+	private static final String LOGMS = "\nEMPRESA: :EMPRESA \n:PET : :PATH \n";
 	
+	private static final String GET = "GET";
+	private static final String PUT = "PUT";
+	private static final String POST = "POST";
+	private static final String DELETE = "DELETE";
 	
 	@Autowired 
 	private UsuarioService usuarioService;
 	@Autowired
 	private SesionService sesionService;
 	
+	private String formatHeaderOfLogger(long idEmpresa, String peticion, String path) {
+		return LOGMS.replaceFirst(":EMPRESA", String.valueOf(idEmpresa)).replaceFirst(":PET", peticion)
+				.replaceFirst(":PATH", path);
+	}
 	
+	protected String formatLogGet(long idEmpresa, String path){
+		return formatHeaderOfLogger(idEmpresa, GET, path);
+	}
+	protected String formatLogPost(long idEmpresa, String path){
+		return formatHeaderOfLogger(idEmpresa, POST, path);
+	}
+	protected String formatLogPut(long idEmpresa, String path){
+		return formatHeaderOfLogger(idEmpresa, PUT, path);
+	}
+	protected String formatLogDelete(long idEmpresa, String path){
+		return formatHeaderOfLogger(idEmpresa, DELETE, path);
+	}
+
 	protected final boolean hash(Authentication authentication, String... authorities) {
 		Collection<? extends GrantedAuthority> collectionAuthorities = authentication.getAuthorities();
 		List<String> authoritiesList = Arrays.asList(authorities);

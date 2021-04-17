@@ -31,6 +31,7 @@ import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -56,6 +57,10 @@ import mx.tecabix.service.Auth;
 @RestController
 @RequestMapping("log/v1")
 public final class LogControllerV01 extends Auth{
+	
+	@Value("${configuracion.email}")
+	private String configuracionEmailFile;
+	
 	private static final Logger LOG = LoggerFactory.getLogger(LogControllerV01.class);
 	private static final String LOG_URL = "/log/v1";
 	
@@ -68,7 +73,7 @@ public final class LogControllerV01 extends Auth{
 	@PostConstruct
 	private void postConstruct() {
 		try {
-			File file = this.getConfiguracionEmailFile();
+			File file = new File(configuracionEmailFile).getAbsoluteFile();
 			if( file != null) {
 				if(file.exists()) {
 					String LOG_DIR = "LOG_DIR";

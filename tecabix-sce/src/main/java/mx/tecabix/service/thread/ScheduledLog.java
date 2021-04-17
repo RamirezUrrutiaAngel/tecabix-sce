@@ -17,15 +17,15 @@
  */
 package mx.tecabix.service.thread;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -33,13 +33,23 @@ import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import mx.tecabix.db.entity.Catalogo;
 import mx.tecabix.db.entity.Correo;
+import mx.tecabix.db.entity.CorreoMsj;
+import mx.tecabix.db.entity.CorreoMsjItem;
+import mx.tecabix.db.entity.Usuario;
+import mx.tecabix.db.service.CatalogoService;
+import mx.tecabix.db.service.CorreoMsjItemService;
+import mx.tecabix.db.service.CorreoMsjService;
 import mx.tecabix.db.service.CorreoService;
+import mx.tecabix.db.service.UsuarioService;
 import mx.tecabix.service.Auth;
+import mx.tecabix.service.SingletonUtil;
 
 /**
  * 
@@ -52,44 +62,69 @@ public class ScheduledLog extends Auth {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ScheduledLog.class);
 
+	@Value("${configuracion.email}")
+	private String configuracionEmailFile;
+
+	@Autowired
+	private SingletonUtil singletonUtil;
 	@Autowired
 	private CorreoService correoService;
+	@Autowired
+	private CorreoMsjService correoMsjService;
+	@Autowired
+	private CorreoMsjItemService correoMsjItemService;
+	@Autowired
+	private UsuarioService usuarioService;
+	@Autowired
+	private CatalogoService catalogoService;
+	
 
 	private Correo correo = null;
 	private String SUBJECT = null;
 	private String TO = null;
-	private List<String> CC = null;
+	private List<String> copiados = null;
 	private String FILE_MESSAGE = null;
 	private String LOG_DIR = null;
 	private boolean enviar = false;
+	private Usuario root;
+	private Catalogo CAT_ACTIVO;
+	private Catalogo CAT_TIPO_CORREO;
+	private Catalogo CAT_CC;
+	private Catalogo CAT_ADJUNTO;
 
 	@PostConstruct
 	private void postConstruct() {
 		try {
-			File file = this.getConfiguracionEmailFile();
+			File file = new File(configuracionEmailFile).getAbsoluteFile();
 			if (file != null) {
 				if (file.exists()) {
+					
+					final String TIPO_DE_CORREO = "TIPO_DE_CORREO";
+					final String INFORMATIVO = "INFORMATIVO";
+					final String TIPO_ELEMENTO_CORREO = "TIPO_ELEMENTO_CORREO";
+					final String ADJUNTO = "ADJUNTO";
+					final String CC = "CC";
+					
 					String REMITENTE = "LOG_REMITENTE";
 					String SUBJECT = "LOG_SUBJECT";
-					String TO = "LOG_TO";
-					String CC = "LOG_CC";
+					String LOG_TO = "LOG_TO";
+					String LOG_CC = "LOG_CC";
 					String FILE_MESSAGE = "LOG_FILE_MESSAGE";
 					String LOG_DIR = "LOG_DIR";
-					String SEED = "SEED";
+					
 
 					try {
 						Properties properties = new Properties();
 						FileReader fileReader = new FileReader(file);
 						properties.load(fileReader);
-						SEED = properties.getProperty(SEED);
 						REMITENTE = properties.getProperty(REMITENTE);
 						this.SUBJECT = properties.getProperty(SUBJECT);
-						this.TO = properties.getProperty(TO);
+						this.TO = properties.getProperty(LOG_TO);
 						this.FILE_MESSAGE = properties.getProperty(FILE_MESSAGE);
 						this.LOG_DIR = properties.getProperty(LOG_DIR);
-						String aux = properties.getProperty(CC);
+						String aux = properties.getProperty(LOG_CC);
 						if (aux != null && !aux.trim().isEmpty()) {
-							this.CC = Arrays.asList(aux.split(" ")).stream().filter(x -> !x.isBlank())
+							this.copiados = Arrays.asList(aux.split(" ")).stream().filter(x -> !x.isBlank())
 									.collect(Collectors.toList());
 						}
 						fileReader.close();
@@ -103,14 +138,46 @@ public class ScheduledLog extends Auth {
 						Optional<Correo> optionalCorreo = correoService.findByRemitente(REMITENTE);
 						if (optionalCorreo.isPresent()) {
 							correo = optionalCorreo.get();
-							String psw = correo.getPassword();
-							psw = desencriptar(psw, SEED);
-							correo.setPassword(psw);
+							
 							isNull = isNull || this.SUBJECT.isEmpty();
 							isNull = isNull || this.TO.isEmpty();
 							isNull = isNull || this.FILE_MESSAGE.isEmpty();
 							isNull = isNull || this.LOG_DIR.isEmpty();
 							enviar = !isNull;
+							if (enviar) {
+								Optional<Usuario> optionalUsuario = usuarioService.findByNombre("root");
+								if (optionalUsuario.isEmpty()) {
+									LOG.error("No existe el usuario con el nombre root.");
+									enviar = false;
+									return;
+								} 
+								root = optionalUsuario.get();
+								CAT_ACTIVO = singletonUtil.getActivo();
+								Optional<Catalogo> optionalCatalogo = catalogoService
+										.findByTipoAndNombre(TIPO_DE_CORREO, INFORMATIVO);
+								if (optionalCatalogo.isEmpty()) {
+									LOG.error("No existe el catalogo TIPO_DE_CORREO INFORMATIVO.");
+									enviar = false;
+									return;
+								} 
+								CAT_TIPO_CORREO = optionalCatalogo.get();
+								optionalCatalogo = catalogoService
+										.findByTipoAndNombre(TIPO_ELEMENTO_CORREO, CC);
+								if (optionalCatalogo.isEmpty()) {
+									LOG.error("No existe el catalogo TIPO_ELEMENTO_CORREO CC.");
+									enviar = false;
+									return;
+								}
+								CAT_CC = optionalCatalogo.get();
+								optionalCatalogo = catalogoService
+										.findByTipoAndNombre(TIPO_ELEMENTO_CORREO, ADJUNTO);
+								if (optionalCatalogo.isEmpty()) {
+									LOG.error("No existe el catalogo TIPO_ELEMENTO_CORREO ADJUNTO.");
+									enviar = false;
+									return;
+								}
+								CAT_ADJUNTO = optionalCatalogo.get();
+							}
 						}
 					}
 				}
@@ -121,7 +188,7 @@ public class ScheduledLog extends Auth {
 		}
 	}
 
-	@Scheduled(cron = "00 00 */3 * * *")
+	@Scheduled(cron = "33 33 */3 * * *")
 	public void enviarLogs() {
 		StringBuilder log = new StringBuilder();
 		log.append(((enviar) ? "El envio de logs esta activo.\n" : "El envio de logs esta desactivo.\n"));
@@ -138,38 +205,45 @@ public class ScheduledLog extends Auth {
 				return;
 			}
 			log.append("Se encontraron ").append(logs.size()).append(" archivos\n");
-			String cuerpo = new String();
 
-			try {
-				File fileMsg = new File(FILE_MESSAGE);
-				if (fileMsg.exists() && fileMsg.canRead()) {
-					FileReader fr = new FileReader(fileMsg);
-					BufferedReader br = new BufferedReader(fr);
-					StringBuilder sb = new StringBuilder();
-					String linea;
-					while ((linea = br.readLine()) != null) {
-						sb.append(linea);
-					}
-					br.close();
-					fr.close();
-					sb.append("\n\n");
-					cuerpo = sb.toString();
-				}
-				logs = logs.stream().map(file -> {
-					File aux = new File(file.getParent(), file.getName().concat(".log"));
-					file.renameTo(aux);
-					file.deleteOnExit();
-					return aux;
-				}).collect(Collectors.toList());
-				sendMailAttached(correo, cuerpo, TO, SUBJECT, CC, logs);
-				logs.stream().forEach(x -> x.delete());
-				log.append("Se enviaron y borraron los logs\n");
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-				log.append("Se produjo un FileNotFoundException\n");
-			} catch (IOException e) {
-				log.append("Se produjo un IOException\n");
-				e.printStackTrace();
+			CorreoMsj correoMsj = null;
+			correoMsj = new CorreoMsj();
+			correoMsj.setCorreo(correo);
+			correoMsj.setCorreoMsjItems(new ArrayList<>());
+			correoMsj.setProgramado(LocalDateTime.now());
+			correoMsj.setFechaDeModificacion(LocalDateTime.now());
+			correoMsj.setIdUsuarioModificado(root.getId());
+			correoMsj.setEstatus(CAT_ACTIVO);
+			correoMsj.setClave(UUID.randomUUID());
+			correoMsj.setAsunto(SUBJECT);
+			correoMsj.setMensaje(FILE_MESSAGE);
+			correoMsj.setTipo(CAT_TIPO_CORREO);
+			correoMsj.setDestinatario(TO);
+			correoMsj = correoMsjService.save(correoMsj);
+			for(File file: logs) {
+				File aux = new File(file.getParent(), file.getName().concat(".log"));
+				file.renameTo(aux);
+				file.deleteOnExit();
+				CorreoMsjItem correoMsjItem = new CorreoMsjItem();
+				correoMsjItem.setTipo(CAT_ADJUNTO);
+				correoMsjItem.setFechaDeModificacion(LocalDateTime.now());
+				correoMsjItem.setIdUsuarioModificado(root.getId());
+				correoMsjItem.setEstatus(CAT_ACTIVO);
+				correoMsjItem.setClave(UUID.randomUUID());
+				correoMsjItem.setDato(aux.getAbsolutePath());
+				correoMsjItem.setCorreoMsj(correoMsj);
+				correoMsjItemService.save(correoMsjItem);
+			}
+			for(String cc:copiados) {
+				CorreoMsjItem correoMsjItem = new CorreoMsjItem();
+				correoMsjItem.setTipo(CAT_CC);
+				correoMsjItem.setFechaDeModificacion(LocalDateTime.now());
+				correoMsjItem.setIdUsuarioModificado(root.getId());
+				correoMsjItem.setEstatus(CAT_ACTIVO);
+				correoMsjItem.setClave(UUID.randomUUID());
+				correoMsjItem.setDato(cc);
+				correoMsjItem.setCorreoMsj(correoMsj);
+				correoMsjItemService.save(correoMsjItem);
 			}
 		}
 		LOG.info(log.toString());
