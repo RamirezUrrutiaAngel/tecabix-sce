@@ -42,6 +42,9 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 public final class Contacto implements Serializable{
 	
 	private static final long serialVersionUID = 7247338251404078667L;
+	
+	public static final short SIZE_VALOR = 45;
+	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_contacto", unique = true, nullable = false)

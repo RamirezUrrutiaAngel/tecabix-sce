@@ -75,8 +75,7 @@ public final class Persona implements Serializable {
     @JsonProperty(access = Access.WRITE_ONLY)
 	@OneToOne(fetch = FetchType.LAZY, mappedBy = "persona", cascade=CascadeType.REMOVE)
 	private UsuarioPersona usuarioPersona;
-    @JsonProperty(access = Access.WRITE_ONLY)
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="persona", cascade=CascadeType.REMOVE)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy="persona", cascade=CascadeType.REMOVE)
 	private List<Contacto> contactos;
 	public Long getId() {
 		return id;
