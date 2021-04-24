@@ -104,4 +104,15 @@ public final class TrabajadorServiceimpl extends GenericSeviceImpl<Trabajador, L
 	public Boolean canInsert(Long idEmpresa) {
 		return trabajadorRepository.canInsert(idEmpresa);
 	}
+
+	@Override
+	public Page<Trabajador> findByJefe(Long idEmpresa, Long idJefe, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		return trabajadorRepository.findByJefe(idEmpresa, idJefe, pageable);
+	}
+
+	@Override
+	public Optional<Trabajador> findBoss(UUID claveEmpleado) {
+		return trabajadorRepository.findBoss(claveEmpleado);
+	}
 }

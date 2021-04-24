@@ -209,6 +209,102 @@ public final class TrabajadorControllerV01 extends Auth{
 		return new ResponseEntity<TrabajadorPage>(body, HttpStatus.OK);
 	}
 	
+	
+	@ApiOperation(value = "Trae el jefe del empleado por su clave.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
+			@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso.") })
+	@GetMapping("find-boss")
+	public ResponseEntity<Trabajador> findBoss(
+			@RequestParam(value="token") UUID token, @RequestParam(value="clave") UUID clave) {
+		Sesion sesion = getSessionIfIsAuthorized(token, TRABAJADOR);
+		if(sesion == null) {
+			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
+		}
+		final long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		
+		Optional<Trabajador> optionalTrabajador = trabajadorService.findBoss(clave);
+		if(optionalTrabajador.isEmpty()) {
+			return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+		}
+		Trabajador trabajador = optionalTrabajador.get();
+		if(!trabajador.getIdEmpresa().equals(idEmpresa)) {
+			return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<Trabajador>(trabajador,HttpStatus.OK);
+	}
+	
+	@ApiOperation(value = "Trae el empleado por su clave.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
+			@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso.") })
+	@GetMapping("find-by-clave")
+	public ResponseEntity<Trabajador> findByClave(
+			@RequestParam(value="token") UUID token, @RequestParam(value="clave") UUID clave) {
+		Sesion sesion = getSessionIfIsAuthorized(token, TRABAJADOR);
+		if(sesion == null) {
+			return new ResponseEntity<Trabajador>(HttpStatus.UNAUTHORIZED);
+		}
+		final long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		
+		Optional<Trabajador> optionalTrabajador = trabajadorService.findByClave(clave);
+		if(optionalTrabajador.isEmpty()) {
+			return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+		}
+		Trabajador trabajador = optionalTrabajador.get();
+		if(!trabajador.getEstatus().equals(singletonUtil.getActivo())) {
+			return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+		}
+		if(!trabajador.getIdEmpresa().equals(idEmpresa)) {
+			return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<Trabajador>(trabajador,HttpStatus.OK);
+	}
+	
+	
+	@ApiOperation(value = "Trae todo los empleados del jefe.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
+			@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso.") })
+	@GetMapping("find-by-jefe")
+	public ResponseEntity<TrabajadorPage> findByJefe(
+			@RequestParam(value = "token") UUID token,
+			@RequestParam(value = "clave") UUID clave, 
+			@RequestParam(value = "by", defaultValue = "ID") String by,
+			@RequestParam(value = "order", defaultValue = "ASC") String order,
+			@RequestParam(value = "elements") byte elements, 
+			@RequestParam(value = "page") short page) {
+		Sesion sesion = getSessionIfIsAuthorized(token, TRABAJADOR);
+		if (sesion == null) {
+			return new ResponseEntity<TrabajadorPage>(HttpStatus.UNAUTHORIZED);
+		}
+		final long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+
+		Optional<Trabajador> optionalTrabajador = trabajadorService.findByClave(clave);
+		if (optionalTrabajador.isEmpty()) {
+			return new ResponseEntity<TrabajadorPage>(HttpStatus.NOT_FOUND);
+		}
+		Trabajador trabajador = optionalTrabajador.get();
+		if (!trabajador.getEstatus().equals(singletonUtil.getActivo())) {
+			return new ResponseEntity<TrabajadorPage>(HttpStatus.NOT_FOUND);
+		}
+		if (!trabajador.getIdEmpresa().equals(idEmpresa)) {
+			return new ResponseEntity<TrabajadorPage>(HttpStatus.NOT_FOUND);
+		}
+		Sort sort = null;
+		if (order.equalsIgnoreCase("ASC")) {
+			sort = Sort.by(Sort.Direction.ASC, by.toLowerCase());
+		} else if (order.equalsIgnoreCase("DESC")) {
+			sort = Sort.by(Sort.Direction.DESC, by.toLowerCase());
+		} else {
+			new ResponseEntity<TrabajadorPage>(HttpStatus.BAD_REQUEST);
+		}
+		Page<Trabajador> pageTrabajador = trabajadorService.findByJefe(idEmpresa, trabajador.getId(), elements, page,
+				sort);
+		TrabajadorPage body = new TrabajadorPage(pageTrabajador);
+		return new ResponseEntity<TrabajadorPage>(body, HttpStatus.OK);
+	}
+	
 	@ApiOperation(value = "Dar de alta un nuevo trabajador", notes = "Dar de alta un trabajador nuevo en una empresa ya existente.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
@@ -632,7 +728,6 @@ public final class TrabajadorControllerV01 extends Auth{
 		direccion.setIdUsuarioModificado(sesion.getUsuario().getId());
 		direccion = direccionService.save(direccion);
 		
-		//Persona prs=new Persona();
 		persona.setId(null);
 		persona.setUsuarioPersona(null);
 		persona.setClave(UUID.randomUUID());

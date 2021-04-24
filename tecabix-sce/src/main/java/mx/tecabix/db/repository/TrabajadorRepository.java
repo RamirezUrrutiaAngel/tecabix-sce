@@ -33,6 +33,7 @@ import mx.tecabix.db.entity.Trabajador;
 public interface TrabajadorRepository extends JpaRepository<Trabajador, Long>{
 
 	Boolean canInsert(Long idEmpresa);
+	Page<Trabajador> findByJefe(Long idEmpresa, Long idJefe, Pageable pageable);
 	Page<Trabajador> findByLikePuesto(Long idEmpresa, String puesto, Pageable pageable);
 	Page<Trabajador> findByLikePlantel(Long idEmpresa, String plantel, Pageable pageable);
 	Page<Trabajador> findByLikeCURP(Long idEmpresa, String CURP, Pageable pageable);
@@ -41,5 +42,6 @@ public interface TrabajadorRepository extends JpaRepository<Trabajador, Long>{
 	Page<Trabajador> findByLikeApellidoMaterno(Long idEmpresa, String apellidoMaterno, Pageable pageable);
 	Page<Trabajador> findByIdEmpresa(Long idEmpresa, Pageable pageable);
 	
+	Optional<Trabajador> findBoss(UUID claveEmpleado);
 	Optional<Trabajador> findByClave(UUID uuid);
 }

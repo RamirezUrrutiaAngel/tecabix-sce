@@ -33,6 +33,7 @@ import mx.tecabix.db.entity.Trabajador;
 public interface TrabajadorService  extends GenericSevice<Trabajador, Long>{
 	
 	Boolean canInsert(Long idEmpresa);
+	Page<Trabajador> findByJefe(Long idEmpresa, Long idJefe, int elements, int page, Sort sort);
 	Page<Trabajador> findByLikePuesto(Long idEmpresa, String puesto, int elements, int page, Sort sort);
 	Page<Trabajador> findByLikePlantel(Long idEmpresa, String plantel, int elements, int page, Sort sort);
 	Page<Trabajador> findByLikeCURP(Long idEmpresa, String CURP, int elements, int page, Sort sort);
@@ -41,5 +42,6 @@ public interface TrabajadorService  extends GenericSevice<Trabajador, Long>{
 	Page<Trabajador> findByLikeApellidoMaterno(Long idEmpresa, String apellidoMaterno, int elements, int page, Sort sort);
 	Page<Trabajador> findByIdEmpresa(Long idEmpresa, int elements, int page, Sort sort);
 	
+	Optional<Trabajador> findBoss(UUID claveEmpleado);
 	Optional<Trabajador> findByClave(UUID uuid);
 }

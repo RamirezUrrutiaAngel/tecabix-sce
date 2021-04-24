@@ -47,6 +47,8 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @Entity
 @Table(name = "trabajador")
 @NamedQueries({
+	@NamedQuery(name = "Trabajador.findBoss",query = "SELECT t.jefe FROM Trabajador t WHERE t.clave = ?1 AND t.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Trabajador.findByJefe",query = "SELECT t FROM Trabajador t WHERE t.idEmpresa = ?1 AND t.jefe.id = ?2 AND t.estatus.nombre = 'ACTIVO' "),
 	@NamedQuery(name = "Trabajador.findByLikePuesto",query = "SELECT t FROM Trabajador t WHERE t.idEmpresa = ?1 AND UPPER(t.puesto.nombre) LIKE UPPER(?2) AND t.estatus.nombre = 'ACTIVO' "),
 	@NamedQuery(name = "Trabajador.findByLikePlantel",query = "SELECT t FROM Trabajador t WHERE t.idEmpresa = ?1 AND UPPER(t.plantel.nombre) LIKE UPPER(?2) AND t.estatus.nombre = 'ACTIVO' "),
 	@NamedQuery(name = "Trabajador.findByLikeNombre",query = "SELECT t FROM Trabajador t WHERE t.idEmpresa = ?1 AND UPPER(t.personaFisica.nombre) LIKE UPPER(?2) AND t.estatus.nombre = 'ACTIVO' "),
