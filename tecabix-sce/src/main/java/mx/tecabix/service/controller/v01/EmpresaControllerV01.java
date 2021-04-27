@@ -140,9 +140,6 @@ public final class EmpresaControllerV01 extends Auth{
 		if(trabajador == null) {
 			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}
-		if(trabajador.getCURP() == null || trabajador.getCURP().isEmpty()) {
-			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
-		}
 		if(trabajador.getJefe() == null || trabajador.getJefe().getId() == null) {
 			return new ResponseEntity<Empresa>(HttpStatus.BAD_REQUEST);
 		}

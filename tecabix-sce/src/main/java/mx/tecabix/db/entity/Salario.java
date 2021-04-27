@@ -28,10 +28,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedNativeQueries;
-import javax.persistence.NamedNativeQuery;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -39,43 +35,49 @@ import org.hibernate.annotations.Type;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
 @Entity
-@Table(name = "puesto")
-@NamedQueries({
-	@NamedQuery(name = "Puesto.findByLikeNombre",query = "SELECT p FROM Puesto p WHERE UPPER(p.nombre) LIKE UPPER(?1) AND p.estatus.nombre = 'ACTIVO' "),
-	@NamedQuery(name = "Puesto.findByLikeDescripcion",query = "SELECT p FROM Puesto p WHERE UPPER(p.descripcion) LIKE UPPER(?1) AND p.estatus.nombre = 'ACTIVO' "),
-	@NamedQuery(name = "Puesto.findByLikeDepartamento",query = "SELECT p FROM Puesto p WHERE UPPER(p.departamento.nombre) LIKE UPPER(?1) AND p.estatus.nombre = 'ACTIVO' "),
-	@NamedQuery(name = "Puesto.findByDepartamentoClave",query = "SELECT p FROM Puesto p WHERE p.departamento.clave = ?1 AND p.estatus.nombre = 'ACTIVO' "),
-	@NamedQuery(name = "Puesto.findByIdEmpresa",query = "SELECT p FROM Puesto p WHERE p.estatus.nombre = 'ACTIVO' AND p.departamento.idEmpresa = ?1 ")
-})
-@NamedNativeQueries({
-	@NamedNativeQuery(name = "Puesto.canInsert", query = "SELECT tecabix_sce.puesto_can_insert(?1)")
-})
-public final class Puesto implements Serializable{
+@Table(name = "salario")
+public class Salario implements Serializable{
 
-	private static final long serialVersionUID = -1105824443217371322L;
-
-	public static final short SIZE_NOMBRE = 35;
-	public static final short SIZE_DESCRIPCION = 300;
+	private static final long serialVersionUID = -3921169535438059734L;
 	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
-    @Column(name = "id_puesto", unique = true, nullable = false)
-	@SequenceGenerator(name = "puesto_id_puesto_gen", sequenceName = "tecabix_sce.puesto_seq", allocationSize = 1)
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "puesto_id_puesto_gen")
+    @Column(name = "id_salario", unique = true, nullable = false)
+	@SequenceGenerator(name = "salario_id_salario_gen", sequenceName = "tecabix_sce.salario_seq", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "salario_id_salario_gen")
     private Long id;
-	@Column(name = "nombre")
-	private String nombre;
-	@Column(name = "descripcion")
-	private String descripcion;
+	@Column(name = "periodo")
+	private Integer periodo;
+	@Column(name = "dia")
+	private Integer dia;
+	@Column(name = "hora")
+	private Integer hora;
+	@Column(name = "hora_x_dia")
+	private Integer horaPorDia;
+	@Column(name = "dia_x_periodo")
+	private Integer diaPorPeriodo;
 	@ManyToOne
-    @JoinColumn(name = "id_departamento")
-	private Departamento departamento;
+    @JoinColumn(name = "id_tipo_periodo")
+    private Catalogo tipoPeriodo;
+	@ManyToOne
+    @JoinColumn(name = "id_tipo_pago")
+    private Catalogo tipoPago;
+	@ManyToOne
+    @JoinColumn(name = "id_banco")
+    private Banco banco;
+	@Column(name = "numero_cuenta")
+	private String numeroCuenta;
+	@Column(name = "sucursal")
+	private String sucursal;
+	@Column(name = "clave_interbancaria")
+	private String claveInterbancaria;
 	@Column(name = "id_usuario_modificado")
 	@JsonProperty(access = Access.WRITE_ONLY)
     private Long idUsuarioModificado;
@@ -95,23 +97,71 @@ public final class Puesto implements Serializable{
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getNombre() {
-		return nombre;
+	public Integer getPeriodo() {
+		return periodo;
 	}
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
+	public void setPeriodo(Integer periodo) {
+		this.periodo = periodo;
 	}
-	public String getDescripcion() {
-		return descripcion;
+	public Integer getDia() {
+		return dia;
 	}
-	public void setDescripcion(String descripcion) {
-		this.descripcion = descripcion;
+	public void setDia(Integer dia) {
+		this.dia = dia;
 	}
-	public Departamento getDepartamento() {
-		return departamento;
+	public Integer getHora() {
+		return hora;
 	}
-	public void setDepartamento(Departamento departamento) {
-		this.departamento = departamento;
+	public void setHora(Integer hora) {
+		this.hora = hora;
+	}
+	public Integer getHoraPorDia() {
+		return horaPorDia;
+	}
+	public void setHoraPorDia(Integer horaPorDia) {
+		this.horaPorDia = horaPorDia;
+	}
+	public Integer getDiaPorPeriodo() {
+		return diaPorPeriodo;
+	}
+	public void setDiaPorPeriodo(Integer diaPorPeriodo) {
+		this.diaPorPeriodo = diaPorPeriodo;
+	}
+	public Catalogo getTipoPeriodo() {
+		return tipoPeriodo;
+	}
+	public void setTipoPeriodo(Catalogo tipoPeriodo) {
+		this.tipoPeriodo = tipoPeriodo;
+	}
+	public Catalogo getTipoPago() {
+		return tipoPago;
+	}
+	public void setTipoPago(Catalogo tipoPago) {
+		this.tipoPago = tipoPago;
+	}
+	public Banco getBanco() {
+		return banco;
+	}
+	public void setBanco(Banco banco) {
+		this.banco = banco;
+	}
+	public String getNumeroCuenta() {
+		return numeroCuenta;
+	}
+	public void setNumeroCuenta(String numeroCuenta) {
+		this.numeroCuenta = numeroCuenta;
+	}
+	public String getSucursal() {
+		return sucursal;
+	}
+	public void setSucursal(String sucursal) {
+		this.sucursal = sucursal;
+	}
+	public String getClaveInterbancaria() {
+		return claveInterbancaria;
+	}
+	public void setClaveInterbancaria(String claveInterbancaria) {
+		this.claveInterbancaria = claveInterbancaria;
 	}
 	public Long getIdUsuarioModificado() {
 		return idUsuarioModificado;
@@ -152,7 +202,7 @@ public final class Puesto implements Serializable{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Puesto other = (Puesto) obj;
+		Salario other = (Salario) obj;
 		if (clave == null) {
 			if (other.clave != null)
 				return false;

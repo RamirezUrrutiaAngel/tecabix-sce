@@ -54,7 +54,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 	@NamedQuery(name = "Trabajador.findByLikeNombre",query = "SELECT t FROM Trabajador t WHERE t.idEmpresa = ?1 AND UPPER(t.personaFisica.nombre) LIKE UPPER(?2) AND t.estatus.nombre = 'ACTIVO' "),
 	@NamedQuery(name = "Trabajador.findByLikeApellidoPaterno",query = "SELECT t FROM Trabajador t WHERE t.idEmpresa = ?1 AND UPPER(t.personaFisica.apellidoPaterno) LIKE UPPER(?2) AND t.estatus.nombre = 'ACTIVO' "),
 	@NamedQuery(name = "Trabajador.findByLikeApellidoMaterno",query = "SELECT t FROM Trabajador t WHERE t.idEmpresa = ?1 AND UPPER(t.personaFisica.apellidoMaterno) LIKE UPPER(?2) AND t.estatus.nombre = 'ACTIVO' "),
-	@NamedQuery(name = "Trabajador.findByLikeCURP",query = "SELECT t FROM Trabajador t WHERE t.idEmpresa = ?1 AND UPPER(t.CURP) LIKE UPPER(?2) AND t.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Trabajador.findByLikeCURP",query = "SELECT t FROM Trabajador t WHERE t.idEmpresa = ?1 AND UPPER(t.seguroSocial.CURP) LIKE UPPER(?2) AND t.estatus.nombre = 'ACTIVO' "),
 	@NamedQuery(name = "Trabajador.findByIdEmpresa",query = "SELECT t FROM Trabajador t WHERE t.idEmpresa = ?1 AND t.estatus.nombre = 'ACTIVO' ")
 
 })
@@ -74,11 +74,12 @@ public final class Trabajador implements Serializable{
 	@SequenceGenerator(name = "trabajador_id_trabajador_gen", sequenceName = "tecabix_sce.trabajador_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "trabajador_id_trabajador_gen")
     private Long id;
-	@Column(name = "curp")
-	private String CURP;
 	@ManyToOne
     @JoinColumn(name = "id_persona_fisica")
 	private PersonaFisica personaFisica;
+	@ManyToOne
+    @JoinColumn(name = "id_seguro_social")
+	private SeguroSocial seguroSocial;
 	@ManyToOne
     @JoinColumn(name = "id_puesto")
 	private Puesto puesto;
@@ -86,11 +87,15 @@ public final class Trabajador implements Serializable{
     @JoinColumn(name = "id_plantel")
 	private Plantel plantel;
 	@ManyToOne
+    @JoinColumn(name = "id_turno")
+	private Turno turno;
+	@ManyToOne
+    @JoinColumn(name = "id_salario")
+	private Salario salario;
+	@ManyToOne
     @JoinColumn(name = "id_jefe")
 	@JsonProperty(access = Access.WRITE_ONLY)
 	private Trabajador jefe;
-	@Column(name = "url_imagen")
-	private String urlImagen;
 	@JsonProperty(access = Access.WRITE_ONLY)
 	@Column(name = "id_empresa")
 	private Long idEmpresa;
@@ -112,17 +117,17 @@ public final class Trabajador implements Serializable{
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getCURP() {
-		return CURP;
-	}
-	public void setCURP(String cURP) {
-		CURP = cURP;
-	}
 	public PersonaFisica getPersonaFisica() {
 		return personaFisica;
 	}
 	public void setPersonaFisica(PersonaFisica personaFisica) {
 		this.personaFisica = personaFisica;
+	}
+	public SeguroSocial getSeguroSocial() {
+		return seguroSocial;
+	}
+	public void setSeguroSocial(SeguroSocial seguroSocial) {
+		this.seguroSocial = seguroSocial;
 	}
 	public Puesto getPuesto() {
 		return puesto;
@@ -136,17 +141,23 @@ public final class Trabajador implements Serializable{
 	public void setPlantel(Plantel plantel) {
 		this.plantel = plantel;
 	}
+	public Turno getTurno() {
+		return turno;
+	}
+	public void setTurno(Turno turno) {
+		this.turno = turno;
+	}
+	public Salario getSalario() {
+		return salario;
+	}
+	public void setSalario(Salario salario) {
+		this.salario = salario;
+	}
 	public Trabajador getJefe() {
 		return jefe;
 	}
 	public void setJefe(Trabajador jefe) {
 		this.jefe = jefe;
-	}
-	public String getUrlImagen() {
-		return urlImagen;
-	}
-	public void setUrlImagen(String urlImagen) {
-		this.urlImagen = urlImagen;
 	}
 	public Long getIdEmpresa() {
 		return idEmpresa;

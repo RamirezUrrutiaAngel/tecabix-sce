@@ -19,19 +19,19 @@ package mx.tecabix.db.entity;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedNativeQueries;
-import javax.persistence.NamedNativeQuery;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -39,43 +39,34 @@ import org.hibernate.annotations.Type;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
 @Entity
-@Table(name = "puesto")
-@NamedQueries({
-	@NamedQuery(name = "Puesto.findByLikeNombre",query = "SELECT p FROM Puesto p WHERE UPPER(p.nombre) LIKE UPPER(?1) AND p.estatus.nombre = 'ACTIVO' "),
-	@NamedQuery(name = "Puesto.findByLikeDescripcion",query = "SELECT p FROM Puesto p WHERE UPPER(p.descripcion) LIKE UPPER(?1) AND p.estatus.nombre = 'ACTIVO' "),
-	@NamedQuery(name = "Puesto.findByLikeDepartamento",query = "SELECT p FROM Puesto p WHERE UPPER(p.departamento.nombre) LIKE UPPER(?1) AND p.estatus.nombre = 'ACTIVO' "),
-	@NamedQuery(name = "Puesto.findByDepartamentoClave",query = "SELECT p FROM Puesto p WHERE p.departamento.clave = ?1 AND p.estatus.nombre = 'ACTIVO' "),
-	@NamedQuery(name = "Puesto.findByIdEmpresa",query = "SELECT p FROM Puesto p WHERE p.estatus.nombre = 'ACTIVO' AND p.departamento.idEmpresa = ?1 ")
-})
-@NamedNativeQueries({
-	@NamedNativeQuery(name = "Puesto.canInsert", query = "SELECT tecabix_sce.puesto_can_insert(?1)")
-})
-public final class Puesto implements Serializable{
+@Table(name = "turno")
+public class Turno implements Serializable{
 
-	private static final long serialVersionUID = -1105824443217371322L;
-
-	public static final short SIZE_NOMBRE = 35;
-	public static final short SIZE_DESCRIPCION = 300;
+	private static final long serialVersionUID = 2375902079042196833L;
 	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
-    @Column(name = "id_puesto", unique = true, nullable = false)
-	@SequenceGenerator(name = "puesto_id_puesto_gen", sequenceName = "tecabix_sce.puesto_seq", allocationSize = 1)
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "puesto_id_puesto_gen")
+    @Column(name = "id_turno", unique = true, nullable = false)
+	@SequenceGenerator(name = "turno_id_turno_gen", sequenceName = "tecabix_sce.turno_seq", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "turno_id_turno_gen")
     private Long id;
 	@Column(name = "nombre")
 	private String nombre;
 	@Column(name = "descripcion")
 	private String descripcion;
 	@ManyToOne
-    @JoinColumn(name = "id_departamento")
-	private Departamento departamento;
+    @JoinColumn(name = "id_tipo")
+    private Catalogo tipo;
+	@Column(name = "id_empresa")
+    @JsonProperty(access = Access.WRITE_ONLY)
+    private Long idEmpresa;
 	@Column(name = "id_usuario_modificado")
 	@JsonProperty(access = Access.WRITE_ONLY)
     private Long idUsuarioModificado;
@@ -89,6 +80,8 @@ public final class Puesto implements Serializable{
     @Column(name = "clave")
     @Type(type="pg-uuid")
     private UUID clave;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="turno", cascade=CascadeType.REMOVE)
+	private List<TurnoDia> TurnoDias;
 	public Long getId() {
 		return id;
 	}
@@ -107,11 +100,17 @@ public final class Puesto implements Serializable{
 	public void setDescripcion(String descripcion) {
 		this.descripcion = descripcion;
 	}
-	public Departamento getDepartamento() {
-		return departamento;
+	public Catalogo getTipo() {
+		return tipo;
 	}
-	public void setDepartamento(Departamento departamento) {
-		this.departamento = departamento;
+	public void setTipo(Catalogo tipo) {
+		this.tipo = tipo;
+	}
+	public Long getIdEmpresa() {
+		return idEmpresa;
+	}
+	public void setIdEmpresa(Long idEmpresa) {
+		this.idEmpresa = idEmpresa;
 	}
 	public Long getIdUsuarioModificado() {
 		return idUsuarioModificado;
@@ -137,6 +136,12 @@ public final class Puesto implements Serializable{
 	public void setClave(UUID clave) {
 		this.clave = clave;
 	}
+	public List<TurnoDia> getTurnoDias() {
+		return TurnoDias;
+	}
+	public void setTurnoDias(List<TurnoDia> turnoDias) {
+		TurnoDias = turnoDias;
+	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -152,7 +157,7 @@ public final class Puesto implements Serializable{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Puesto other = (Puesto) obj;
+		Turno other = (Turno) obj;
 		if (clave == null) {
 			if (other.clave != null)
 				return false;

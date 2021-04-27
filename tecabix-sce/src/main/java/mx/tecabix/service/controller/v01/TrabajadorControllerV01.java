@@ -326,10 +326,6 @@ public final class TrabajadorControllerV01 extends Auth{
 			LOG.info("{}Se a superado el numero máximo de trabajadores.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.LOCKED);
 		}
-		if(isNotValid(TIPO_ALFA_NUMERIC, Trabajador.SIZE_CURP, trabajador.getCURP())) {
-			LOG.info("{}El formato de la curp es incorrecto.",headerLog);
-			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-		}
 		if(isNotValid(trabajador.getJefe())) {
 			LOG.info("{}No se mando el jefe.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);

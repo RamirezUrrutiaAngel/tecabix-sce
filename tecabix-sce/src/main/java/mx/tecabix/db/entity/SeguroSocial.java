@@ -18,6 +18,7 @@
 package mx.tecabix.db.entity;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -28,10 +29,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedNativeQueries;
-import javax.persistence.NamedNativeQuery;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -39,43 +36,43 @@ import org.hibernate.annotations.Type;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
 @Entity
-@Table(name = "puesto")
-@NamedQueries({
-	@NamedQuery(name = "Puesto.findByLikeNombre",query = "SELECT p FROM Puesto p WHERE UPPER(p.nombre) LIKE UPPER(?1) AND p.estatus.nombre = 'ACTIVO' "),
-	@NamedQuery(name = "Puesto.findByLikeDescripcion",query = "SELECT p FROM Puesto p WHERE UPPER(p.descripcion) LIKE UPPER(?1) AND p.estatus.nombre = 'ACTIVO' "),
-	@NamedQuery(name = "Puesto.findByLikeDepartamento",query = "SELECT p FROM Puesto p WHERE UPPER(p.departamento.nombre) LIKE UPPER(?1) AND p.estatus.nombre = 'ACTIVO' "),
-	@NamedQuery(name = "Puesto.findByDepartamentoClave",query = "SELECT p FROM Puesto p WHERE p.departamento.clave = ?1 AND p.estatus.nombre = 'ACTIVO' "),
-	@NamedQuery(name = "Puesto.findByIdEmpresa",query = "SELECT p FROM Puesto p WHERE p.estatus.nombre = 'ACTIVO' AND p.departamento.idEmpresa = ?1 ")
-})
-@NamedNativeQueries({
-	@NamedNativeQuery(name = "Puesto.canInsert", query = "SELECT tecabix_sce.puesto_can_insert(?1)")
-})
-public final class Puesto implements Serializable{
+@Table(name = "seguro_social")
+public class SeguroSocial implements Serializable{
 
-	private static final long serialVersionUID = -1105824443217371322L;
-
-	public static final short SIZE_NOMBRE = 35;
-	public static final short SIZE_DESCRIPCION = 300;
+	private static final long serialVersionUID = 5434474820126276090L;
 	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
-    @Column(name = "id_puesto", unique = true, nullable = false)
-	@SequenceGenerator(name = "puesto_id_puesto_gen", sequenceName = "tecabix_sce.puesto_seq", allocationSize = 1)
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "puesto_id_puesto_gen")
+    @Column(name = "id_seguro_social", unique = true, nullable = false)
+	@SequenceGenerator(name = "turno_id_turno_gen", sequenceName = "tecabix_sce.seguro_social_seq", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "turno_id_turno_gen")
     private Long id;
-	@Column(name = "nombre")
-	private String nombre;
-	@Column(name = "descripcion")
-	private String descripcion;
+	@Column(name = "numero")
+	private String numero;
 	@ManyToOne
-    @JoinColumn(name = "id_departamento")
-	private Departamento departamento;
+    @JoinColumn(name = "id_estado")
+	private Estado entidadFederativa;
+	@Column(name = "ciudad")
+	private String ciudad;
+	@Column(name = "curp")
+	private String CURP;
+	@Column(name = "rfc")
+	private String RFC;
+	@Column(name = "alta")
+	private LocalDate alta;
+	@Column(name = "baja")
+	private LocalDate baja;
+	@Column(name = "url_imagen")
+	private String urlImagen;
+	@Column(name = "observaciones_baja")
+	private String observaciones_baja;
 	@Column(name = "id_usuario_modificado")
 	@JsonProperty(access = Access.WRITE_ONLY)
     private Long idUsuarioModificado;
@@ -95,23 +92,59 @@ public final class Puesto implements Serializable{
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getNombre() {
-		return nombre;
+	public String getNumero() {
+		return numero;
 	}
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
+	public void setNumero(String numero) {
+		this.numero = numero;
 	}
-	public String getDescripcion() {
-		return descripcion;
+	public Estado getEntidadFederativa() {
+		return entidadFederativa;
 	}
-	public void setDescripcion(String descripcion) {
-		this.descripcion = descripcion;
+	public void setEntidadFederativa(Estado entidadFederativa) {
+		this.entidadFederativa = entidadFederativa;
 	}
-	public Departamento getDepartamento() {
-		return departamento;
+	public String getCiudad() {
+		return ciudad;
 	}
-	public void setDepartamento(Departamento departamento) {
-		this.departamento = departamento;
+	public void setCiudad(String ciudad) {
+		this.ciudad = ciudad;
+	}
+	public String getCURP() {
+		return CURP;
+	}
+	public void setCURP(String curp) {
+		this.CURP = curp;
+	}
+	public String getRFC() {
+		return RFC;
+	}
+	public void setRfc(String rfc) {
+		this.RFC = rfc;
+	}
+	public LocalDate getAlta() {
+		return alta;
+	}
+	public void setAlta(LocalDate alta) {
+		this.alta = alta;
+	}
+	public LocalDate getBaja() {
+		return baja;
+	}
+	public void setBaja(LocalDate baja) {
+		this.baja = baja;
+	}
+	public String getUrlImagen() {
+		return urlImagen;
+	}
+	public void setUrlImagen(String urlImagen) {
+		this.urlImagen = urlImagen;
+	}
+	public String getObservaciones_baja() {
+		return observaciones_baja;
+	}
+	public void setObservaciones_baja(String observaciones_baja) {
+		this.observaciones_baja = observaciones_baja;
 	}
 	public Long getIdUsuarioModificado() {
 		return idUsuarioModificado;
@@ -152,7 +185,7 @@ public final class Puesto implements Serializable{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Puesto other = (Puesto) obj;
+		SeguroSocial other = (SeguroSocial) obj;
 		if (clave == null) {
 			if (other.clave != null)
 				return false;
