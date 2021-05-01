@@ -21,7 +21,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import mx.tecabix.db.GenericSevice;
-import mx.tecabix.db.entity.Authority;
 import mx.tecabix.db.entity.Turno;
 
 /**
@@ -31,5 +30,5 @@ import mx.tecabix.db.entity.Turno;
  */
 public interface TurnoService extends GenericSevice<Turno, Long> {
 
-	Optional<Authority> findByClave(UUID uuid);
+	Optional<Turno> findByClave(UUID uuid);
 }

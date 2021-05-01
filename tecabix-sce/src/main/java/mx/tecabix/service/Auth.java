@@ -146,6 +146,8 @@ public class Auth extends Encrypt{
 	public static final byte TIPO_NUMERIC_NATURAL = 9;
 	public static final byte TIPO_NUMERIC_POSITIVO = 10;
 	public static final byte TIPO_NUMERIC_NEGATIVO = 11;
+	public static final byte TIPO_URL = 12;
+	
 	
 	private static final String ALFA = "[a-zA-Z[áéíóúÁÉÍÓÚñÑ]]+";
 	private static final String ALFA_NUMERIC = "[a-zA-Z0-9[áéíóúÁÉÍÓÚñÑ]]+";
@@ -156,6 +158,8 @@ public class Auth extends Encrypt{
 	private static final String VARIABLE = "[a-zA-Z]+([_]{1}[a-zA-Z0-9]+)*[a-zA-Z0-9]+";
 	private static final String NUMERIC = "[0-9]+";
 	private static final String NUMERIC_SPACE = "[0-9]+[0-9[\\s]]*[0-9]+";
+	private static final String URL = "^((((https?|ftps?|gopher|telnet|nntp)://)|(mailto:|news:))(%{2}|[-()_.!~*’;/?:@&=+$, A-Za-z0-9])+)([).!’;/?:, ][[:blank:]])?$\n";
+	
 	
 	protected boolean isNotValid(Object arg) {
 		return isNotValid(TIPO_OBJECT, Integer.MAX_VALUE, arg);
@@ -199,6 +203,8 @@ public class Auth extends Encrypt{
 				return Pattern.matches(NUMERIC_SPACE, text);
 			}else if(tipo == TIPO_VARIABLE){
 				return Pattern.matches(VARIABLE, text);
+			}else if(tipo == TIPO_URL){
+				return Pattern.matches(URL, text);
 			}
 		} else if (arg instanceof Integer || arg instanceof Float || arg instanceof Long || arg instanceof Double) {
 			Double num = Double.parseDouble(arg.toString());

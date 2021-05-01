@@ -48,6 +48,13 @@ public class SeguroSocial implements Serializable{
 
 	private static final long serialVersionUID = 5434474820126276090L;
 	
+	public static final short SIZE_NUMERO = 12;
+	public static final short SIZE_CIUDAD = 100;
+	public static final short SIZE_CURP = 19;
+	public static final short SIZE_RFC= 16;
+	public static final short SIZE_URL_IMG = 200;
+	public static final short SIZE_OBSERVACIONES_BAJA = 200;
+	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_seguro_social", unique = true, nullable = false)
@@ -72,7 +79,7 @@ public class SeguroSocial implements Serializable{
 	@Column(name = "url_imagen")
 	private String urlImagen;
 	@Column(name = "observaciones_baja")
-	private String observaciones_baja;
+	private String observacionesBaja;
 	@Column(name = "id_usuario_modificado")
 	@JsonProperty(access = Access.WRITE_ONLY)
     private Long idUsuarioModificado;
@@ -140,11 +147,11 @@ public class SeguroSocial implements Serializable{
 	public void setUrlImagen(String urlImagen) {
 		this.urlImagen = urlImagen;
 	}
-	public String getObservaciones_baja() {
-		return observaciones_baja;
+	public String getObservacionesBaja() {
+		return observacionesBaja;
 	}
-	public void setObservaciones_baja(String observaciones_baja) {
-		this.observaciones_baja = observaciones_baja;
+	public void setObservacionesBaja(String observaciones_baja) {
+		this.observacionesBaja = observaciones_baja;
 	}
 	public Long getIdUsuarioModificado() {
 		return idUsuarioModificado;

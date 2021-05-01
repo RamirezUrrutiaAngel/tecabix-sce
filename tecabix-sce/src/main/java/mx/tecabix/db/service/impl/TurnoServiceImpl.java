@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.GenericSeviceImpl;
-import mx.tecabix.db.entity.Authority;
 import mx.tecabix.db.entity.Turno;
 import mx.tecabix.db.repository.TurnoRepository;
 import mx.tecabix.db.service.TurnoService;
@@ -49,7 +48,7 @@ public class TurnoServiceImpl extends GenericSeviceImpl<Turno, Long> implements 
 	}
 	
 	@Override
-	public Optional<Authority> findByClave(UUID uuid) {
+	public Optional<Turno> findByClave(UUID uuid) {
 		return turnoRepository.findByClave(uuid);
 	}
 

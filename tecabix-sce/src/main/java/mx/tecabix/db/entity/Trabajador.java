@@ -64,10 +64,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 public final class Trabajador implements Serializable{
 
 	private static final long serialVersionUID = -7407043110565368553L;
-	
-	public static final short SIZE_CURP = 19;
-	public static final short SIZE_URL_IMG = 200;
-	
+
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_trabajador", unique = true, nullable = false)

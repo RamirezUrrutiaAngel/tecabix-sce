@@ -47,6 +47,10 @@ public class Salario implements Serializable{
 
 	private static final long serialVersionUID = -3921169535438059734L;
 	
+	public static final short SIZE_NUMERO_CUENTA = 20;
+	public static final short SIZE_SUCURSAL = 45;
+	public static final short SIZE_CLAVE_INTERBANCARIA = 20;
+	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_salario", unique = true, nullable = false)
@@ -77,7 +81,7 @@ public class Salario implements Serializable{
 	@Column(name = "sucursal")
 	private String sucursal;
 	@Column(name = "clave_interbancaria")
-	private String claveInterbancaria;
+	private String claveInterBancaria;
 	@Column(name = "id_usuario_modificado")
 	@JsonProperty(access = Access.WRITE_ONLY)
     private Long idUsuarioModificado;
@@ -157,11 +161,11 @@ public class Salario implements Serializable{
 	public void setSucursal(String sucursal) {
 		this.sucursal = sucursal;
 	}
-	public String getClaveInterbancaria() {
-		return claveInterbancaria;
+	public String getClaveInterBancaria() {
+		return claveInterBancaria;
 	}
-	public void setClaveInterbancaria(String claveInterbancaria) {
-		this.claveInterbancaria = claveInterbancaria;
+	public void setClaveInterBancaria(String claveInterbancaria) {
+		this.claveInterBancaria = claveInterbancaria;
 	}
 	public Long getIdUsuarioModificado() {
 		return idUsuarioModificado;

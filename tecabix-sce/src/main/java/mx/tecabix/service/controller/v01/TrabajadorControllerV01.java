@@ -17,6 +17,7 @@
  */
 package mx.tecabix.service.controller.v01;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import mx.tecabix.db.entity.Banco;
 import mx.tecabix.db.entity.Catalogo;
 import mx.tecabix.db.entity.Configuracion;
 import mx.tecabix.db.entity.Contacto;
@@ -50,16 +52,21 @@ import mx.tecabix.db.entity.CorreoMsj;
 import mx.tecabix.db.entity.CorreoMsjItem;
 import mx.tecabix.db.entity.Direccion;
 import mx.tecabix.db.entity.Empresa;
+import mx.tecabix.db.entity.Estado;
 import mx.tecabix.db.entity.Municipio;
 import mx.tecabix.db.entity.Perfil;
 import mx.tecabix.db.entity.Persona;
 import mx.tecabix.db.entity.PersonaFisica;
 import mx.tecabix.db.entity.Plantel;
 import mx.tecabix.db.entity.Puesto;
+import mx.tecabix.db.entity.Salario;
+import mx.tecabix.db.entity.SeguroSocial;
 import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.entity.Trabajador;
+import mx.tecabix.db.entity.Turno;
 import mx.tecabix.db.entity.Usuario;
 import mx.tecabix.db.entity.UsuarioPersona;
+import mx.tecabix.db.service.BancoService;
 import mx.tecabix.db.service.CatalogoService;
 import mx.tecabix.db.service.ContactoService;
 import mx.tecabix.db.service.CorreoMsjItemService;
@@ -67,13 +74,17 @@ import mx.tecabix.db.service.CorreoMsjService;
 import mx.tecabix.db.service.CorreoService;
 import mx.tecabix.db.service.DireccionService;
 import mx.tecabix.db.service.EmpresaService;
+import mx.tecabix.db.service.EstadoService;
 import mx.tecabix.db.service.MunicipioService;
 import mx.tecabix.db.service.PerfilService;
 import mx.tecabix.db.service.PersonaFisicaService;
 import mx.tecabix.db.service.PersonaService;
 import mx.tecabix.db.service.PlantelService;
 import mx.tecabix.db.service.PuestoService;
+import mx.tecabix.db.service.SalarioService;
+import mx.tecabix.db.service.SeguroSocialService;
 import mx.tecabix.db.service.TrabajadorService;
+import mx.tecabix.db.service.TurnoService;
 import mx.tecabix.db.service.UsuarioPersonaService;
 import mx.tecabix.db.service.UsuarioService;
 import mx.tecabix.service.Auth;
@@ -124,6 +135,16 @@ public final class TrabajadorControllerV01 extends Auth{
 	private CorreoMsjService correoMsjService;
 	@Autowired
 	private CorreoMsjItemService correoMsjItemService;
+	@Autowired
+	private BancoService bancoService;
+	@Autowired
+	private EstadoService estadoService;
+	@Autowired
+	private TurnoService turnoService;
+	@Autowired
+	private SalarioService salarioService;
+	@Autowired
+	private SeguroSocialService seguroSocialService;
 	
 	private final String TIPO_DE_PERSONA = "TIPO_DE_PERSONA";
 	private final String FISICA = "FISICA";
@@ -132,6 +153,9 @@ public final class TrabajadorControllerV01 extends Auth{
 	private final String ALTA_USR_ASUNTO	= "ALTA_USR_ASUNTO";
 	private final String ALTA_USR_PLANTILLA	= "ALTA_USR_PLANTILLA";
 	
+	
+	private final String PAGO_SALARIO		= "PAGO_SALARIO";
+	private final String PERIODO_SALARIO	= "PERIODO_SALARIO";
 	private final String TIPO_DE_CORREO		= "TIPO_DE_CORREO";
 	private final String CONFIRMAR_CORREO	= "CONFIRMAR_CORREO";
 	
@@ -443,7 +467,6 @@ public final class TrabajadorControllerV01 extends Auth{
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 		}
 		
-		
 		Optional<Catalogo> optionalCatalogo = catalogoService.findByTipoAndNombre(SEXO, personaFisica.getSexo().getNombre());
 		if(optionalCatalogo.isEmpty()) {
 			LOG.info("{}No se encontro el sexo.",headerLog);
@@ -459,24 +482,27 @@ public final class TrabajadorControllerV01 extends Auth{
 		final Catalogo CAT_TIPO_PERSONA = optionalCatalogo.get();		
 		final Catalogo CAT_ACTIVO = singletonUtil.getActivo();
 		
+		{
+			Optional<Municipio> municipioOptional = municipioService.findByClave(direccion.getMunicipio().getClave());
+			if(municipioOptional.isEmpty()) {
+				LOG.info("{}No se encontro el municipio.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
+			}
+			direccion.setMunicipio(municipioOptional.get());
+		}
+		{
+			Optional<Trabajador> opcionalTrabajador =  trabajadorService.findByClave(trabajador.getJefe().getClave());
+			if(opcionalTrabajador.isEmpty()) {
+				LOG.info("{}No se encontro el trabajador (jefe).",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
+			}
+			trabajador.setJefe(opcionalTrabajador.get());
+			if(!trabajador.getJefe().getPlantel().getIdEmpresa().equals(idEmpresa)) {
+				LOG.info("{}El trabajador (jefe) no pertenece a la empresa.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
+			}
+		}
 		
-		Optional<Municipio> municipioOptional = municipioService.findByClave(direccion.getMunicipio().getClave());
-		if(municipioOptional.isEmpty()) {
-			LOG.info("{}No se encontro el municipio.",headerLog);
-			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
-		}
-		Municipio municipio = municipioOptional.get();
-		
-		Optional<Trabajador> opcionalTrabajador =  trabajadorService.findByClave(trabajador.getJefe().getClave());
-		if(opcionalTrabajador.isEmpty()) {
-			LOG.info("{}No se encontro el trabajador (jefe).",headerLog);
-			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
-		}
-		Trabajador jefe = opcionalTrabajador.get();
-		if(!jefe.getPlantel().getIdEmpresa().equals(idEmpresa)) {
-			LOG.info("{}El trabajador (jefe) no pertenece a la empresa.",headerLog);
-			return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
-		}
 		Plantel plantel = trabajador.getPlantel();
 		if(isValid(plantel)) {
 			Optional<Plantel> optionalPlantel = plantelService.findByClave(plantel.getClave());
@@ -489,21 +515,22 @@ public final class TrabajadorControllerV01 extends Auth{
 				return new ResponseEntity<Trabajador>(HttpStatus.NOT_ACCEPTABLE);
 			}
 		}
-		Optional<Puesto> optionalPuesto = puestoService.findByClave(trabajador.getPuesto().getClave());
-		if(optionalPuesto.isEmpty()) {
-			LOG.info("{}No encontro el puesto.",headerLog);
-			return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+		{
+			Optional<Puesto> optionalPuesto = puestoService.findByClave(trabajador.getPuesto().getClave());
+			if(optionalPuesto.isEmpty()) {
+				LOG.info("{}No encontro el puesto.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+			}
+			trabajador.setPuesto(optionalPuesto.get());
+			if(!trabajador.getPuesto().getEstatus().equals(CAT_ACTIVO)) {
+				LOG.info("{}El puesto no esta activo.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+			}
+			if(!trabajador.getPuesto().getDepartamento().getIdEmpresa().equals(idEmpresa)) {
+				LOG.info("{}El puesto no pertenece a la empresa.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+			}
 		}
-		Puesto puesto = optionalPuesto.get();
-		if(!puesto.getEstatus().equals(CAT_ACTIVO)) {
-			LOG.info("{}El puesto no esta activo.",headerLog);
-			return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
-		}
-		if(!puesto.getDepartamento().getIdEmpresa().equals(idEmpresa)) {
-			LOG.info("{}El puesto no pertenece a la empresa.",headerLog);
-			return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
-		}
-		
 		for(Contacto contacto: persona.getContactos()) {
 			optionalCatalogo = catalogoService.findByTipoAndNombre(TIPO_CONTACTO, contacto.getTipo().getNombre());
 			if(optionalCatalogo.isEmpty()) {
@@ -516,7 +543,184 @@ public final class TrabajadorControllerV01 extends Auth{
 				return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
 			}
 		}
+		Salario salario = trabajador.getSalario();
+		if(salario == null) {
+			LOG.info("{}No se mando el salario.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(TIPO_NUMERIC_POSITIVO, Integer.MAX_VALUE, salario.getPeriodo())) {
+			LOG.info("{}El valor del periodo no es valido.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(TIPO_NUMERIC_POSITIVO, Integer.MAX_VALUE, salario.getDia())) {
+			LOG.info("{}El valor del dia no es valido.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(TIPO_NUMERIC_POSITIVO, Integer.MAX_VALUE, salario.getHora())) {
+			LOG.info("{}El valor de la hora no es valido.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(TIPO_NUMERIC_POSITIVO, Integer.MAX_VALUE, salario.getHoraPorDia())) {
+			LOG.info("{}El valor de la hora por dia no es valido.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(TIPO_NUMERIC_POSITIVO, Integer.MAX_VALUE, salario.getDiaPorPeriodo())) {
+			LOG.info("{}El valor del dia por periodo no es valido.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(isValid(salario.getBanco())) {
+			if(isNotValid(salario.getBanco().getClave())) {
+				LOG.info("{}No se mando la clave del banco para el salario.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+			}
+			if(isNotValid(TIPO_ALFA_NUMERIC, Salario.SIZE_NUMERO_CUENTA, salario.getNumeroCuenta() )) {
+				LOG.info("{}No se mando el numero de cuenta para el salario.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+			}
+			if(salario.getSucursal() != null) {
+				if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Salario.SIZE_SUCURSAL, salario.getSucursal() )) {
+					LOG.info("{}El valor de la sucursal del salario no es valido.",headerLog);
+					return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+				}
+			}
+			if(salario.getClaveInterBancaria() != null) {
+				if(isNotValid(TIPO_NUMERIC, Salario.SIZE_CLAVE_INTERBANCARIA, salario.getClaveInterBancaria() )) {
+					LOG.info("{}El valor de la sucursal del salario no es valido.",headerLog);
+					return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+				}
+			}
+			Optional<Banco> optionalBanco = bancoService.findByClave(salario.getBanco().getClave());
+			if(optionalBanco.isEmpty()) {
+				LOG.info("{}No se encontro el banco para el salario.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+			}
+			salario.setBanco(optionalBanco.get());
+			if(!salario.getBanco().getEstatus().equals(CAT_ACTIVO)) {
+				LOG.info("{}El banco no esta activo para el salario.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+			}
+		}else {
+			salario.setNumeroCuenta(null);
+			salario.setSucursal(null);
+			salario.setClaveInterBancaria(null);
+		}
+		if(isNotValid(salario.getTipoPago())) {
+			LOG.info("{}No se mando el tipo de pago del salario.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(salario.getTipoPago().getNombre())) {
+			LOG.info("{}No se mando el nombre del tipo de pago del salario.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(salario.getTipoPeriodo())) {
+			LOG.info("{}No se mando el tipo de periodo del salario.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(salario.getTipoPeriodo().getNombre())) {
+			LOG.info("{}No se mando el nombre del tipo de periodo del salario.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		optionalCatalogo = catalogoService.findByTipoAndNombre(PAGO_SALARIO, salario.getTipoPago().getNombre());
+		if(optionalCatalogo.isEmpty()) {
+			LOG.info("{}No se encontro el catalogo para PAGO_SALARIO.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+		}
+		salario.setTipoPago(optionalCatalogo.get());
+		optionalCatalogo = catalogoService.findByTipoAndNombre(PERIODO_SALARIO, salario.getTipoPeriodo().getNombre());
+		if(optionalCatalogo.isEmpty()) {
+			LOG.info("{}No se encontro el catalogo para PERIODO_SALARIO.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+		}
+		salario.setTipoPeriodo(optionalCatalogo.get());
 		
+		SeguroSocial seguroSocial = trabajador.getSeguroSocial();
+		if(seguroSocial == null) {
+			LOG.info("{}No se mando el seguro social.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(TIPO_NUMERIC, SeguroSocial.SIZE_NUMERO, seguroSocial.getNumero())){
+			LOG.info("{}El valor del numero del seguro social no es valido.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, SeguroSocial.SIZE_CIUDAD, seguroSocial.getCiudad())){
+			LOG.info("{}El valor de la ciudad del seguro social no es valido.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(TIPO_ALFA_NUMERIC, SeguroSocial.SIZE_RFC, seguroSocial.getRFC())){
+			LOG.info("{}El valor del RFC del seguro social no es valido.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(TIPO_ALFA_NUMERIC, SeguroSocial.SIZE_CURP, seguroSocial.getCURP())){
+			LOG.info("{}El valor del CURP del seguro social no es valido.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(seguroSocial.getObservacionesBaja() != null) {
+			if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, SeguroSocial.SIZE_OBSERVACIONES_BAJA, seguroSocial.getObservacionesBaja())){
+				LOG.info("{}El valor de la baja del seguro social no es valido.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+			}
+		}
+		if(seguroSocial.getUrlImagen() != null) {
+			if(isNotValid(TIPO_URL, SeguroSocial.SIZE_URL_IMG, seguroSocial.getUrlImagen())){
+				LOG.info("{}El valor de la URL de la imagen del seguro social no es valido.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+			}
+		}
+		if(seguroSocial.getAlta()==null) {
+			seguroSocial.setAlta(LocalDate.now());
+		}
+		if(seguroSocial.getBaja()==null) {
+			seguroSocial.setObservacionesBaja(null);
+		}else {
+			if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, SeguroSocial.SIZE_OBSERVACIONES_BAJA, seguroSocial.getObservacionesBaja())){
+				LOG.info("{}El valor de la observacion del seguro social no es valido.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+			}
+		}
+		if(isNotValid(seguroSocial.getEntidadFederativa())) {
+			LOG.info("{}No se mando la entidad federativa del seguro social.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(seguroSocial.getEntidadFederativa().getClave())) {
+			LOG.info("{}No se mando la clave de la entidad federativa del seguro social.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		{
+			Optional<Estado> optionalEstado = estadoService.findByClave(seguroSocial.getEntidadFederativa().getClave());
+			if(optionalEstado.isEmpty()) {
+				LOG.info("{}No se encontro la entidad federativa del seguro social.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+			}
+			seguroSocial.setEntidadFederativa(optionalEstado.get());
+			if(!seguroSocial.getEntidadFederativa().getEstatus().equals(CAT_ACTIVO)) {
+				LOG.info("{}La entidad federativa del seguro social no esta activa.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+			}
+		}
+		if(isNotValid(trabajador.getTurno())){
+			LOG.info("{}No se mando el turno.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(trabajador.getTurno().getClave())){
+			LOG.info("{}No se mando la clave del turno.",headerLog);
+			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}
+		{
+			Optional<Turno> optionalTurno = turnoService.findByClave(trabajador.getTurno().getClave());
+			if(optionalTurno.isEmpty()) {
+				LOG.info("{}No se encontro el tueno.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+			}
+			trabajador.setTurno(optionalTurno.get());
+			if(!trabajador.getTurno().getIdEmpresa().equals(idEmpresa)) {
+				LOG.info("{}El turno no pertenece a la empresa.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+			}
+			if(!trabajador.getTurno().getEstatus().equals(CAT_ACTIVO)) {
+				LOG.info("{}El turno no esta activo.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
+			}
+		}
 		Usuario usuario = null;
 		CorreoMsj correoMsj = null;
 		if (personaFisica.getPersona() != null && personaFisica.getPersona().getUsuarioPersona() != null
@@ -604,7 +808,6 @@ public final class TrabajadorControllerV01 extends Auth{
 				LOG.info("{}El perfil no pertenece a la empresa.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
 			}
-			
 			optionalCatalogo = catalogoService.findByTipoAndNombre(TIPO_DE_CORREO, CONFIRMAR_CORREO);
 			if(optionalCatalogo.isEmpty()) {
 				LOG.info("{}No encontro el catalogo TIPO_DE_CORREO CONFIRMAR_CORREO.",headerLog);
@@ -716,10 +919,24 @@ public final class TrabajadorControllerV01 extends Auth{
 			usuario.setIdUsuarioModificado(sesion.getUsuario().getId());
 			usuario.setEstatus(CAT_ACTIVO);
 		}
+		
+		salario.setId(null);
+		salario.setClave(UUID.randomUUID());
+		salario.setEstatus(CAT_ACTIVO);
+		salario.setFechaDeModificacion(LocalDateTime.now());
+		salario.setIdUsuarioModificado(sesion.getUsuario().getId());
+		salario = salarioService.save(salario);
+		
+		seguroSocial.setId(null);
+		seguroSocial.setClave(UUID.randomUUID());
+		seguroSocial.setEstatus(CAT_ACTIVO);
+		seguroSocial.setFechaDeModificacion(LocalDateTime.now());
+		seguroSocial.setIdUsuarioModificado(sesion.getUsuario().getId());
+		seguroSocial = seguroSocialService.save(seguroSocial);
+		
 		direccion.setId(null);
 		direccion.setClave(UUID.randomUUID());
 		direccion.setEstatus(CAT_ACTIVO);
-		direccion.setMunicipio(municipio);
 		direccion.setFechaDeModificacion(LocalDateTime.now());
 		direccion.setIdUsuarioModificado(sesion.getUsuario().getId());
 		direccion = direccionService.save(direccion);
@@ -751,10 +968,10 @@ public final class TrabajadorControllerV01 extends Auth{
 		trabajador.setFechaDeModificacion(LocalDateTime.now());
 		trabajador.setIdUsuarioModificado(sesion.getUsuario().getId());
 		trabajador.setIdEmpresa(sesion.getLicencia().getPlantel().getIdEmpresa());
-		trabajador.setJefe(jefe);
 		trabajador.setPersonaFisica(personaFisica);
 		trabajador.setPlantel(plantel);
-		trabajador.setPuesto(puesto);
+		trabajador.setSalario(salario);
+		trabajador.setSeguroSocial(seguroSocial);
 		trabajador = trabajadorService.save(trabajador);
 		
 		if(usuario != null) {
