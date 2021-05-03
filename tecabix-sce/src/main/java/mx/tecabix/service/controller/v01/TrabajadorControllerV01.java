@@ -17,6 +17,7 @@
  */
 package mx.tecabix.service.controller.v01;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -28,12 +29,18 @@ import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1080,16 +1087,44 @@ public final class TrabajadorControllerV01 extends Auth{
 		}
 		try {
 			OutputStream outputStream = new FileOutputStream(file);
-			outputStream.write(imag.getBytes());
+			if(imag.getSize() > 1000_000) {
+				float compresion = 1000_000f/imag.getSize();
+			    if(compresion > 0.8) {
+			    	compresion = 0.8f;
+			    }else if(compresion < 0.3) {
+			    	compresion = 0.3f;
+			    }
+			    BufferedImage bufferedImage = ImageIO.read(imag.getInputStream());
+
+			    Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("jpg");
+			    ImageWriter writer = (ImageWriter) writers.next();
+
+			    ImageOutputStream ios = ImageIO.createImageOutputStream(outputStream);
+			    writer.setOutput(ios);
+
+			    ImageWriteParam param = writer.getDefaultWriteParam();
+
+			    param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+			    
+			    param.setCompressionQuality(compresion);
+			    writer.write(null, new IIOImage(bufferedImage, null, null), param);
+
+			    ios.close();
+			    writer.dispose();
+			}else {
+				outputStream.write(imag.getBytes());
+			}
 			outputStream.close();
+			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (FileNotFoundException e) {
 			LOG.error("{}Se produjo un FileNotFoundException.",headerLog);
 			e.printStackTrace();
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		} catch (IOException e) {
 			LOG.error("{}Se produjo un IOException.",headerLog);
 			e.printStackTrace();
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
 	@ApiOperation(value = "Muestra la imagen del trabajador")
