@@ -30,5 +30,6 @@ import mx.tecabix.db.entity.Turno;
  */
 public interface TurnoService extends GenericSevice<Turno, Long> {
 
+	Boolean canInsert(Long idEmpresa);
 	Optional<Turno> findByClave(UUID uuid);
 }

@@ -17,28 +17,44 @@
  */
 package mx.tecabix.service.controller.v01;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.UUID;
+
+import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -98,8 +114,14 @@ import mx.tecabix.service.page.TrabajadorPage;
 @RestController
 @RequestMapping("trabajador/v1")
 public final class TrabajadorControllerV01 extends Auth{
+	
+	@Value("${configuracion.resource}")
+	private String configuracionResourcelFile;
+	private String IMG_TRABAJADOR_DIR;
+	
 	private static final Logger LOG = LoggerFactory.getLogger(TrabajadorControllerV01.class);
 	private static final String LOG_URL = "/trabajador/v1";
+	private static final String LOG_URL_IMAGE = "/trabajador/v1/image";
 
 	@Autowired
 	private SingletonUtil singletonUtil;
@@ -174,6 +196,26 @@ public final class TrabajadorControllerV01 extends Auth{
 	private final String TRABAJADOR = "TRABAJADOR";
 	private final String TRABAJADOR_CREAR = "TRABAJADOR_CREAR";
 	private final String TRABAJADOR_ELIMINAR = "TRABAJADOR_ELIMINAR";
+	
+	
+	@PostConstruct
+	private void postConstruct() {
+		try {
+			Properties properties = new Properties();
+			FileReader fileReader;
+			fileReader = new FileReader(new File(configuracionResourcelFile).getAbsoluteFile());
+			properties.load(fileReader);
+			IMG_TRABAJADOR_DIR = properties.getProperty("IMG_TRABAJADOR_DIR");
+			fileReader.close();
+		} catch (FileNotFoundException e) {
+			LOG.error("se produjo un FileNotFoundException en el postConstruct de TrabajadorControllerV01");
+			e.printStackTrace();
+			
+		} catch (IOException e) {
+			LOG.error("se produjo un IOException en el postConstruct de TrabajadorControllerV01");
+			e.printStackTrace();
+		}
+	}
 	
 	/**
 	 * 
@@ -1000,6 +1042,96 @@ public final class TrabajadorControllerV01 extends Auth{
 			contactoService.save(contacto);
 		}
 		return new ResponseEntity<Trabajador>(trabajador, HttpStatus.OK);
+	}
+	
+	@ApiOperation(value = "Actualiza la imagen del trabajador")
+	@PutMapping("image")
+	public ResponseEntity<?> updateImage(@RequestParam(value="clave") UUID clave, @RequestParam(value="token") UUID token,@RequestParam(value="imag") MultipartFile imag){
+		
+		Sesion sesion = getSessionIfIsAuthorized(token, TRABAJADOR_CREAR);
+		if(sesion == null) {
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); 
+		}
+		
+		final long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		final String headerLog = formatLogPost(idEmpresa, LOG_URL_IMAGE);
+		
+		
+		if(!imag.getContentType().equals("image/jpeg")) {
+			LOG.info("{}El formato del archivo no es el esperado.",headerLog);
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST); 
+		}
+		File file = null;
+		{
+			Optional<Trabajador> optionalTrabajador = trabajadorService.findByClave(clave);
+			if(optionalTrabajador.isEmpty()) {
+				LOG.info("{}No se encontro la clave del trabajador.",headerLog);
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
+			}
+			Trabajador trabajador = optionalTrabajador.get();
+			if(!trabajador.getEstatus().equals(singletonUtil.getActivo())) {
+				LOG.info("{}No se encontro al trabajador.",headerLog);
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
+			}
+			file = new File(this.IMG_TRABAJADOR_DIR,trabajador.getId().toString().concat(".jpg"));
+			if(file.exists()) {
+				file.delete();
+			}
+		}
+		try {
+			OutputStream outputStream = new FileOutputStream(file);
+			outputStream.write(imag.getBytes());
+			outputStream.close();
+		} catch (FileNotFoundException e) {
+			LOG.error("{}Se produjo un FileNotFoundException.",headerLog);
+			e.printStackTrace();
+		} catch (IOException e) {
+			LOG.error("{}Se produjo un IOException.",headerLog);
+			e.printStackTrace();
+		}
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+	
+	@ApiOperation(value = "Muestra la imagen del trabajador")
+	@GetMapping("image")
+	public ResponseEntity<byte[]> perfilImage(@RequestParam(value="clave") UUID clave, @RequestParam(value="token") UUID token){
+		
+		Sesion sesion = getSessionIfIsAuthorized(token, TRABAJADOR);
+		if(sesion == null) {
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); 
+		}
+		Optional<Trabajador> optionalTrabajador = trabajadorService.findByClave(clave);
+		if(optionalTrabajador.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
+		}
+		File file = null;
+		{
+			Trabajador trabajador = optionalTrabajador.get();
+			if(!trabajador.getEstatus().equals(singletonUtil.getActivo())) {
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
+			}
+			file = new File(this.IMG_TRABAJADOR_DIR,trabajador.getId().toString().concat(".jpg"));
+			if(!file.exists()) {
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			}
+			if(!file.canRead()) {
+				return new ResponseEntity<>(HttpStatus.CONFLICT);
+			}
+		}
+		byte[] bytes = null;
+		try {
+			InputStream inputStream = new FileInputStream(file);
+			bytes = inputStream.readAllBytes();
+			inputStream.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("image/jpeg"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + "tecabix.jpg" + "\"")
+                .body(bytes);
 	}
 	
 	@ApiOperation(value = "Eliminar trabajador y dependencias")

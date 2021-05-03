@@ -31,6 +31,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedNativeQueries;
+import javax.persistence.NamedNativeQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -47,9 +49,15 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
  */
 @Entity
 @Table(name = "turno")
+@NamedNativeQueries({
+	@NamedNativeQuery(name = "Turno.canInsert", query = "SELECT tecabix_sce.turno_can_insert(?1)")
+})
 public class Turno implements Serializable{
 
 	private static final long serialVersionUID = 2375902079042196833L;
+	
+	public static final short SIZE_NOMBRE = 45;
+	public static final short SIZE_DESCRIPCION = 200;
 	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)

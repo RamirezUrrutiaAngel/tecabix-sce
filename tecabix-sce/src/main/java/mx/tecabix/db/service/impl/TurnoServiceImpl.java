@@ -52,4 +52,9 @@ public class TurnoServiceImpl extends GenericSeviceImpl<Turno, Long> implements 
 		return turnoRepository.findByClave(uuid);
 	}
 
+	@Override
+	public Boolean canInsert(Long idEmpresa) {
+		return turnoRepository.canInsert(idEmpresa);
+	}
+
 }

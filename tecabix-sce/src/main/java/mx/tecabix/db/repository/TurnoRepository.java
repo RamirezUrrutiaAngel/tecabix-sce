@@ -31,5 +31,6 @@ import mx.tecabix.db.entity.Turno;
  */
 public interface TurnoRepository extends JpaRepository<Turno, Long> {
 
+	Boolean canInsert(Long idEmpresa);
 	Optional<Turno> findByClave(UUID uuid);
 }
