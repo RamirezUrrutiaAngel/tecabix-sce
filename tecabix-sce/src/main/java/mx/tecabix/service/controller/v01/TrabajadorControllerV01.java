@@ -1054,7 +1054,7 @@ public final class TrabajadorControllerV01 extends Auth{
 		}
 		
 		final long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
-		final String headerLog = formatLogPost(idEmpresa, LOG_URL_IMAGE);
+		final String headerLog = formatLogPut(idEmpresa, LOG_URL_IMAGE);
 		
 		
 		if(!imag.getContentType().equals("image/jpeg")) {
