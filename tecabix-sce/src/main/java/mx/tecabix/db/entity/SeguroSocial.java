@@ -52,7 +52,6 @@ public class SeguroSocial implements Serializable{
 	public static final short SIZE_CIUDAD = 100;
 	public static final short SIZE_CURP = 19;
 	public static final short SIZE_RFC= 16;
-	public static final short SIZE_URL_IMG = 200;
 	public static final short SIZE_OBSERVACIONES_BAJA = 200;
 	
 	@Id
@@ -76,8 +75,6 @@ public class SeguroSocial implements Serializable{
 	private LocalDate alta;
 	@Column(name = "baja")
 	private LocalDate baja;
-	@Column(name = "url_imagen")
-	private String urlImagen;
 	@Column(name = "observaciones_baja")
 	private String observacionesBaja;
 	@Column(name = "id_usuario_modificado")
@@ -140,12 +137,6 @@ public class SeguroSocial implements Serializable{
 	}
 	public void setBaja(LocalDate baja) {
 		this.baja = baja;
-	}
-	public String getUrlImagen() {
-		return urlImagen;
-	}
-	public void setUrlImagen(String urlImagen) {
-		this.urlImagen = urlImagen;
 	}
 	public String getObservacionesBaja() {
 		return observacionesBaja;

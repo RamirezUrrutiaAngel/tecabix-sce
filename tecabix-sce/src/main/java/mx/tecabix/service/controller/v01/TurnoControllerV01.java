@@ -18,6 +18,7 @@
 package mx.tecabix.service.controller.v01;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -40,7 +41,9 @@ import mx.tecabix.db.entity.Catalogo;
 import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.entity.Trabajador;
 import mx.tecabix.db.entity.Turno;
+import mx.tecabix.db.entity.TurnoDia;
 import mx.tecabix.db.service.CatalogoService;
+import mx.tecabix.db.service.TurnoDiaService;
 import mx.tecabix.db.service.TurnoService;
 import mx.tecabix.service.Auth;
 import mx.tecabix.service.SingletonUtil;
@@ -57,6 +60,9 @@ public final class TurnoControllerV01 extends Auth{
 	private static final Logger LOG = LoggerFactory.getLogger(TurnoControllerV01.class);
 	private static final String LOG_URL = "/turno/v1";
 	
+	
+	private final String DIA_DE_LA_SEMANA = "DIA_DE_LA_SEMANA";
+	
 	private final String TURNO = "TURNO";
 	private final String TURNO_CREAR = "TURNO_CREAR";
 	private final String TURNO_EDITAR = "TURNO_EDITAR";
@@ -67,15 +73,17 @@ public final class TurnoControllerV01 extends Auth{
 	@Autowired
 	private TurnoService turnoService;
 	@Autowired
+	private TurnoDiaService turnoDiaService;
+	@Autowired
 	private CatalogoService catalogoService;
 	
-	@ApiOperation(value = "Dar de alta un nuevo trabajador", notes = "Dar de alta un trabajador nuevo en una empresa ya existente.")
+	@ApiOperation(value = "Dar de alta un nuevo turno", notes = "Dar de alta un turno nuevo.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Se realizo la petición correctamente.", response = Trabajador.class),
 			@ApiResponse(code = 400, message = "Faltan datos para poder procesar la petición o no son validos."),
 			@ApiResponse(code = 401, message = "El cliente no tiene permitido acceder a los recursos del servidor, ya sea por que el nombre y contraseña no es valida, o el token no es valido para el usuario, o el usuario no tiene autorizado consumir el recurso."),
 			@ApiResponse(code = 406, message = "Uno o varios datos ingresados no son validos para procesar la petición."),
-			@ApiResponse(code = 409, message = "La petición no pudo realizarse por que el usuario que se intenta guardar ya existe.") })
+			@ApiResponse(code = 423, message = "La petición no pudo realizarse por que se supero el numero de turnos creados.") })
 	@PostMapping
 	public ResponseEntity<Turno>  save(@RequestBody Turno turno, @RequestParam(value="token") UUID token) {
 		Sesion sesion = getSessionIfIsAuthorized(token, TURNO_CREAR);
@@ -89,6 +97,7 @@ public final class TurnoControllerV01 extends Auth{
 			LOG.info("{}Se a superado el numero máximo de turnos.",headerLog);
 			return new ResponseEntity<Turno>(HttpStatus.LOCKED);
 		}
+		
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Turno.SIZE_NOMBRE, turno.getNombre())) {
 			LOG.info("{}El valor del nombre del turno no es valido.",headerLog);
 			return new ResponseEntity<Turno>(HttpStatus.BAD_REQUEST);
@@ -109,19 +118,63 @@ public final class TurnoControllerV01 extends Auth{
 			LOG.info("{}No se mando el nombre del tipo del turno.",headerLog);
 			return new ResponseEntity<Turno>(HttpStatus.BAD_REQUEST);
 		}
-		Optional<Catalogo> optionalCatalogo = catalogoService.findByTipoAndNombre(TURNO, turno.getTipo().getNombre());
+		if(isNotValid(turno.getTurnoDias())) {
+			LOG.info("{}No se mando los dias del turno.",headerLog);
+			return new ResponseEntity<Turno>(HttpStatus.BAD_REQUEST);
+		}
+		Optional<Catalogo> optionalCatalogo = null;
+		Catalogo CAT_ACTIVO = singletonUtil.getActivo();
+		List<TurnoDia> turnoDias = turno.getTurnoDias();
+		for (TurnoDia turnoDia : turnoDias) {
+			if(isNotValid(turnoDia.getInicio())) {
+				LOG.info("{}No se mando el inicio del turno del dia.",headerLog);
+				return new ResponseEntity<Turno>(HttpStatus.BAD_REQUEST);
+			}
+			if(isNotValid(turnoDia.getFin())) {
+				LOG.info("{}No se mando el fin del turno del dia.",headerLog);
+				return new ResponseEntity<Turno>(HttpStatus.BAD_REQUEST);
+			}
+			if(isNotValid(turnoDia.getDia())) {
+				LOG.info("{}No se mando el dia para el turno del dia.",headerLog);
+				return new ResponseEntity<Turno>(HttpStatus.BAD_REQUEST);
+			}
+			if(isNotValid(turnoDia.getDia().getNombre())) {
+				LOG.info("{}No se mando el nombre del dia para el turno del dia.",headerLog);
+				return new ResponseEntity<Turno>(HttpStatus.BAD_REQUEST);
+			}
+			optionalCatalogo = catalogoService.findByTipoAndNombre(DIA_DE_LA_SEMANA, turnoDia.getDia().getNombre());
+			if(optionalCatalogo.isEmpty()) {
+				LOG.info("{}No se encontro el nombre del dia para el turno del dia.",headerLog);
+				return new ResponseEntity<Turno>(HttpStatus.NOT_FOUND);
+			}
+			turnoDia.setDia(optionalCatalogo.get());
+			turnoDia.setId(null);
+			turnoDia.setClave(UUID.randomUUID());
+			turnoDia.setEstatus(CAT_ACTIVO);
+			turnoDia.setFechaDeModificacion(LocalDateTime.now());
+			turnoDia.setIdUsuarioModificado(sesion.getUsuario().getId());
+		}
+		
+		optionalCatalogo = catalogoService.findByTipoAndNombre(TURNO, turno.getTipo().getNombre());
 		if(optionalCatalogo.isEmpty()) {
 			LOG.info("{}No se encontro el tipo del turno.",headerLog);
 			return new ResponseEntity<Turno>(HttpStatus.BAD_REQUEST);
 		}
+		
 		turno.setId(null);
 		turno.setTipo(optionalCatalogo.get());
 		turno.setIdEmpresa(idEmpresa);
 		turno.setClave(UUID.randomUUID());
-		turno.setEstatus(singletonUtil.getActivo());
+		turno.setEstatus(CAT_ACTIVO);
 		turno.setFechaDeModificacion(LocalDateTime.now());
 		turno.setIdUsuarioModificado(sesion.getUsuario().getId());
 		turno = turnoService.save(turno);
+		
+		for (TurnoDia turnoDia : turnoDias) {
+			turnoDia.setTurno(turno);
+			turnoDiaService.save(turnoDia);
+		}
+		turno.setTurnoDias(turnoDias);
 		return new ResponseEntity<Turno>(turno,HttpStatus.OK);
 	}
 }

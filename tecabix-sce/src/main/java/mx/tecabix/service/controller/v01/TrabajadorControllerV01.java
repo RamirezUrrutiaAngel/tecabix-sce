@@ -471,6 +471,8 @@ public final class TrabajadorControllerV01 extends Auth{
 			if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Contacto.SIZE_VALOR , contacto.getValor() )) {
 				LOG.info("{}El formato del valor del contacto no es valido.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+			}else {
+				contacto.setValor(contacto.getValor().strip());
 			}
 		}
 		
@@ -482,6 +484,8 @@ public final class TrabajadorControllerV01 extends Auth{
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Direccion.SIZE_CALLE, direccion.getCalle())) {
 			LOG.info("{}El formato de la calle es incorrecto.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}else {
+			direccion.setCalle(direccion.getCalle().strip());
 		}
 		if(isNotValid(TIPO_NUMERIC, Direccion.SIZE_CODIGO_POSTAL, direccion.getCodigoPostal())) {
 			LOG.info("{}El formato del codigo postal es incorrecto.",headerLog);
@@ -630,6 +634,8 @@ public final class TrabajadorControllerV01 extends Auth{
 				if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Salario.SIZE_SUCURSAL, salario.getSucursal() )) {
 					LOG.info("{}El valor de la sucursal del salario no es valido.",headerLog);
 					return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+				}else {
+					salario.setSucursal(salario.getSucursal().strip());
 				}
 			}
 			if(salario.getClaveInterBancaria() != null) {
@@ -694,6 +700,8 @@ public final class TrabajadorControllerV01 extends Auth{
 		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, SeguroSocial.SIZE_CIUDAD, seguroSocial.getCiudad())){
 			LOG.info("{}El valor de la ciudad del seguro social no es valido.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+		}else {
+			seguroSocial.setCiudad(seguroSocial.getCiudad().strip());
 		}
 		if(isNotValid(TIPO_ALFA_NUMERIC, SeguroSocial.SIZE_RFC, seguroSocial.getRFC())){
 			LOG.info("{}El valor del RFC del seguro social no es valido.",headerLog);
@@ -702,18 +710,6 @@ public final class TrabajadorControllerV01 extends Auth{
 		if(isNotValid(TIPO_ALFA_NUMERIC, SeguroSocial.SIZE_CURP, seguroSocial.getCURP())){
 			LOG.info("{}El valor del CURP del seguro social no es valido.",headerLog);
 			return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-		}
-		if(seguroSocial.getObservacionesBaja() != null) {
-			if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, SeguroSocial.SIZE_OBSERVACIONES_BAJA, seguroSocial.getObservacionesBaja())){
-				LOG.info("{}El valor de la baja del seguro social no es valido.",headerLog);
-				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-			}
-		}
-		if(seguroSocial.getUrlImagen() != null) {
-			if(isNotValid(TIPO_URL, SeguroSocial.SIZE_URL_IMG, seguroSocial.getUrlImagen())){
-				LOG.info("{}El valor de la URL de la imagen del seguro social no es valido.",headerLog);
-				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-			}
 		}
 		if(seguroSocial.getAlta()==null) {
 			seguroSocial.setAlta(LocalDate.now());
@@ -724,6 +720,8 @@ public final class TrabajadorControllerV01 extends Auth{
 			if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, SeguroSocial.SIZE_OBSERVACIONES_BAJA, seguroSocial.getObservacionesBaja())){
 				LOG.info("{}El valor de la observacion del seguro social no es valido.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+			}else {
+				seguroSocial.setObservacionesBaja(seguroSocial.getObservacionesBaja().strip());
 			}
 		}
 		if(isNotValid(seguroSocial.getEntidadFederativa())) {
