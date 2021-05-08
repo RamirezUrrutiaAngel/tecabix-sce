@@ -21,7 +21,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import mx.tecabix.db.GenericSevice;
-import mx.tecabix.db.entity.Authority;
 import mx.tecabix.db.entity.TurnoDia;
 
 /**
@@ -31,5 +30,5 @@ import mx.tecabix.db.entity.TurnoDia;
  */
 public interface TurnoDiaService extends GenericSevice<TurnoDia, Long>{
 
-	Optional<Authority> findByClave(UUID uuid);
+	Optional<TurnoDia> findByClave(UUID uuid);
 }

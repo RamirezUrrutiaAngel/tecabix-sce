@@ -33,6 +33,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedNativeQueries;
 import javax.persistence.NamedNativeQuery;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -49,6 +51,12 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
  */
 @Entity
 @Table(name = "turno")
+@NamedQueries({
+	@NamedQuery(name = "Turno.findByLikeNombre",query = "SELECT t FROM Turno t WHERE t.idEmpresa = ?1 AND UPPER(t.nombre) LIKE UPPER(?2) AND t.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Turno.findByLikeDescripcion",query = "SELECT t FROM Turno t WHERE t.idEmpresa = ?1 AND UPPER(t.descripcion) LIKE UPPER(?2) AND t.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Turno.findByNombre",query = "SELECT t FROM Turno t WHERE t.idEmpresa = ?1 AND t.nombre = ?2 AND t.estatus.nombre = 'ACTIVO' "),
+	@NamedQuery(name = "Turno.findByIdEmpresa",query = "SELECT t FROM Turno t WHERE t.idEmpresa = ?1 AND t.estatus.nombre = 'ACTIVO' ")
+})
 @NamedNativeQueries({
 	@NamedNativeQuery(name = "Turno.canInsert", query = "SELECT tecabix_sce.turno_can_insert(?1)")
 })
@@ -89,7 +97,7 @@ public class Turno implements Serializable{
     @Type(type="pg-uuid")
     private UUID clave;
     @OneToMany(fetch = FetchType.LAZY, mappedBy="turno", cascade=CascadeType.REMOVE)
-	private List<TurnoDia> TurnoDias;
+	private List<TurnoDia> turnoDias;
 	public Long getId() {
 		return id;
 	}
@@ -145,10 +153,10 @@ public class Turno implements Serializable{
 		this.clave = clave;
 	}
 	public List<TurnoDia> getTurnoDias() {
-		return TurnoDias;
+		return turnoDias;
 	}
 	public void setTurnoDias(List<TurnoDia> turnoDias) {
-		TurnoDias = turnoDias;
+		this.turnoDias = turnoDias;
 	}
 	@Override
 	public int hashCode() {

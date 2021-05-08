@@ -23,6 +23,10 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.GenericSeviceImpl;
@@ -55,6 +59,29 @@ public class TurnoServiceImpl extends GenericSeviceImpl<Turno, Long> implements 
 	@Override
 	public Boolean canInsert(Long idEmpresa) {
 		return turnoRepository.canInsert(idEmpresa);
+	}
+
+	@Override
+	public Page<Turno> findByLikeNombre(Long idEmpresa, String nombre, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		return turnoRepository.findByLikeNombre(idEmpresa, nombre, pageable);
+	}
+
+	@Override
+	public Page<Turno> findByLikeDescripcion(Long idEmpresa, String descripcion, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		return turnoRepository.findByLikeDescripcion(idEmpresa, descripcion, pageable);
+	}
+
+	@Override
+	public Page<Turno> findByIdEmpresa(Long idEmpresa, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		return turnoRepository.findByIdEmpresa(idEmpresa, pageable);
+	}
+
+	@Override
+	public Optional<Turno> findByNombre(Long idEmpresa, String nombre) {
+		return turnoRepository.findByNombre(idEmpresa, nombre);
 	}
 
 }

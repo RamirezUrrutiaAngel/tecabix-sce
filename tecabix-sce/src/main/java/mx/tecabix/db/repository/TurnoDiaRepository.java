@@ -22,7 +22,6 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import mx.tecabix.db.entity.Authority;
 import mx.tecabix.db.entity.TurnoDia;
 
 /**
@@ -32,5 +31,5 @@ import mx.tecabix.db.entity.TurnoDia;
  */
 public interface TurnoDiaRepository extends JpaRepository<TurnoDia, Long>{
 
-	Optional<Authority> findByClave(UUID uuid);
+	Optional<TurnoDia> findByClave(UUID uuid);
 }

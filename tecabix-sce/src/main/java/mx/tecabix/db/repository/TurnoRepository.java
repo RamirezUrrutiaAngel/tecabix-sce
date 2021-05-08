@@ -20,6 +20,8 @@ package mx.tecabix.db.repository;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import mx.tecabix.db.entity.Turno;
@@ -32,5 +34,9 @@ import mx.tecabix.db.entity.Turno;
 public interface TurnoRepository extends JpaRepository<Turno, Long> {
 
 	Boolean canInsert(Long idEmpresa);
+	Page<Turno> findByLikeNombre(Long idEmpresa, String nombre, Pageable pageable);
+	Page<Turno> findByLikeDescripcion(Long idEmpresa, String descripcion, Pageable pageable);
+	Page<Turno> findByIdEmpresa(Long idEmpresa, Pageable pageable);
+	Optional<Turno> findByNombre(Long idEmpresa,String nombre);
 	Optional<Turno> findByClave(UUID uuid);
 }

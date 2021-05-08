@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.GenericSeviceImpl;
-import mx.tecabix.db.entity.Authority;
 import mx.tecabix.db.entity.TurnoDia;
 import mx.tecabix.db.repository.TurnoDiaRepository;
 import mx.tecabix.db.service.TurnoDiaService;
@@ -49,7 +48,7 @@ public class TurnoDiaServiceImpl extends GenericSeviceImpl<TurnoDia, Long> imple
 	}
 	
 	@Override
-	public Optional<Authority> findByClave(UUID uuid) {
+	public Optional<TurnoDia> findByClave(UUID uuid) {
 		return turnoDiaRepository.findByClave(uuid);
 	}
 
