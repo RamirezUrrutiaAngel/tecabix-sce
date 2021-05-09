@@ -31,6 +31,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -372,4 +373,34 @@ public final class TurnoControllerV01 extends Auth{
 		return new ResponseEntity<Turno>(turnoUpdate,HttpStatus.OK);
 	}
 	
+	@ApiOperation(value = "Elimina el turno con sus correspondientes turno dia.")
+	@DeleteMapping()
+	public ResponseEntity<?> delete(@RequestParam(value="token") UUID token, @RequestParam(value="clave") UUID uuid){
+		Sesion sesion = getSessionIfIsAuthorized(token, TURNO_ELIMINAR);
+		if(sesion == null) {
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
+		Optional<Turno> optionalTurno = turnoService.findByClave(uuid);
+		if(optionalTurno.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		Turno turno = optionalTurno.get();
+		if(!turno.getEstatus().equals(singletonUtil.getActivo())) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		if(!turno.getIdEmpresa().equals(sesion.getLicencia().getPlantel().getIdEmpresa())) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		Catalogo CAT_ELIMINADO = singletonUtil.getEliminado();
+		turno.setEstatus(CAT_ELIMINADO);
+		turno.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+		turnoService.update(turno);
+		List<TurnoDia> turnoDias = turno.getTurnoDias();
+		for (TurnoDia turnoDia : turnoDias) {
+			turnoDia.setEstatus(CAT_ELIMINADO);
+			turnoDia.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+			turnoDiaService.update(turnoDia);
+		}
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 }
