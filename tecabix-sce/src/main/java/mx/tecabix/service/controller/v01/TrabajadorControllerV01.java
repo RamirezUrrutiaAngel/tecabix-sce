@@ -626,24 +626,6 @@ public final class TrabajadorControllerV01 extends Auth{
 				LOG.info("{}No se mando la clave del banco para el salario.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 			}
-			if(isNotValid(TIPO_ALFA_NUMERIC, Salario.SIZE_NUMERO_CUENTA, salario.getNumeroCuenta() )) {
-				LOG.info("{}No se mando el numero de cuenta para el salario.",headerLog);
-				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-			}
-			if(salario.getSucursal() != null) {
-				if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Salario.SIZE_SUCURSAL, salario.getSucursal() )) {
-					LOG.info("{}El valor de la sucursal del salario no es valido.",headerLog);
-					return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-				}else {
-					salario.setSucursal(salario.getSucursal().strip());
-				}
-			}
-			if(salario.getClaveInterBancaria() != null) {
-				if(isNotValid(TIPO_NUMERIC, Salario.SIZE_CLAVE_INTERBANCARIA, salario.getClaveInterBancaria() )) {
-					LOG.info("{}El valor de la sucursal del salario no es valido.",headerLog);
-					return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
-				}
-			}
 			Optional<Banco> optionalBanco = bancoService.findByClave(salario.getBanco().getClave());
 			if(optionalBanco.isEmpty()) {
 				LOG.info("{}No se encontro el banco para el salario.",headerLog);
@@ -654,10 +636,26 @@ public final class TrabajadorControllerV01 extends Auth{
 				LOG.info("{}El banco no esta activo para el salario.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
 			}
-		}else {
-			salario.setNumeroCuenta(null);
-			salario.setSucursal(null);
-			salario.setClaveInterBancaria(null);
+		}
+		if(salario.getNumeroCuenta()!= null) {
+			if(isNotValid(TIPO_ALFA_NUMERIC, Salario.SIZE_NUMERO_CUENTA, salario.getNumeroCuenta() )) {
+				LOG.info("{}No se mando el numero de cuenta para el salario.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+			}
+		}
+		if(salario.getSucursal() != null) {
+			if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Salario.SIZE_SUCURSAL, salario.getSucursal() )) {
+				LOG.info("{}El valor de la sucursal del salario no es valido.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+			}else {
+				salario.setSucursal(salario.getSucursal().strip());
+			}
+		}
+		if(salario.getClaveInterBancaria() != null) {
+			if(isNotValid(TIPO_NUMERIC, Salario.SIZE_CLAVE_INTERBANCARIA, salario.getClaveInterBancaria() )) {
+				LOG.info("{}El valor de la sucursal del salario no es valido.",headerLog);
+				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
+			}
 		}
 		if(isNotValid(salario.getTipoPago())) {
 			LOG.info("{}No se mando el tipo de pago del salario.",headerLog);

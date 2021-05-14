@@ -77,9 +77,6 @@ public class Turno implements Serializable{
 	private String nombre;
 	@Column(name = "descripcion")
 	private String descripcion;
-	@ManyToOne
-    @JoinColumn(name = "id_tipo")
-    private Catalogo tipo;
 	@Column(name = "id_empresa")
     @JsonProperty(access = Access.WRITE_ONLY)
     private Long idEmpresa;
@@ -115,12 +112,6 @@ public class Turno implements Serializable{
 	}
 	public void setDescripcion(String descripcion) {
 		this.descripcion = descripcion;
-	}
-	public Catalogo getTipo() {
-		return tipo;
-	}
-	public void setTipo(Catalogo tipo) {
-		this.tipo = tipo;
 	}
 	public Long getIdEmpresa() {
 		return idEmpresa;

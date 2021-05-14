@@ -166,14 +166,6 @@ public final class TurnoControllerV01 extends Auth{
 		}else {
 			turno.setDescripcion(turno.getDescripcion().strip());
 		}
-		if(isNotValid(turno.getTipo())) {
-			LOG.info("{}No se mando el tipo del turno.",headerLog);
-			return new ResponseEntity<Turno>(HttpStatus.BAD_REQUEST);
-		}
-		if(isNotValid(turno.getTipo().getNombre())) {
-			LOG.info("{}No se mando el nombre del tipo del turno.",headerLog);
-			return new ResponseEntity<Turno>(HttpStatus.BAD_REQUEST);
-		}
 		if(isNotValid(turno.getTurnoDias())) {
 			LOG.info("{}No se mando los dias del turno.",headerLog);
 			return new ResponseEntity<Turno>(HttpStatus.BAD_REQUEST);
@@ -211,14 +203,8 @@ public final class TurnoControllerV01 extends Auth{
 			turnoDia.setIdUsuarioModificado(sesion.getUsuario().getId());
 		}
 		
-		optionalCatalogo = catalogoService.findByTipoAndNombre(TURNO, turno.getTipo().getNombre());
-		if(optionalCatalogo.isEmpty()) {
-			LOG.info("{}No se encontro el tipo del turno.",headerLog);
-			return new ResponseEntity<Turno>(HttpStatus.BAD_REQUEST);
-		}
 		
 		turno.setId(null);
-		turno.setTipo(optionalCatalogo.get());
 		turno.setIdEmpresa(idEmpresa);
 		turno.setClave(UUID.randomUUID());
 		turno.setEstatus(CAT_ACTIVO);
@@ -266,14 +252,6 @@ public final class TurnoControllerV01 extends Auth{
 			return new ResponseEntity<Turno>(HttpStatus.BAD_REQUEST);
 		}else {
 			turno.setDescripcion(turno.getDescripcion().strip());
-		}
-		if(isNotValid(turno.getTipo())) {
-			LOG.info("{}No se mando el tipo del turno.",headerLog);
-			return new ResponseEntity<Turno>(HttpStatus.BAD_REQUEST);
-		}
-		if(isNotValid(turno.getTipo().getNombre())) {
-			LOG.info("{}No se mando el nombre del tipo del turno.",headerLog);
-			return new ResponseEntity<Turno>(HttpStatus.BAD_REQUEST);
 		}
 		if(isNotValid(turno.getTurnoDias())) {
 			LOG.info("{}No se mando los dias del turno.",headerLog);
@@ -334,11 +312,6 @@ public final class TurnoControllerV01 extends Auth{
 			}
 			turnoDias = turnoDiasUpdate;
 		}
-		optionalCatalogo = catalogoService.findByTipoAndNombre(TURNO, turno.getTipo().getNombre());
-		if(optionalCatalogo.isEmpty()) {
-			LOG.info("{}No se encontro el tipo del turno.",headerLog);
-			return new ResponseEntity<Turno>(HttpStatus.NOT_FOUND);
-		}
 		Optional<Turno> optionalTurno = turnoService.findByClave(turno.getClave());
 		if(optionalTurno.isEmpty()) {
 			LOG.info("{}No se encontro el turno.",headerLog);
@@ -355,7 +328,6 @@ public final class TurnoControllerV01 extends Auth{
 		}
 		turnoUpdate.setNombre(turno.getNombre());
 		turnoUpdate.setDescripcion(turno.getDescripcion());
-		turnoUpdate.setTipo(optionalCatalogo.get());
 		turnoUpdate.setFechaDeModificacion(LocalDateTime.now());
 		turnoUpdate.setIdUsuarioModificado(sesion.getUsuario().getId());
 		
