@@ -158,7 +158,7 @@ public final class PuestoControllerV01 extends Auth{
 		}
 		final long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
 		final String headerLog = formatLogPost(idEmpresa, LOG_URL);
-		boolean canInsert = departamentoService.canInsert(idEmpresa);
+		boolean canInsert = puestoService.canInsert(idEmpresa);
 		if(!canInsert) {
 			LOG.info("{}Se a superado el numero máximo de puestos.",headerLog);
 			return new ResponseEntity<Puesto>(HttpStatus.LOCKED);

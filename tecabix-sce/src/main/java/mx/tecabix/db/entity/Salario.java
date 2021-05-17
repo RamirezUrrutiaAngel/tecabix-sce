@@ -49,7 +49,7 @@ public class Salario implements Serializable{
 	
 	public static final short SIZE_NUMERO_CUENTA = 20;
 	public static final short SIZE_SUCURSAL = 45;
-	public static final short SIZE_CLAVE_INTERBANCARIA = 20;
+	public static final short SIZE_CLAVE_INTERBANCARIA = 19;
 	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
