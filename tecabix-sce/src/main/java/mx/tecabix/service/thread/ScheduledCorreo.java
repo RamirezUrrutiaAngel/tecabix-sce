@@ -23,7 +23,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -131,11 +130,12 @@ public class ScheduledCorreo extends Auth{
 	
 	@Scheduled(cron = "00 */5 * * * *")
 	public void enviarCorreos() {
-		LOG.info("Enviando correos");
+		LOG.debug("Enviando correos");
 		Sort sort = Sort.by(Sort.Direction.DESC, "programado");
 		Page<CorreoMsj> correosMsj = correoMsjService.findLast(100, 0, sort);
 		if(correosMsj.getTotalElements() > 0) {
 			final Catalogo CAT_ELIMINADO = singletonUtil.getEliminado();
+			LOG.debug("Se encontraron {} correo(s)", correosMsj.getTotalElements());
 			correosMsj.stream().forEach(msj ->{
 				msj.setEstatus(CAT_ELIMINADO);
 				correoMsjService.update(msj);
@@ -149,6 +149,7 @@ public class ScheduledCorreo extends Auth{
 				File file = new File(msj.getMensaje());
 				if(!file.exists()) {
 					text = new StringBuilder(msj.getMensaje());
+					LOG.debug("NO EXIISTE LA RUTA {}", file.getAbsolutePath());
 				}else {
 					text = new StringBuilder(1800);
 					FileReader fileReader = null;
@@ -168,7 +169,6 @@ public class ScheduledCorreo extends Auth{
 									linea = linea.replace(item.getTipo().getNombre(), item.getDato());
 								}
 							}
-							
 							for(String key : carcaterEspeciales.keySet()) {
 								if(linea.contains(key)) {
 									linea = linea.replaceAll(key, carcaterEspeciales.get(key));
@@ -193,15 +193,21 @@ public class ScheduledCorreo extends Auth{
 						}
 					}
 				}
-				List<String> cc = new LinkedList<>();
-				msj.getCorreoMsjItems().stream().filter(x->x.getTipo().getNombre().equals("CC")).forEach(x->{
-					cc.add(x.getDato());
-				});
-				List<File> adjuntos = new LinkedList<>();
-				msj.getCorreoMsjItems().stream().filter(x->x.getTipo().getNombre().equals("ADJUNTO")).forEach(x->{
-					adjuntos.add(new File(x.getDato()));
-				});
+				List<String> cc = msj.getCorreoMsjItems().stream()
+						.filter(x -> x.getTipo().getNombre().equals("CC"))
+						.map(x -> x.getDato()).collect(Collectors.toList());
+				List<File> adjuntos = msj.getCorreoMsjItems().stream()
+						.filter(x -> x.getTipo().getNombre().equals("ADJUNTO"))
+						.map(x -> new File(x.getDato())).collect(Collectors.toList());
+				
+				LOG.debug("DE: {}", msj.getCorreo().getRemitente());
+				LOG.debug("PWD: {}", msj.getCorreo().getPassword());
+				LOG.debug("PARA: {}", msj.getDestinatario());
+				LOG.debug("CC: {}",cc);
+				LOG.debug("ASUNTO: {}", msj.getAsunto());
+				LOG.debug("ADJ: {}",adjuntos);
 				sendMailAttached(msj.getCorreo(), text.toString(), msj.getDestinatario(), msj.getAsunto(), cc, adjuntos);
+				LOG.debug("EMVIADO");
 				adjuntos.stream().forEach(x->x.delete());
 			});
 		}

@@ -637,25 +637,31 @@ public final class TrabajadorControllerV01 extends Auth{
 				return new ResponseEntity<Trabajador>(HttpStatus.NOT_FOUND);
 			}
 		}
-		if(salario.getNumeroCuenta()!= null) {
+		if(salario.getNumeroCuenta()!= null && !salario.getNumeroCuenta().isBlank()) {
 			if(isNotValid(TIPO_ALFA_NUMERIC, Salario.SIZE_NUMERO_CUENTA, salario.getNumeroCuenta() )) {
 				LOG.info("{}No se mando el numero de cuenta para el salario.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 			}
+		}else{
+			salario.setNumeroCuenta(null);
 		}
-		if(salario.getSucursal() != null) {
+		if(salario.getSucursal() != null && !salario.getSucursal().isBlank()) {
 			if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Salario.SIZE_SUCURSAL, salario.getSucursal() )) {
 				LOG.info("{}El valor de la sucursal del salario no es valido.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 			}else {
 				salario.setSucursal(salario.getSucursal().strip());
 			}
+		}else {
+			salario.setSucursal(null);
 		}
-		if(salario.getClaveInterBancaria() != null) {
+		if(salario.getClaveInterBancaria() != null && !salario.getClaveInterBancaria().isBlank()) {
 			if(isNotValid(TIPO_NUMERIC, Salario.SIZE_CLAVE_INTERBANCARIA, salario.getClaveInterBancaria() )) {
 				LOG.info("{}El valor de la sucursal del salario no es valido.",headerLog);
 				return new ResponseEntity<Trabajador>(HttpStatus.BAD_REQUEST);
 			}
+		}else {
+			salario.setClaveInterBancaria(null);
 		}
 		if(isNotValid(salario.getTipoPago())) {
 			LOG.info("{}No se mando el tipo de pago del salario.",headerLog);
@@ -1056,7 +1062,7 @@ public final class TrabajadorControllerV01 extends Auth{
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); 
 		}
 		
-		final long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		final Long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
 		final String headerLog = formatLogPut(idEmpresa, LOG_URL_IMAGE);
 		
 		
@@ -1076,7 +1082,7 @@ public final class TrabajadorControllerV01 extends Auth{
 				LOG.info("{}No se encontro al trabajador.",headerLog);
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
 			}
-			file = new File(this.IMG_TRABAJADOR_DIR,trabajador.getId().toString().concat(".jpg"));
+			file = new File(this.IMG_TRABAJADOR_DIR.replace(":ID_EMPRESA:", idEmpresa.toString()),trabajador.getId().toString().concat(".jpg"));
 			if(file.exists()) {
 				file.delete();
 			}
