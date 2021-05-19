@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -330,17 +329,21 @@ public final class TurnoControllerV01 extends Auth{
 		turnoUpdate.setDescripcion(turno.getDescripcion());
 		turnoUpdate.setFechaDeModificacion(LocalDateTime.now());
 		turnoUpdate.setIdUsuarioModificado(sesion.getUsuario().getId());
-		
 		turnoUpdate = turnoService.save(turnoUpdate);
 		
-		for (TurnoDia turnoDia : turnoDias) {
-			turnoDia.setTurno(turnoUpdate);
-			if(turno.getClave()!=null) {
-				turnoDia = turnoDiaService.save(turnoDia);
+		final List<TurnoDia> list = turnoDias;
+		turnoUpdate.getTurnoDias().stream().filter(x -> !list.contains(x)).forEach(x ->turnoDiaService.delete(x));
+		
+		final Turno turnoDia = turnoUpdate;
+		turnoDias.stream().forEach(x->{
+			x.setTurno(turnoDia);
+			if(x.getClave()!=null) {
+				turnoDiaService.save(x);
 			}else {
-				turnoDia = turnoDiaService.update(turnoDia);
+				turnoDiaService.update(x);
 			}
-		}
+		});
+		
 		turnoUpdate.setTurnoDias(turnoDias);
 		return new ResponseEntity<Turno>(turnoUpdate,HttpStatus.OK);
 	}
