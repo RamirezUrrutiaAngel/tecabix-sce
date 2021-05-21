@@ -41,6 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.ApiOperation;
 import mx.tecabix.db.entity.Authority;
+import mx.tecabix.db.entity.Catalogo;
 import mx.tecabix.db.entity.PerfilAuthority;
 import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.service.AuthorityService;
@@ -145,13 +146,14 @@ public final class AuthorityControllerV01 extends Auth{
 			LOG.info("{}No se encontro el autority AUTENTIFICADO.",headerLog);
 			return new ResponseEntity<Authority>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		Catalogo CAT_ACTIVO = singletonUtil.getActivo();
 		Authority authorityPadre = authorityPadreOptional.get(); 
 		authority.setId(null);
 		authority.setPerfiles(null);
 		authority.setPreAuthority(authorityPadre);
 		authority.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
 		authority.setFechaDeModificacion(LocalDateTime.now());
-		authority.setEstatus(singletonUtil.getActivo());
+		authority.setEstatus(CAT_ACTIVO);
 		authority.setClave(UUID.randomUUID());
 		authority = authorityService.save(authority);
 		if(list != null) {
@@ -162,7 +164,7 @@ public final class AuthorityControllerV01 extends Auth{
 				aux.setSubAuthority(null);
 				aux.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
 				aux.setFechaDeModificacion(LocalDateTime.now());
-				aux.setEstatus(singletonUtil.getActivo());
+				aux.setEstatus(CAT_ACTIVO);
 				aux.setClave(UUID.randomUUID());
 				aux.setPreAuthority(authority);
 				aux = authorityService.save(aux);
