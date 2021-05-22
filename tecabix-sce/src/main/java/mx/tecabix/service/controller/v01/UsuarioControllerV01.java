@@ -77,7 +77,7 @@ public final class UsuarioControllerV01 extends Auth {
 	 * @param order:	ASC, DESC
 	 * 
 	 */
-	@ApiOperation(value = "Obtiene todo los authority paginado.", 
+	@ApiOperation(value = "Obtiene todo los usuarios paginado.", 
 			notes = "<b>by:</b> NOMBRE, DESCRIPCION<br/><b>order:</b> ASC, DESC")
 	@GetMapping
 	public ResponseEntity<UsuarioPage> find(

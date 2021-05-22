@@ -15,26 +15,28 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.db.repository;
+package mx.tecabix.db.service;
 
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Sort;
 
-import mx.tecabix.db.entity.Authority;
+import mx.tecabix.db.GenericSevice;
+import mx.tecabix.db.entity.Autorizacion;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface AuthorityRepository extends JpaRepository<Authority, Integer>{
+public interface AutorizacionService extends GenericSevice<Autorizacion, Integer>{
 
-	Page<Authority> findByLikeNombre(String nombre, Pageable pageable);
-	Page<Authority> findByLikeDescripcion(String descripcion, Pageable pageable);
-	Optional<Authority> findByNombre(String nombre);
-	Optional<Authority> findByClave(UUID uuid);
+	Page<Autorizacion> findByLikeNombre(String nombre, int elements, int page, Sort sort);
 	
+	Page<Autorizacion> findByLikeDescripcion(String descripcion, int elements, int page, Sort sort);
+	
+	Optional<Autorizacion> findByNombre(String nombre);
+	
+	Optional<Autorizacion> findByClave(UUID uuid);
 }

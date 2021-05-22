@@ -22,7 +22,7 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import mx.tecabix.db.entity.Authority;
+import mx.tecabix.db.entity.Autorizacion;
 import mx.tecabix.db.entity.Salario;
 
 /**
@@ -32,5 +32,5 @@ import mx.tecabix.db.entity.Salario;
  */
 public interface SalarioRepository extends JpaRepository<Salario, Long> {
 
-	Optional<Authority> findByClave(UUID uuid);
+	Optional<Autorizacion> findByClave(UUID uuid);
 }

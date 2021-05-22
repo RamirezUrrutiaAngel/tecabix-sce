@@ -40,10 +40,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.ApiOperation;
-import mx.tecabix.db.entity.Authority;
+import mx.tecabix.db.entity.Autorizacion;
 import mx.tecabix.db.entity.Perfil;
 import mx.tecabix.db.entity.Sesion;
-import mx.tecabix.db.service.AuthorityService;
+import mx.tecabix.db.service.AutorizacionService;
 import mx.tecabix.db.service.PerfilService;
 import mx.tecabix.service.Auth;
 import mx.tecabix.service.SingletonUtil;
@@ -64,7 +64,7 @@ public final class PerfilControllerV01 extends Auth{
 	@Autowired
 	private PerfilService perfilService;
 	@Autowired 
-	private AuthorityService authorityService;
+	private AutorizacionService autorizacionService;
 	
 	private final String PERFIL = "PERFIL";
 	private final String PERFIL_CREAR = "PERFIL_CREAR";
@@ -118,7 +118,7 @@ public final class PerfilControllerV01 extends Auth{
 		return new ResponseEntity<PerfilPage>(body, HttpStatus.OK);
 	}
 	
-	@ApiOperation(value = "Persiste la entidad del Perfil con sus correspondientes Authority. ")
+	@ApiOperation(value = "Persiste la entidad del Perfil con sus correspondientes autorizaciones. ")
 	@PostMapping
 	public ResponseEntity<Perfil> save(@RequestParam(value="token") UUID token,@RequestBody Perfil perfil){
 		
@@ -151,19 +151,19 @@ public final class PerfilControllerV01 extends Auth{
 			LOG.info("{}El nombre ya existe .",headerLog);
 			return new ResponseEntity<Perfil>(HttpStatus.NOT_ACCEPTABLE);
 		}
-		List<Authority> list = perfil.getAuthorities();
-		List<Authority> listAux = new ArrayList<Authority>();
+		List<Autorizacion> list = perfil.getAutorizaciones();
+		List<Autorizacion> listAux = new ArrayList<Autorizacion>();
 		if(list != null) {
-			for (Authority authority : list) {
-				Optional<Authority> authOptional = authorityService.findByClave(authority.getClave());
+			for (Autorizacion autorizacion : list) {
+				Optional<Autorizacion> authOptional = autorizacionService.findByClave(autorizacion.getClave());
 				if(authOptional.isEmpty()) {
-					LOG.info("{}No existe el Authority con la clave {} .",headerLog, authority.getClave());
+					LOG.info("{}No existe la Autorizacion con la clave {} .",headerLog, autorizacion.getClave());
 					return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 				}else {
 					listAux.add(authOptional.get());
 				}
 			}
-			perfil.setAuthorities(listAux);
+			perfil.setAutorizaciones(listAux);
 		}
 		
 		perfil.setIdEmpresa(sesion.getLicencia().getPlantel().getIdEmpresa());
@@ -222,25 +222,25 @@ public final class PerfilControllerV01 extends Auth{
 				return new ResponseEntity<Perfil>(HttpStatus.NOT_ACCEPTABLE);
 			}
 		}
-		List<Authority> list = perfil.getAuthorities();
-		List<Authority> authorityList = new ArrayList<Authority>();
+		List<Autorizacion> list = perfil.getAutorizaciones();
+		List<Autorizacion> autorizacionList = new ArrayList<Autorizacion>();
 		if(list != null) {
 			
 			for (int i = 0; i < list.size() ; i++) {
-				Authority authority = list.get(i);
-				if(authority.getClave() == null) {
-					LOG.info("{}Uno o más sub Authority no tienen clave.",headerLog);
+				Autorizacion autorizacion = list.get(i);
+				if(autorizacion.getClave() == null) {
+					LOG.info("{}Uno o más sub autorizacion no tienen clave.",headerLog);
 					return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 				}
-				Optional<Authority> optionalAuthority = authorityService.findByClave(authority.getClave());
-				if(optionalAuthority.isEmpty()) {
-					LOG.info("{}No se encontro el sub Authority con clave {}.",headerLog, authority.getClave());
+				Optional<Autorizacion> optionalAutorizacion = autorizacionService.findByClave(autorizacion.getClave());
+				if(optionalAutorizacion.isEmpty()) {
+					LOG.info("{}No se encontro el sub autorizacion con clave {}.",headerLog, autorizacion.getClave());
 					return new ResponseEntity<Perfil>(HttpStatus.BAD_REQUEST);
 				}
-				authority = optionalAuthority.get();
-				authorityList.add(authority);
+				autorizacion = optionalAutorizacion.get();
+				autorizacionList.add(autorizacion);
 			}
-			perfilAux.setAuthorities(authorityList);
+			perfilAux.setAutorizaciones(autorizacionList);
 		}
 		perfilAux.setNombre(perfil.getNombre());
 		perfilAux.setDescripcion(perfil.getDescripcion());

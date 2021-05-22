@@ -22,7 +22,7 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import mx.tecabix.db.entity.Authority;
+import mx.tecabix.db.entity.Autorizacion;
 import mx.tecabix.db.entity.SeguroSocial;
 
 /**
@@ -32,5 +32,5 @@ import mx.tecabix.db.entity.SeguroSocial;
  */
 public interface SeguroSocialRepository extends JpaRepository<SeguroSocial, Long>{
 
-	Optional<Authority> findByClave(UUID uuid);
+	Optional<Autorizacion> findByClave(UUID uuid);
 }

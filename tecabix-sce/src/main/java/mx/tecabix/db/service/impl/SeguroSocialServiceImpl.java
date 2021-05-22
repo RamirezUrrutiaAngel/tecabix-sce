@@ -26,7 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.GenericSeviceImpl;
-import mx.tecabix.db.entity.Authority;
+import mx.tecabix.db.entity.Autorizacion;
 import mx.tecabix.db.entity.SeguroSocial;
 import mx.tecabix.db.repository.SeguroSocialRepository;
 import mx.tecabix.db.service.SeguroSocialService;
@@ -49,7 +49,7 @@ public class SeguroSocialServiceImpl extends GenericSeviceImpl<SeguroSocial, Lon
 	}
 
 	@Override
-	public Optional<Authority> findByClave(UUID uuid) {
+	public Optional<Autorizacion> findByClave(UUID uuid) {
 		return seguroSocialRepository.findByClave(uuid);
 	}
 

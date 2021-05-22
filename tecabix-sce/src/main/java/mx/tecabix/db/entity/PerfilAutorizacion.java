@@ -39,26 +39,26 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
  * 
  */
 @Entity()
-@Table(name = "perfil_authority")
+@Table(name = "perfil_autorizacion")
 @NamedQueries({
-	@NamedQuery(name = "PerfilAuthority.findByPerfil",query = "SELECT p FROM PerfilAuthority p WHERE p.perfil.id = ?1 "),
-	@NamedQuery(name = "PerfilAuthority.findByAuthority",query = "SELECT p FROM PerfilAuthority p WHERE p.authority.id = ?1 ")
+	@NamedQuery(name = "PerfilAutorizacion.findByPerfil",query = "SELECT p FROM PerfilAutorizacion p WHERE p.perfil.id = ?1 "),
+	@NamedQuery(name = "PerfilAutorizacion.findByAutorizacion",query = "SELECT p FROM PerfilAutorizacion p WHERE p.autorizacion.id = ?1 ")
 })
-public final class PerfilAuthority implements Serializable{
+public final class PerfilAutorizacion implements Serializable{
 
 	private static final long serialVersionUID = -4911315157724285906L;
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
-    @Column(name = "id_perfil_authority", unique = true, nullable = false)
-	@SequenceGenerator(name = "perfil_authority_id_perfil_authority_gen", sequenceName = "tecabix_sce.perfil_authority_seq", allocationSize = 1)
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "perfil_authority_id_perfil_authority_gen")
+    @Column(name = "id_perfil_autorizacion", unique = true, nullable = false)
+	@SequenceGenerator(name = "perfil_autorizacion_id_perfil_autorizacion_gen", sequenceName = "tecabix_sce.perfil_autorizacion_seq", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "perfil_autorizacion_id_perfil_autorizacion_gen")
     private Long id;
 	@ManyToOne
     @JoinColumn(name = "id_perfil")
 	private Perfil perfil;
 	@ManyToOne
-    @JoinColumn(name = "id_authority")
-	private Authority authority;
+    @JoinColumn(name = "id_autorizacion")
+	private Autorizacion autorizacion;
 	public Long getId() {
 		return id;
 	}
@@ -71,10 +71,10 @@ public final class PerfilAuthority implements Serializable{
 	public void setPerfil(Perfil perfil) {
 		this.perfil = perfil;
 	}
-	public Authority getAuthority() {
-		return authority;
+	public Autorizacion getAutorizacion() {
+		return autorizacion;
 	}
-	public void setAuthority(Authority authority) {
-		this.authority = authority;
+	public void setAutorizacion(Autorizacion autorizacion) {
+		this.autorizacion = autorizacion;
 	}
 }

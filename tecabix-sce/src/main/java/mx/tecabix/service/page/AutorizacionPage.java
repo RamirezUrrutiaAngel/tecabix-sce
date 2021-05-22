@@ -15,28 +15,39 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.db.service;
+package mx.tecabix.service.page;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.io.Serializable;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 
-import mx.tecabix.db.GenericSevice;
-import mx.tecabix.db.entity.Authority;
+import mx.tecabix.db.entity.Autorizacion;
+import mx.tecabix.service.PageGeneric;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface AuthorityService extends GenericSevice<Authority, Integer>{
+public final class AutorizacionPage extends PageGeneric implements Serializable{
 
-	Page<Authority> findByLikeNombre(String nombre, int elements, int page, Sort sort);
+	private static final long serialVersionUID = -3129044952862700224L;
 	
-	Page<Authority> findByLikeDescripcion(String descripcion, int elements, int page, Sort sort);
+	private List<Autorizacion> data;
 	
-	Optional<Authority> findByNombre(String nombre);
+	public AutorizacionPage() {}
 	
-	Optional<Authority> findByClave(UUID uuid);
+	public AutorizacionPage(Page<Autorizacion> data) {
+		super(data);
+		this.data = data.getContent();
+	}
+
+	public List<Autorizacion> getData() {
+		return data;
+	}
+
+	public void setData(List<Autorizacion> data) {
+		this.data = data;
+	}
+	
 }

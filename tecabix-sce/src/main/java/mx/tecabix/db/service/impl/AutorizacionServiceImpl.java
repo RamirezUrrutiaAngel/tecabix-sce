@@ -17,58 +17,62 @@
  */
 package mx.tecabix.db.service.impl;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.GenericSeviceImpl;
-import mx.tecabix.db.entity.PerfilAuthority;
-import mx.tecabix.db.repository.PerfilAuthorityRepository;
-import mx.tecabix.db.service.PerfilAuthorityService;
+import mx.tecabix.db.entity.Autorizacion;
+import mx.tecabix.db.repository.AutorizacionRepository;
+import mx.tecabix.db.service.AutorizacionService;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
 @Service
-public final class PerfilAuthorityServiceImpl extends GenericSeviceImpl<PerfilAuthority, Long> implements PerfilAuthorityService{
+public final class AutorizacionServiceImpl extends GenericSeviceImpl<Autorizacion, Integer> implements AutorizacionService{
 
 	@Autowired
-	private PerfilAuthorityRepository perfilAuthorityRepository;
-	
+	private AutorizacionRepository autorizacionRepository;
+
 	@PostConstruct
 	@Override
 	protected void postConstruct() {
-		setJpaRepository(perfilAuthorityRepository);
-		
+		setJpaRepository(autorizacionRepository);
 	}
+
 	@Override
-	public Page<PerfilAuthority> findByPerfil(Long idPerfil) {
-		byte ZERO = 0; 
-		Page<PerfilAuthority> result = findByPerfil(idPerfil, Integer.MAX_VALUE, ZERO);
-		return result;
-	}
-	@Override
-	public Page<PerfilAuthority> findByAuthority(Integer idAuthority) {
-		byte ZERO = 0; 
-		Page<PerfilAuthority> result = findByAuthority(idAuthority, Integer.MAX_VALUE, ZERO);
-		return result;
-	}
-	@Override
-	public Page<PerfilAuthority> findByPerfil(Long idPerfil, int elements, int page) {
-		Pageable pageable = PageRequest.of(page, elements);
-		Page<PerfilAuthority> result = perfilAuthorityRepository.findByPerfil(idPerfil, pageable);
-		return result;
-	}
-	@Override
-	public Page<PerfilAuthority> findByAuthority(Integer idAAuthority, int elements, int page) {
-		Pageable pageable = PageRequest.of(page, elements);
-		Page<PerfilAuthority> result = perfilAuthorityRepository.findByAuthority(idAAuthority, pageable);
+	public Page<Autorizacion> findByLikeNombre(String nombre, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		Page<Autorizacion> result = autorizacionRepository.findByLikeNombre(nombre, pageable);
 		return result;
 	}
 
+	@Override
+	public Optional<Autorizacion> findByNombre(String nombre) {
+		Optional<Autorizacion> optional = autorizacionRepository.findByNombre(nombre);
+		return optional;
+	}
+
+	@Override
+	public Optional<Autorizacion> findByClave(UUID uuid) {
+		Optional<Autorizacion> optional = autorizacionRepository.findByClave(uuid);
+		return optional;
+	}
+
+	@Override
+	public Page<Autorizacion> findByLikeDescripcion(String descripcion, int elements, int page, Sort sort) {
+		Pageable pageable = PageRequest.of(page, elements, sort );
+		Page<Autorizacion> result = autorizacionRepository.findByLikeDescripcion(descripcion, pageable);
+		return result;
+	}
 }

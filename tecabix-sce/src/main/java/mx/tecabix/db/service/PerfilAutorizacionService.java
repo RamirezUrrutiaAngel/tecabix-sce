@@ -15,19 +15,21 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.db.repository;
+package mx.tecabix.db.service;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
 
-import mx.tecabix.db.entity.PerfilAuthority;
+import mx.tecabix.db.GenericSevice;
+import mx.tecabix.db.entity.PerfilAutorizacion;
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface PerfilAuthorityRepository extends JpaRepository<PerfilAuthority, Long>{
-	Page<PerfilAuthority> findByPerfil(Long idPerfil,Pageable pageable);
-	Page<PerfilAuthority> findByAuthority(Integer idAuthority,Pageable pageable);
+public interface PerfilAutorizacionService extends GenericSevice<PerfilAutorizacion, Long>{
+
+	Page<PerfilAutorizacion> findByPerfil(Long idPerfil);
+	Page<PerfilAutorizacion> findByAutorizacion(Integer idAutorizacion);
+	Page<PerfilAutorizacion> findByPerfil(Long idPerfil, int elements, int page);
+	Page<PerfilAutorizacion> findByAutorizacion(Integer idAutorizacion, int elements, int page);
 }

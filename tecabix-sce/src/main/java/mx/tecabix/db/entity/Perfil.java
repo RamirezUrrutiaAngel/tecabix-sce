@@ -95,11 +95,11 @@ public final class Perfil implements Serializable{
     private UUID clave;
 	@ManyToMany(cascade = { CascadeType.REMOVE})
     @JoinTable(
-        name = "perfil_authority", 
+        name = "perfil_autorizacion", 
         joinColumns = { @JoinColumn(name = "id_perfil") }, 
-        inverseJoinColumns = { @JoinColumn(name = "id_authority") }
+        inverseJoinColumns = { @JoinColumn(name = "id_autorizacion") }
     )
-    private List<Authority> authorities;
+    private List<Autorizacion> autorizaciones;
 	public Long getId() {
 		return id;
 	}
@@ -148,11 +148,11 @@ public final class Perfil implements Serializable{
 	public void setClave(UUID clave) {
 		this.clave = clave;
 	}
-	public List<Authority> getAuthorities() {
-		return authorities;
+	public List<Autorizacion> getAutorizaciones() {
+		return autorizaciones;
 	}
-	public void setAuthorities(List<Authority> authorities) {
-		this.authorities = authorities;
+	public void setAutorizaciones(List<Autorizacion> autorizaciones) {
+		this.autorizaciones = autorizaciones;
 	}
 	@Override
 	public int hashCode() {
