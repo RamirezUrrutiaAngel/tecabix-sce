@@ -42,7 +42,6 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.ApiOperation;
 import mx.tecabix.db.entity.Autorizacion;
 import mx.tecabix.db.entity.Catalogo;
-import mx.tecabix.db.entity.PerfilAutorizacion;
 import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.service.AutorizacionService;
 import mx.tecabix.db.service.PerfilAutorizacionService;
@@ -93,10 +92,10 @@ public final class AutorizacionControllerV01 extends Auth{
 		}else {
 			autorizacion.setDescripcion(autorizacion.getDescripcion().strip());
 		}
-		List<Autorizacion> list = autorizacion.getSubAutorizacion();
-		if(list != null) {
-			for (int i = 0; i < list.size(); i++) {
-				Autorizacion aux = list.get(i);
+		List<Autorizacion> subAutorizaciones = autorizacion.getSubAutorizacion();
+		if(subAutorizaciones != null) {
+			for (int i = 0; i < subAutorizaciones.size(); i++) {
+				Autorizacion aux = subAutorizaciones.get(i);
 				if(aux == null) {
 					return new ResponseEntity<Autorizacion>(HttpStatus.BAD_REQUEST);
 				}
@@ -115,10 +114,10 @@ public final class AutorizacionControllerV01 extends Auth{
 					return new ResponseEntity<Autorizacion>(HttpStatus.CONFLICT);
 				}
 			}
-			for (int i = 0; i < list.size() - 1; i++) {
-				Autorizacion auxA = list.get(i);
-				for (int j = i + 1; j < list.size(); j++) {
-					Autorizacion auxB = list.get(j);
+			for (int i = 0; i < subAutorizaciones.size() - 1; i++) {
+				Autorizacion auxA = subAutorizaciones.get(i);
+				for (int j = i + 1; j < subAutorizaciones.size(); j++) {
+					Autorizacion auxB = subAutorizaciones.get(j);
 					if(auxA.getNombre().equalsIgnoreCase(auxB.getNombre())) {
 						LOG.info("{}Hay nombres repetidos.",headerLog);
 						return new ResponseEntity<Autorizacion>(HttpStatus.CONFLICT);
@@ -131,9 +130,9 @@ public final class AutorizacionControllerV01 extends Auth{
 		if(authorities.isPresent()) {
 			return new ResponseEntity<Autorizacion>(HttpStatus.CONFLICT);
 		}
-		if(list != null) {
-			for (int i = 0; i < list.size(); i++) {
-				Autorizacion aux = list.get(i);
+		if(subAutorizaciones != null) {
+			for (int i = 0; i < subAutorizaciones.size(); i++) {
+				Autorizacion aux = subAutorizaciones.get(i);
 				Optional<Autorizacion> authoritiesAux = autorizacionService.findByNombre(aux.getNombre());
 				if(authoritiesAux.isPresent()) {
 					LOG.info("{}Uno de los nombre ya existe.",headerLog);
@@ -156,20 +155,19 @@ public final class AutorizacionControllerV01 extends Auth{
 		autorizacion.setEstatus(CAT_ACTIVO);
 		autorizacion.setClave(UUID.randomUUID());
 		autorizacion = autorizacionService.save(autorizacion);
-		if(list != null) {
-			for (int i = 0; i < list.size(); i++) {
-				Autorizacion aux = list.get(i);
-				aux.setId(null);
-				aux.setPerfiles(null);
-				aux.setSubAutorizacion(null);
-				aux.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
-				aux.setFechaDeModificacion(LocalDateTime.now());
-				aux.setEstatus(CAT_ACTIVO);
-				aux.setClave(UUID.randomUUID());
-				aux.setPreAutorizacion(autorizacion);
-				aux = autorizacionService.save(aux);
-				autorizacion = aux.getPreAutorizacion();
-			}
+		if(subAutorizaciones != null) {
+			final Autorizacion aux = autorizacion;
+			subAutorizaciones.stream().forEach(x ->{
+				x.setId(null);
+				x.setPerfiles(null);
+				x.setSubAutorizacion(null);
+				x.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+				x.setFechaDeModificacion(LocalDateTime.now());
+				x.setEstatus(CAT_ACTIVO);
+				x.setClave(UUID.randomUUID());
+				x.setPreAutorizacion(aux);
+				autorizacionService.save(x);
+			});
 		}
 		Optional<Autorizacion>autorizacionOptional = autorizacionService.findById(autorizacion.getId());
 		if(autorizacionOptional.isEmpty()) {
@@ -381,7 +379,6 @@ public final class AutorizacionControllerV01 extends Auth{
 						subautorizacionActualizado.setClave(null);
 					}
 				}
-				
 				Optional<Autorizacion> optionalSubautorizacionAux = autorizacionService.findByNombre(subautorizacionActualizado.getNombre());
 				if(optionalSubautorizacionAux.isPresent()) {
 					Autorizacion autorizacion2 = optionalSubautorizacionAux.get();
@@ -396,28 +393,23 @@ public final class AutorizacionControllerV01 extends Auth{
 				listaDeSubautorizacionValidado.add(subautorizacionActualizado);
 			}
 		}
-		
-		for (Autorizacion autorizacionItem : listaDeAuthoritiesPorBorrar) {
-			autorizacionItem.setPreAutorizacion(null);
-			autorizacionItem = autorizacionService.update(autorizacionItem);
-			autorizacionService.deleteById(autorizacionItem.getId());
-		}
-	
+		listaDeAuthoritiesPorBorrar.stream().forEach(x ->{
+			x.setPreAutorizacion(null);
+			autorizacionService.update(x);
+			autorizacionService.deleteById(x.getId());
+		});
 		if(listaDeSubautorizacionValidado != null) {
-			for (int i = 0; i < listaDeSubautorizacionValidado.size(); i++) {
-				Autorizacion aux = listaDeSubautorizacionValidado.get(i);
-				if(aux.getId() == null) {
-					aux.setClave(UUID.randomUUID());
-					aux.setEstatus(singletonUtil.getActivo());
+			listaDeSubautorizacionValidado.stream().forEach(x->{
+				if(x.getId() == null) {
+					x.setClave(UUID.randomUUID());
+					x.setEstatus(singletonUtil.getActivo());
 				}
-				aux.setPreAutorizacion(autorizacion);
-				aux.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
-				aux.setFechaDeModificacion(LocalDateTime.now());
-				aux = autorizacionService.save(aux);
-				aux.getPreAutorizacion();
-			}
+				x.setPreAutorizacion(autorizacion);
+				x.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+				x.setFechaDeModificacion(LocalDateTime.now());
+				autorizacionService.save(x);
+			});
 		}
-
 		autorizacion.setSubAutorizacion(listaDeSubautorizacionValidado);
 		autorizacionService.update(autorizacion);
 		return new ResponseEntity<Autorizacion>(autorizacion,HttpStatus.OK);
@@ -443,25 +435,22 @@ public final class AutorizacionControllerV01 extends Auth{
 		if(!autorizacionPadre.equals(autorizacionViejo.getPreAutorizacion())) {
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
-		List<Autorizacion> listaDeAuthoritiesPorBorrar = autorizacionViejo.getSubAutorizacion();
-		for (Autorizacion autorizacionItem : listaDeAuthoritiesPorBorrar) {
-			autorizacionItem.setPreAutorizacion(null);
-			autorizacionItem.setEstatus(singletonUtil.getEliminado());
-			autorizacionItem.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
-			autorizacionItem = autorizacionService.update(autorizacionItem);
-			Page<PerfilAutorizacion> pagePerfilautorizacion = perfilAutorizacionService.findByAutorizacion(autorizacionItem.getId());
-			for (PerfilAutorizacion perfilautorizacion : pagePerfilautorizacion) {
+		autorizacionViejo.getSubAutorizacion().stream().forEach(autorizacion->{
+			autorizacion.setPreAutorizacion(null);
+			autorizacion.setEstatus(singletonUtil.getEliminado());
+			autorizacion.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+			autorizacionService.update(autorizacion);
+			perfilAutorizacionService.findByAutorizacion(autorizacion.getId()).stream().forEach(perfilautorizacion->{
 				perfilAutorizacionService.delete(perfilautorizacion);
-			}
-			autorizacionService.deleteById(autorizacionItem.getId());
-		}
+			});
+			autorizacionService.deleteById(autorizacion.getId());
+		});
 		autorizacionViejo.setSubAutorizacion(null);
 		autorizacionViejo.setPreAutorizacion(null);
 		autorizacionService.update(autorizacionViejo);
-		Page<PerfilAutorizacion> pagePerfilautorizacion = perfilAutorizacionService.findByAutorizacion(autorizacionViejo.getId());
-		for (PerfilAutorizacion perfilautorizacion : pagePerfilautorizacion) {
+		perfilAutorizacionService.findByAutorizacion(autorizacionViejo.getId()).stream().forEach(perfilautorizacion->{
 			perfilAutorizacionService.deleteById(perfilautorizacion.getId());
-		}
+		});
 		autorizacionService.deleteById(autorizacionViejo.getId());
 		return new ResponseEntity<Boolean>(HttpStatus.OK);
 	}
