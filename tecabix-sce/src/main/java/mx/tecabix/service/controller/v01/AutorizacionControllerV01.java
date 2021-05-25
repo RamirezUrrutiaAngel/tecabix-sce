@@ -290,9 +290,9 @@ public final class AutorizacionControllerV01 extends Auth{
 			LOG.info("{}No se encontro el autorizacion con la clave {}.",headerLog, autorizacion.getClave());
 			return new ResponseEntity<Autorizacion>(HttpStatus.NOT_FOUND);
 		}
-		
+		Catalogo CAT_ACTIVO = singletonUtil.getActivo();
 		Autorizacion autorizacionViejo = optionalautorizacionViejo.get();
-		if(!autorizacionViejo.getEstatus().equals(singletonUtil.getActivo())) {
+		if(!autorizacionViejo.getEstatus().equals(CAT_ACTIVO)) {
 			LOG.info("{}El autorizacion no esta activo.",headerLog);
 			return new ResponseEntity<Autorizacion>(HttpStatus.NOT_FOUND);
 		}
@@ -402,7 +402,7 @@ public final class AutorizacionControllerV01 extends Auth{
 			listaDeSubautorizacionValidado.stream().forEach(x->{
 				if(x.getId() == null) {
 					x.setClave(UUID.randomUUID());
-					x.setEstatus(singletonUtil.getActivo());
+					x.setEstatus(CAT_ACTIVO);
 				}
 				x.setPreAutorizacion(autorizacion);
 				x.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
@@ -435,9 +435,10 @@ public final class AutorizacionControllerV01 extends Auth{
 		if(!autorizacionPadre.equals(autorizacionViejo.getPreAutorizacion())) {
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
+		Catalogo CAT_ELIMINADO = singletonUtil.getEliminado();
 		autorizacionViejo.getSubAutorizacion().stream().forEach(autorizacion->{
 			autorizacion.setPreAutorizacion(null);
-			autorizacion.setEstatus(singletonUtil.getEliminado());
+			autorizacion.setEstatus(CAT_ELIMINADO);
 			autorizacion.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
 			autorizacionService.update(autorizacion);
 			perfilAutorizacionService.findByAutorizacion(autorizacion.getId()).stream().forEach(perfilautorizacion->{

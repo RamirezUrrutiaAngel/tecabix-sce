@@ -112,21 +112,22 @@ public final class CatalogoControllerV01 extends Auth{
 				}
 			}
 		}
+		Catalogo CAT_ACTIVO = singletonUtil.getActivo();
 		catalogoTipo.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
 		catalogoTipo.setFechaDeModificacion(LocalDateTime.now());
-		catalogoTipo.setEstatus(singletonUtil.getActivo());
+		catalogoTipo.setEstatus(CAT_ACTIVO);
 		catalogoTipo.setClave(UUID.randomUUID());
 		catalogoTipo = catalogoTipoService.save(catalogoTipo);
 		if (catalogos != null) {
-			for (int i = 0; i < catalogos.size(); i++) {
-				Catalogo catalogo = catalogos.get(i);
+			final CatalogoTipo aux = catalogoTipo;
+			catalogos.stream().forEach(catalogo -> {
 				catalogo.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
 				catalogo.setFechaDeModificacion(LocalDateTime.now());
-				catalogo.setEstatus(singletonUtil.getActivo());
+				catalogo.setEstatus(CAT_ACTIVO);
 				catalogo.setClave(UUID.randomUUID());
-				catalogo.setCatalogoTipo(catalogoTipo);
-				catalogo = catalogoService.save(catalogo);
-			}
+				catalogo.setCatalogoTipo(aux);
+				catalogoService.save(catalogo);
+			});
 		}
 		catalogoTipo.setCatalogos(catalogos);
 		return new ResponseEntity<CatalogoTipo>(catalogoTipo, HttpStatus.OK);

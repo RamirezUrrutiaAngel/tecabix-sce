@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -133,12 +134,11 @@ public final class PlanControllerV01 extends Auth {
 		}else {
 			return new ResponseEntity<Plan>(HttpStatus.NOT_FOUND);
 		}
-		List<Configuracion> configuracionesAux = new ArrayList<Configuracion>();
-		for (Configuracion configuracion : configuraciones) {
-			configuracion = configuracionService.save(configuracion);
-			configuracionesAux.add(configuracion);
-		}
-		plan.setConfiguraciones(configuracionesAux);
+		
+		plan.setConfiguraciones(
+				configuraciones.stream()
+				.map(x -> configuracionService.save(x))
+				.collect(Collectors.toList()));
 		plan.setId(null);
 		plan.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
 		plan.setFechaDeModificacion(LocalDateTime.now());

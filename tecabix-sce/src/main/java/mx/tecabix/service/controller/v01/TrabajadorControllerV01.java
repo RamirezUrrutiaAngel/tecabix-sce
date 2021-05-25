@@ -1037,13 +1037,13 @@ public final class TrabajadorControllerV01 extends Auth{
 			usuarioPersona = usuarioPersonaService.save(usuarioPersona);
 			persona.setUsuarioPersona(usuarioPersona);
 			correoMsjService.save(correoMsj);
-			List<CorreoMsjItem> correoMsjItems = correoMsj.getCorreoMsjItems();
-			for(CorreoMsjItem item:correoMsjItems) {
-				if(item.getTipo().getNombre().equals(ID_TRABAJADOR)) {
-					item.setDato(trabajador.getId().toString());
+			final Trabajador aux = trabajador;
+			correoMsj.getCorreoMsjItems().stream().forEach(correoMsjItem -> {
+				if(correoMsjItem.getTipo().getNombre().equals(ID_TRABAJADOR)) {
+					correoMsjItem.setDato(aux.getId().toString());
 				}
-				correoMsjItemService.save(item);
-			}
+				correoMsjItemService.save(correoMsjItem);
+			});
 		}
 		for(Contacto contacto: contactos) {
 			contacto.setId(null);
