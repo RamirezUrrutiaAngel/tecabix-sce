@@ -55,7 +55,8 @@
 	</appender>
 
 	<!-- Send logs to both console and file audit -->
-	<logger name="mx.tecabix" level="info" additivity="false">
+	<!-- <logger name="mx.tecabix" level="info" additivity="false"> -->
+	<logger name="mx.tecabix" level="debug" additivity="false">
 		<appender-ref ref="FILE-AUDIT" />
 		<appender-ref ref="STDOUT" />
 	</logger>
