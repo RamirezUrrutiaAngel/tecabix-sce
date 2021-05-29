@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,6 +48,7 @@ import mx.tecabix.db.service.ConfiguracionService;
 import mx.tecabix.db.service.EmpresaService;
 import mx.tecabix.service.Auth;
 import mx.tecabix.service.SingletonUtil;
+import mx.tecabix.service.page.ConfiguracionPage;
 
 /**
  * 
@@ -72,6 +74,7 @@ public final class ConfiguracionControllerV01 extends Auth{
 	private ConfiguracionService configuracionService;
 	
 	
+	private static final String EMPRESA = "EMPRESA";
 	private static final String CONFIGURACION = "CONFIGURACION";
 	
 	@ApiOperation(value = "Persiste la entidad de la Configuracion")
@@ -199,5 +202,29 @@ public final class ConfiguracionControllerV01 extends Auth{
 			empresaService.update(x);
 		});
 		return new ResponseEntity<Configuracion>(configuracion,HttpStatus.OK);
+	}
+	@ApiOperation(value = "ver la configuracion")
+	@GetMapping
+	public ResponseEntity<ConfiguracionPage> findAll(
+			@RequestParam(value="token") UUID token){
+		Sesion sesion = getSessionIfIsAuthorized(token, EMPRESA);
+		if(isNotValid(sesion)) {
+			return new ResponseEntity<ConfiguracionPage>(HttpStatus.UNAUTHORIZED);
+		}
+		final long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		Optional<Empresa> optionalEmpresa = empresaService.findById(idEmpresa);
+		if(optionalEmpresa.isEmpty()) {
+			return new ResponseEntity<ConfiguracionPage>(HttpStatus.NOT_FOUND);
+		}
+		Empresa empresa = optionalEmpresa.get();
+		if(!empresa.getEstatus().equals(singletonUtil.getActivo())) {
+			return new ResponseEntity<ConfiguracionPage>(HttpStatus.NOT_FOUND);
+		}
+		ConfiguracionPage configuracionPage = new ConfiguracionPage();
+		configuracionPage.setData(empresa.getConfiguraciones());
+		configuracionPage.setSize(empresa.getConfiguraciones().size());
+		configuracionPage.setTotalElements(empresa.getConfiguraciones().size());
+		configuracionPage.setTotalPages(1);
+		return new ResponseEntity<ConfiguracionPage>(configuracionPage,HttpStatus.OK);
 	}
 }

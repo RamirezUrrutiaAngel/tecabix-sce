@@ -109,7 +109,6 @@ import mx.tecabix.db.service.SeguroSocialService;
 import mx.tecabix.db.service.TrabajadorService;
 import mx.tecabix.db.service.TurnoService;
 import mx.tecabix.db.service.UsuarioPersonaService;
-import mx.tecabix.db.service.UsuarioService;
 import mx.tecabix.service.Auth;
 import mx.tecabix.service.SingletonUtil;
 import mx.tecabix.service.page.TrabajadorPage;
@@ -152,8 +151,6 @@ public final class TrabajadorControllerV01 extends Auth{
 	private PuestoService puestoService;
 	@Autowired
 	private PerfilService perfilService;
-	@Autowired
-	private UsuarioService usuarioService;
 	@Autowired
 	private UsuarioPersonaService usuarioPersonaService;
 	@Autowired

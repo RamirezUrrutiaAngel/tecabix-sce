@@ -47,12 +47,11 @@ import mx.tecabix.db.entity.Suscripcion;
 import mx.tecabix.db.entity.Usuario;
 import mx.tecabix.db.service.CatalogoService;
 import mx.tecabix.db.service.LicenciaService;
-import mx.tecabix.db.service.SesionService;
 import mx.tecabix.db.service.SuscripcionService;
-import mx.tecabix.db.service.UsuarioService;
 import mx.tecabix.service.Auth;
 import mx.tecabix.service.SingletonUtil;
 import mx.tecabix.service.page.SesionPage;
+
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -69,10 +68,6 @@ public final class SesionControllerV01 extends Auth {
 	private LicenciaService licenciaService;
 	@Autowired
 	private CatalogoService catalogoService;
-	@Autowired 
-	private UsuarioService usuarioService;
-	@Autowired
-	private SesionService sesionService;
 	@Autowired
 	private SuscripcionService suscripcionService;
 	

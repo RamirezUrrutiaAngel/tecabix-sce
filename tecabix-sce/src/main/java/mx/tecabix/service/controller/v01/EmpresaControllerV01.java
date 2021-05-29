@@ -55,7 +55,6 @@ import mx.tecabix.db.service.PersonaFisicaService;
 import mx.tecabix.db.service.PersonaService;
 import mx.tecabix.db.service.TrabajadorService;
 import mx.tecabix.db.service.UsuarioPersonaService;
-import mx.tecabix.db.service.UsuarioService;
 import mx.tecabix.service.Auth;
 import mx.tecabix.service.request.EmpresaRequest;
 /**
@@ -94,8 +93,6 @@ public final class EmpresaControllerV01 extends Auth{
 	private MunicipioService municipioService;
 	@Autowired
 	private DireccionService direccionService;
-	@Autowired
-	private UsuarioService usuarioService;
 	@Autowired
 	private UsuarioPersonaService usuarioPersonaService;
 	

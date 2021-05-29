@@ -48,9 +48,9 @@ public class Auth extends Encrypt{
 	private static final String DELETE = "DELETE";
 	
 	@Autowired 
-	private UsuarioService usuarioService;
+	protected UsuarioService usuarioService;
 	@Autowired
-	private SesionService sesionService;
+	protected SesionService sesionService;
 	
 	private String formatHeaderOfLogger(long idEmpresa, String peticion, String path) {
 		return LOGMS.replaceFirst(":EMPRESA", String.valueOf(idEmpresa)).replaceFirst(":PET", peticion)

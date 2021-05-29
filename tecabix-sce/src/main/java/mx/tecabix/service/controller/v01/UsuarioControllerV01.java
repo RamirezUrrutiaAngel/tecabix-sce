@@ -43,10 +43,10 @@ import mx.tecabix.db.entity.Usuario;
 import mx.tecabix.db.entity.UsuarioPersona;
 import mx.tecabix.db.service.PersonaService;
 import mx.tecabix.db.service.UsuarioPersonaService;
-import mx.tecabix.db.service.UsuarioService;
 import mx.tecabix.service.Auth;
 import mx.tecabix.service.SingletonUtil;
 import mx.tecabix.service.page.UsuarioPage;
+
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
@@ -58,9 +58,6 @@ public final class UsuarioControllerV01 extends Auth {
 	
 	@Autowired
 	private SingletonUtil singletonUtil;
-	
-	@Autowired
-	private UsuarioService usuarioService;
 	
 	@Autowired 
 	private PersonaService personaService;
