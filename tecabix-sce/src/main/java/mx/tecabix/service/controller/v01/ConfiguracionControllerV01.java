@@ -31,6 +31,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -203,6 +204,52 @@ public final class ConfiguracionControllerV01 extends Auth{
 		});
 		return new ResponseEntity<Configuracion>(configuracion,HttpStatus.OK);
 	}
+	
+	@ApiOperation(value = "actualizar la configuracion")
+	@PutMapping
+	public ResponseEntity<Configuracion> update(
+			@RequestParam(value="token") UUID token,
+			@RequestBody Configuracion configuracion){
+		Sesion sesion = getSessionIfIsAuthorized(token, CONFIGURACION);
+		if(isNotValid(sesion)) {
+			return new ResponseEntity<Configuracion>(HttpStatus.UNAUTHORIZED);
+		}
+		final long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		final String headerLog = formatLogPut(idEmpresa, LOG_URL);
+		
+		if(isNotValid(configuracion.getClave())) {
+			LOG.info("{}El formato de la clave es incorrecto.",headerLog);
+			return new ResponseEntity<Configuracion>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE_WITH_SPECIAL_SYMBOLS, Configuracion.SIZE_VALOR, configuracion.getValor())) {
+			LOG.info("{}El formato del valor es incorrecto.",headerLog);
+			return new ResponseEntity<Configuracion>(HttpStatus.BAD_REQUEST);
+		}
+		List<Configuracion> configuraciones = empresaService.findById(idEmpresa).get().getConfiguraciones();
+		if(isNotValid(configuraciones)) {
+			LOG.info("{}No se encontro la configuraciion.",headerLog);
+			return new ResponseEntity<Configuracion>(HttpStatus.NOT_FOUND);
+		}
+		
+		Optional<Configuracion> optionalConfiguracion = configuraciones.stream().
+				filter(x->x.equals(configuracion)).findAny();
+		
+		if(optionalConfiguracion.isEmpty()) {
+			LOG.info("{}No se encontro la configuraciion.",headerLog);
+			return new ResponseEntity<Configuracion>(HttpStatus.NOT_FOUND);
+		}
+		Configuracion aux = optionalConfiguracion.get();
+		if(!aux.getEstatus().equals(singletonUtil.getActivo())) {
+			LOG.info("{}No esta activo la configuraciion.",headerLog);
+			return new ResponseEntity<Configuracion>(HttpStatus.NOT_FOUND);
+		}
+		aux.setValor(configuracion.getValor());
+		aux.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+		aux.setFechaDeModificacion(LocalDateTime.now());
+		aux = configuracionService.update(aux);
+		return new ResponseEntity<Configuracion>(aux,HttpStatus.OK);
+	}
+	
 	@ApiOperation(value = "ver la configuracion")
 	@GetMapping
 	public ResponseEntity<ConfiguracionPage> findAll(
