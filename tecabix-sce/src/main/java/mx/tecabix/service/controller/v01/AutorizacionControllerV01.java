@@ -145,14 +145,14 @@ public final class AutorizacionControllerV01 extends Auth{
 			LOG.info("{}No se encontro el autority AUTENTIFICADO.",headerLog);
 			return new ResponseEntity<Autorizacion>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		Catalogo CAT_ACTIVO = singletonUtil.getActivo();
+		Catalogo ACTIVO = singletonUtil.getActivo();
 		Autorizacion autorizacionPadre = autorizacionPadreOptional.get(); 
 		autorizacion.setId(null);
 		autorizacion.setPerfiles(null);
 		autorizacion.setPreAutorizacion(autorizacionPadre);
 		autorizacion.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
 		autorizacion.setFechaDeModificacion(LocalDateTime.now());
-		autorizacion.setEstatus(CAT_ACTIVO);
+		autorizacion.setEstatus(ACTIVO);
 		autorizacion.setClave(UUID.randomUUID());
 		autorizacion = autorizacionService.save(autorizacion);
 		if(subAutorizaciones != null) {
@@ -163,7 +163,7 @@ public final class AutorizacionControllerV01 extends Auth{
 				x.setSubAutorizacion(null);
 				x.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
 				x.setFechaDeModificacion(LocalDateTime.now());
-				x.setEstatus(CAT_ACTIVO);
+				x.setEstatus(ACTIVO);
 				x.setClave(UUID.randomUUID());
 				x.setPreAutorizacion(aux);
 				autorizacionService.save(x);
@@ -290,9 +290,9 @@ public final class AutorizacionControllerV01 extends Auth{
 			LOG.info("{}No se encontro el autorizacion con la clave {}.",headerLog, autorizacion.getClave());
 			return new ResponseEntity<Autorizacion>(HttpStatus.NOT_FOUND);
 		}
-		Catalogo CAT_ACTIVO = singletonUtil.getActivo();
+		Catalogo ACTIVO = singletonUtil.getActivo();
 		Autorizacion autorizacionViejo = optionalautorizacionViejo.get();
-		if(!autorizacionViejo.getEstatus().equals(CAT_ACTIVO)) {
+		if(!autorizacionViejo.getEstatus().equals(ACTIVO)) {
 			LOG.info("{}El autorizacion no esta activo.",headerLog);
 			return new ResponseEntity<Autorizacion>(HttpStatus.NOT_FOUND);
 		}
@@ -402,7 +402,7 @@ public final class AutorizacionControllerV01 extends Auth{
 			listaDeSubautorizacionValidado.stream().forEach(x->{
 				if(x.getId() == null) {
 					x.setClave(UUID.randomUUID());
-					x.setEstatus(CAT_ACTIVO);
+					x.setEstatus(ACTIVO);
 				}
 				x.setPreAutorizacion(autorizacion);
 				x.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
@@ -435,10 +435,10 @@ public final class AutorizacionControllerV01 extends Auth{
 		if(!autorizacionPadre.equals(autorizacionViejo.getPreAutorizacion())) {
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
-		Catalogo CAT_ELIMINADO = singletonUtil.getEliminado();
+		Catalogo ELIMINADO = singletonUtil.getEliminado();
 		autorizacionViejo.getSubAutorizacion().stream().forEach(autorizacion->{
 			autorizacion.setPreAutorizacion(null);
-			autorizacion.setEstatus(CAT_ELIMINADO);
+			autorizacion.setEstatus(ELIMINADO);
 			autorizacion.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
 			autorizacionService.update(autorizacion);
 			perfilAutorizacionService.findByAutorizacion(autorizacion.getId()).stream().forEach(perfilautorizacion->{

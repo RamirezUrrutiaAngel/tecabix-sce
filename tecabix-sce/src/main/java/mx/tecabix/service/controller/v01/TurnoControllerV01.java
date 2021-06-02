@@ -170,7 +170,7 @@ public final class TurnoControllerV01 extends Auth{
 			return new ResponseEntity<Turno>(HttpStatus.BAD_REQUEST);
 		}
 		Optional<Catalogo> optionalCatalogo = null;
-		Catalogo CAT_ACTIVO = singletonUtil.getActivo();
+		Catalogo ACTIVO = singletonUtil.getActivo();
 		List<TurnoDia> turnoDias = turno.getTurnoDias();
 		for (TurnoDia turnoDia : turnoDias) {
 			if(isNotValid(turnoDia.getInicio())) {
@@ -197,7 +197,7 @@ public final class TurnoControllerV01 extends Auth{
 			turnoDia.setDia(optionalCatalogo.get());
 			turnoDia.setId(null);
 			turnoDia.setClave(UUID.randomUUID());
-			turnoDia.setEstatus(CAT_ACTIVO);
+			turnoDia.setEstatus(ACTIVO);
 			turnoDia.setFechaDeModificacion(LocalDateTime.now());
 			turnoDia.setIdUsuarioModificado(sesion.getUsuario().getId());
 		}
@@ -206,7 +206,7 @@ public final class TurnoControllerV01 extends Auth{
 		turno.setId(null);
 		turno.setIdEmpresa(idEmpresa);
 		turno.setClave(UUID.randomUUID());
-		turno.setEstatus(CAT_ACTIVO);
+		turno.setEstatus(ACTIVO);
 		turno.setFechaDeModificacion(LocalDateTime.now());
 		turno.setIdUsuarioModificado(sesion.getUsuario().getId());
 		turno = turnoService.save(turno);
@@ -257,7 +257,7 @@ public final class TurnoControllerV01 extends Auth{
 			return new ResponseEntity<Turno>(HttpStatus.BAD_REQUEST);
 		}
 		Optional<Catalogo> optionalCatalogo = null;
-		Catalogo CAT_ACTIVO = singletonUtil.getActivo();
+		Catalogo ACTIVO = singletonUtil.getActivo();
 		List<TurnoDia> turnoDias = turno.getTurnoDias();
 		{
 			List<TurnoDia> turnoDiasUpdate = new ArrayList<TurnoDia>(turnoDias.size());
@@ -292,7 +292,7 @@ public final class TurnoControllerV01 extends Auth{
 						return new ResponseEntity<Turno>(HttpStatus.NOT_FOUND);
 					}
 					TurnoDia turnoDiaUpdate = optionalTurnoDia.get();
-					if(!turnoDiaUpdate.getEstatus().equals(CAT_ACTIVO)) {
+					if(!turnoDiaUpdate.getEstatus().equals(ACTIVO)) {
 						LOG.info("{}No se encontro el turno dia no esta activo.",headerLog);
 						return new ResponseEntity<Turno>(HttpStatus.NOT_FOUND);
 					}
@@ -302,7 +302,7 @@ public final class TurnoControllerV01 extends Auth{
 					turnoDia = turnoDiaUpdate;
 				}else {
 					turnoDia.setId(null);
-					turnoDia.setEstatus(CAT_ACTIVO);
+					turnoDia.setEstatus(ACTIVO);
 					turnoDia.setClave(UUID.randomUUID());
 				}
 				turnoDia.setFechaDeModificacion(LocalDateTime.now());
@@ -317,7 +317,7 @@ public final class TurnoControllerV01 extends Auth{
 			return new ResponseEntity<Turno>(HttpStatus.NOT_FOUND);
 		}
 		Turno turnoUpdate = optionalTurno.get();
-		if(!turnoUpdate.getEstatus().equals(CAT_ACTIVO)) {
+		if(!turnoUpdate.getEstatus().equals(ACTIVO)) {
 			LOG.info("{}El turno no esta activo.",headerLog);
 			return new ResponseEntity<Turno>(HttpStatus.NOT_FOUND);
 		}
@@ -366,13 +366,13 @@ public final class TurnoControllerV01 extends Auth{
 		if(!turno.getIdEmpresa().equals(sesion.getLicencia().getPlantel().getIdEmpresa())) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		Catalogo CAT_ELIMINADO = singletonUtil.getEliminado();
-		turno.setEstatus(CAT_ELIMINADO);
+		Catalogo ELIMINADO = singletonUtil.getEliminado();
+		turno.setEstatus(ELIMINADO);
 		turno.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
 		turnoService.update(turno);
 		List<TurnoDia> turnoDias = turno.getTurnoDias();
 		for (TurnoDia turnoDia : turnoDias) {
-			turnoDia.setEstatus(CAT_ELIMINADO);
+			turnoDia.setEstatus(ELIMINADO);
 			turnoDia.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
 			turnoDiaService.update(turnoDia);
 		}

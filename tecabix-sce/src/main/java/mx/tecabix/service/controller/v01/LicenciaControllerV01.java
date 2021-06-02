@@ -132,7 +132,7 @@ public final class LicenciaControllerV01 extends Auth{
 		if(!optionalCatalogoActivo.isPresent()) {
 			return new ResponseEntity<Licencia>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		final Catalogo CAT_ACTIVO = optionalCatalogoActivo.get();
+		final Catalogo ACTIVO = optionalCatalogoActivo.get();
 		
 		Servicio servicioTipo = optionalServicio.get();
 		Plantel plantel = sesion.getLicencia().getPlantel();
@@ -152,7 +152,7 @@ public final class LicenciaControllerV01 extends Auth{
 		licencia.setNombre(nombre);
 		licencia.setServicio(servicioTipo);
 		licencia.setPlantel(plantel);
-		licencia.setEstatus(CAT_ACTIVO);
+		licencia.setEstatus(ACTIVO);
 		licencia.setFechaDeModificacion(LocalDateTime.now());
 		licencia.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
 		licencia = licenciaService.save(licencia);

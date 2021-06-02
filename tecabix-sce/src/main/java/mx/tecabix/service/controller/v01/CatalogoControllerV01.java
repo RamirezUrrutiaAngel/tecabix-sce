@@ -112,10 +112,10 @@ public final class CatalogoControllerV01 extends Auth{
 				}
 			}
 		}
-		Catalogo CAT_ACTIVO = singletonUtil.getActivo();
+		Catalogo ACTIVO = singletonUtil.getActivo();
 		catalogoTipo.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
 		catalogoTipo.setFechaDeModificacion(LocalDateTime.now());
-		catalogoTipo.setEstatus(CAT_ACTIVO);
+		catalogoTipo.setEstatus(ACTIVO);
 		catalogoTipo.setClave(UUID.randomUUID());
 		catalogoTipo = catalogoTipoService.save(catalogoTipo);
 		if (catalogos != null) {
@@ -123,7 +123,7 @@ public final class CatalogoControllerV01 extends Auth{
 			catalogos.stream().forEach(catalogo -> {
 				catalogo.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
 				catalogo.setFechaDeModificacion(LocalDateTime.now());
-				catalogo.setEstatus(CAT_ACTIVO);
+				catalogo.setEstatus(ACTIVO);
 				catalogo.setClave(UUID.randomUUID());
 				catalogo.setCatalogoTipo(aux);
 				catalogoService.save(catalogo);

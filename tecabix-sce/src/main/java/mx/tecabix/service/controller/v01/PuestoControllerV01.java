@@ -189,18 +189,18 @@ public final class PuestoControllerV01 extends Auth{
 			return new ResponseEntity<Puesto>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		Departamento departamento = optionalDepartamento.get();
-		final Catalogo CAT_ACTIVO = singletonUtil.getActivo();
+		final Catalogo ACTIVO = singletonUtil.getActivo();
 		if(!departamento.getIdEmpresa().equals(idEmpresa)) {
 			LOG.info("{}El departamento no pertenece a la empresa.",headerLog);
 			return new ResponseEntity<Puesto>(HttpStatus.NOT_ACCEPTABLE);
 		}
-		if(!departamento.getEstatus().equals(CAT_ACTIVO)) {
+		if(!departamento.getEstatus().equals(ACTIVO)) {
 			LOG.info("{}El departamento no esta activo.",headerLog);
 			return new ResponseEntity<Puesto>(HttpStatus.NOT_ACCEPTABLE);
 		}
 		puesto.setClave(UUID.randomUUID());
 		puesto.setDepartamento(departamento);
-		puesto.setEstatus(CAT_ACTIVO);
+		puesto.setEstatus(ACTIVO);
 		puesto.setFechaDeModificacion(LocalDateTime.now());
 		puesto.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
 		puesto = puestoService.save(puesto);
@@ -257,12 +257,12 @@ public final class PuestoControllerV01 extends Auth{
 		}
 		
 		Departamento departamento = optionalDepartamento.get();
-		final Catalogo CAT_ACTIVO = singletonUtil.getActivo();
+		final Catalogo ACTIVO = singletonUtil.getActivo();
 		if(!departamento.getIdEmpresa().equals(idEmpresa)) {
 			LOG.info("{}El departamento no pertenece a la empresa.",headerLog);
 			return new ResponseEntity<Puesto>(HttpStatus.NOT_ACCEPTABLE);
 		}
-		if(!departamento.getEstatus().equals(CAT_ACTIVO)) {
+		if(!departamento.getEstatus().equals(ACTIVO)) {
 			LOG.info("{}El departamento no esta activo.",headerLog);
 			return new ResponseEntity<Puesto>(HttpStatus.NOT_ACCEPTABLE);
 		}
