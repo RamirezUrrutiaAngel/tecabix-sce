@@ -141,10 +141,10 @@ public final class DepartamentoControllerV01 extends Auth{
 			departamento.setDescripcion(departamento.getDescripcion().strip());
 		}
 		
-		final Catalogo ACTIVO = singletonUtil.getActivo();
+		final Catalogo CAT_ACTIVO = singletonUtil.getActivo();
 		
 		departamento.setClave(UUID.randomUUID());
-		departamento.setEstatus(ACTIVO);
+		departamento.setEstatus(CAT_ACTIVO);
 		departamento.setFechaDeModificacion(LocalDateTime.now());
 		departamento.setIdUsuarioModificado(sesion.getUsuario().getId());
 		departamento.setIdEmpresa(idEmpresa);
