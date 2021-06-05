@@ -30,6 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -165,6 +166,45 @@ public final class MunicipioControllerV01 extends Auth{
 		municipio.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
 		municipio.setClave(UUID.randomUUID());
 		municipio = municipioService.save(municipio);
+		return new ResponseEntity<Municipio>(municipio,HttpStatus.OK);
+	}
+	
+
+	@ApiOperation(value = "Actualiza el municipio de la entidad federativa")
+	@PutMapping
+	public ResponseEntity<Municipio> update(
+			@RequestParam(value="token") UUID token, @RequestBody Municipio municipio) {
+		
+		Sesion sesion = getSessionIfIsAuthorized(token, ESTADO);
+		if(sesion == null) {
+			return new ResponseEntity<Municipio>(HttpStatus.UNAUTHORIZED);
+		}
+		
+		final long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		final String headerLog = formatLogPut(idEmpresa, LOG_URL);
+		
+		if(isNotValid(municipio.getClave())) {
+			LOG.info("{}No se mando la clave.",headerLog);
+			return new ResponseEntity<Municipio>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Municipio.SIZE_NOMBRE, municipio.getNombre())) {
+			LOG.info("{}El formato del nombre del municipio es incorrecto.",headerLog);
+			return new ResponseEntity<Municipio>(HttpStatus.BAD_REQUEST);
+		}
+		Optional<Municipio> optionalMunicipio = municipioService.findByClave(municipio.getClave());
+		if(optionalMunicipio.isEmpty()) {
+			LOG.info("{}No se encontro el municipio con la clave.",headerLog);
+			return new ResponseEntity<Municipio>(HttpStatus.NOT_FOUND);
+		}
+		Municipio municipioOld = optionalMunicipio.get();
+		if(!municipioOld.getEstatus().equals(singletonUtil.getActivo())) {
+			LOG.info("{}El estado no se encuentra activo.",headerLog);
+			return new ResponseEntity<Municipio>(HttpStatus.NOT_FOUND);
+		}
+		municipioOld.setNombre(municipio.getNombre());
+		municipioOld.setFechaDeModificacion(LocalDateTime.now());
+		municipioOld.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+		municipio = municipioService.save(municipioOld);
 		return new ResponseEntity<Municipio>(municipio,HttpStatus.OK);
 	}
 }
