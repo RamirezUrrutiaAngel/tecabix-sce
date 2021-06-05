@@ -19,6 +19,7 @@ package mx.tecabix.service.controller.v01;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -31,6 +32,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -145,6 +147,7 @@ public final class EstadoControllerV01 extends Auth{
 			}
 		}
 		Catalogo ACTIVO =  singletonUtil.getActivo();
+		estado.setId(null);
 		estado.setEstatus(ACTIVO);
 		estado.setFechaDeModificacion(LocalDateTime.now());
 		estado.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
@@ -154,6 +157,7 @@ public final class EstadoControllerV01 extends Auth{
 		if(isValid(estado.getMunicipios())) {
 			entidadFederativa.setMunicipios(
 				municipios.stream().map(x -> {
+					x.setId(null);
 					x.setEntidadFederativa(entidadFederativa);
 					x.setEstatus(ACTIVO);
 					x.setFechaDeModificacion(LocalDateTime.now());
@@ -164,5 +168,48 @@ public final class EstadoControllerV01 extends Auth{
 			);
 		}
 		return new ResponseEntity<Estado>(entidadFederativa,HttpStatus.OK);
+	}
+	
+	@ApiOperation(value = "Actualizar la entidad federativa")
+	@PutMapping
+	public ResponseEntity<Estado> update(
+			@RequestParam(value="token") UUID token, @RequestBody Estado estado) {
+		
+		Sesion sesion = getSessionIfIsAuthorized(token, ESTADO);
+		if(sesion == null) {
+			return new ResponseEntity<Estado>(HttpStatus.UNAUTHORIZED);
+		}
+		final long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		final String headerLog = formatLogPut(idEmpresa, LOG_URL);
+		if(isNotValid(estado.getClave())) {
+			LOG.info("{}No se a mandado la clave.",headerLog);
+			return new ResponseEntity<Estado>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Estado.SIZE_NOMBRE, estado.getNombre())) {
+			LOG.info("{}El formato del nombre es incorrecto.",headerLog);
+			return new ResponseEntity<Estado>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(TIPO_ALFA, Estado.SIZE_ABREVIATURA, estado.getAbreviatura())) {
+			LOG.info("{}El formato de la abreviatura es incorrecto.",headerLog);
+			return new ResponseEntity<Estado>(HttpStatus.BAD_REQUEST);
+		}else {
+			estado.setAbreviatura(estado.getAbreviatura().strip());
+		}
+		Optional<Estado> optionalEstado = estadoService.findByClave(estado.getClave());
+		if(optionalEstado.isEmpty()) {
+			LOG.info("{}No se encontro la clave.",headerLog);
+			return new ResponseEntity<Estado>(HttpStatus.NOT_FOUND);
+		}
+		
+		Estado entidadFederativa = optionalEstado.get();
+		
+		entidadFederativa.setFechaDeModificacion(LocalDateTime.now());
+		entidadFederativa.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+		entidadFederativa.setNombre(estado.getNombre());
+		entidadFederativa.setAbreviatura(estado.getAbreviatura());
+		
+		estado = estadoService.save(entidadFederativa);
+		
+		return new ResponseEntity<Estado>(estado,HttpStatus.OK);
 	}
 }
