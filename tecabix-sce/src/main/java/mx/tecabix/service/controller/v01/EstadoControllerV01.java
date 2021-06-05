@@ -202,7 +202,10 @@ public final class EstadoControllerV01 extends Auth{
 		}
 		
 		Estado entidadFederativa = optionalEstado.get();
-		
+		if(!entidadFederativa.getEstatus().equals(singletonUtil.getActivo())) {
+			LOG.info("{}El estado no se encuentra activo.",headerLog);
+			return new ResponseEntity<Estado>(HttpStatus.NOT_FOUND);
+		}
 		entidadFederativa.setFechaDeModificacion(LocalDateTime.now());
 		entidadFederativa.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
 		entidadFederativa.setNombre(estado.getNombre());
