@@ -17,22 +17,34 @@
  */
 package mx.tecabix.service.controller.v01;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.ApiOperation;
+import mx.tecabix.db.entity.Catalogo;
 import mx.tecabix.db.entity.Estado;
+import mx.tecabix.db.entity.Municipio;
+import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.service.EstadoService;
+import mx.tecabix.db.service.MunicipioService;
 import mx.tecabix.service.Auth;
+import mx.tecabix.service.SingletonUtil;
 import mx.tecabix.service.page.EstadoPage;
 
 /**
@@ -45,8 +57,17 @@ import mx.tecabix.service.page.EstadoPage;
 @RequestMapping("estado/v1")
 public final class EstadoControllerV01 extends Auth{
 	
+	private static final Logger LOG = LoggerFactory.getLogger(EstadoControllerV01.class);
+	private static final String LOG_URL = "/estado/v1";
+	
+	@Autowired
+	private SingletonUtil singletonUtil;
 	@Autowired
 	private EstadoService estadoService;
+	@Autowired
+	private MunicipioService municipioService;
+	
+	private static final String ESTADO = "ESTADO";
 	
 	/**
 	 * 
@@ -91,5 +112,57 @@ public final class EstadoControllerV01 extends Auth{
 		}
 		EstadoPage body = new EstadoPage(estados);
 		return new ResponseEntity<EstadoPage>(body,HttpStatus.OK);
+	}
+	
+	@ApiOperation(value = "Guarda la entidad federativa")
+	@PostMapping
+	public ResponseEntity<Estado> save(
+			@RequestParam(value="token") UUID token, @RequestBody Estado estado) {
+		
+		Sesion sesion = getSessionIfIsAuthorized(token, ESTADO);
+		if(sesion == null) {
+			return new ResponseEntity<Estado>(HttpStatus.UNAUTHORIZED);
+		}
+		final long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		final String headerLog = formatLogPost(idEmpresa, LOG_URL);
+		
+		if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Estado.SIZE_NOMBRE, estado.getNombre())) {
+			LOG.info("{}El formato del nombre es incorrecto.",headerLog);
+			return new ResponseEntity<Estado>(HttpStatus.BAD_REQUEST);
+		}
+		if(isNotValid(TIPO_ALFA, Estado.SIZE_ABREVIATURA, estado.getAbreviatura())) {
+			LOG.info("{}El formato de la abreviatura es incorrecto.",headerLog);
+			return new ResponseEntity<Estado>(HttpStatus.BAD_REQUEST);
+		}else {
+			estado.setAbreviatura(estado.getAbreviatura().strip());
+		}
+		if(isValid(estado.getMunicipios())) {
+			for(Municipio municipio: estado.getMunicipios()) {
+				if(isNotValid(TIPO_ALFA_NUMERIC_SPACE, Municipio.SIZE_NOMBRE, municipio.getNombre())) {
+					LOG.info("{}El formato del nombre del municipio es incorrecto.",headerLog);
+					return new ResponseEntity<Estado>(HttpStatus.BAD_REQUEST);
+				}
+			}
+		}
+		Catalogo ACTIVO =  singletonUtil.getActivo();
+		estado.setEstatus(ACTIVO);
+		estado.setFechaDeModificacion(LocalDateTime.now());
+		estado.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+		estado.setClave(UUID.randomUUID());
+		List<Municipio> municipios = estado.getMunicipios();
+		Estado entidadFederativa = estadoService.save(estado);
+		if(isValid(estado.getMunicipios())) {
+			entidadFederativa.setMunicipios(
+				municipios.stream().map(x -> {
+					x.setEntidadFederativa(entidadFederativa);
+					x.setEstatus(ACTIVO);
+					x.setFechaDeModificacion(LocalDateTime.now());
+					x.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+					x.setClave(UUID.randomUUID());
+					return municipioService.save(x);
+				}).collect(Collectors.toList())
+			);
+		}
+		return new ResponseEntity<Estado>(entidadFederativa,HttpStatus.OK);
 	}
 }

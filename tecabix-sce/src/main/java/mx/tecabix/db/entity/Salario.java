@@ -43,7 +43,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
  */
 @Entity
 @Table(name = "salario")
-public class Salario implements Serializable{
+public final class Salario implements Serializable{
 
 	private static final long serialVersionUID = -3921169535438059734L;
 	

@@ -44,7 +44,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
  */
 @Entity
 @Table(name = "turno_dia")
-public class TurnoDia implements Serializable{
+public final class TurnoDia implements Serializable{
 
 	private static final long serialVersionUID = -6870957758617561529L;
 	

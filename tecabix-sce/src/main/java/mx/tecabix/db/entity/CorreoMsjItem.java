@@ -27,7 +27,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
  */
 @Entity()
 @Table(name = "correo_msj_item")
-public class CorreoMsjItem implements Serializable{
+public final class CorreoMsjItem implements Serializable{
 
 	private static final long serialVersionUID = -7319433469516856859L;
 	@Id

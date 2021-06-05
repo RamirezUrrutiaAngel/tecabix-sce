@@ -56,6 +56,9 @@ public final class Estado implements Serializable{
 
 	private static final long serialVersionUID = 8735982161199720818L;
 	
+	public static final short SIZE_NOMBRE = 20;
+	public static final short SIZE_ABREVIATURA = 4;
+	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_estado", unique = true, nullable = false)

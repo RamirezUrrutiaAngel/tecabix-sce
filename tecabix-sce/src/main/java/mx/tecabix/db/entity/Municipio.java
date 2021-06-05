@@ -51,6 +51,9 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 public final class Municipio implements Serializable {
 
 	private static final long serialVersionUID = -9218053756023446113L;
+	
+	public static final short SIZE_NOMBRE = 40;
+	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_municipio", unique = true, nullable = false)
