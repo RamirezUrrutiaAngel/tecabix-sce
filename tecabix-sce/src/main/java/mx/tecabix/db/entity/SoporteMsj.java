@@ -45,6 +45,9 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 public final class SoporteMsj implements Serializable{
 
 	private static final long serialVersionUID = 2568943128068366654L;
+	
+	public static final short SIZE_CONTENIDO = 500;
+	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "id_soporte_msj", unique = true, nullable = false)
