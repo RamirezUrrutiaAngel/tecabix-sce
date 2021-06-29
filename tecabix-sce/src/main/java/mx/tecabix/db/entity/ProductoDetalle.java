@@ -64,9 +64,6 @@ public class ProductoDetalle implements Serializable{
     private Catalogo tipo;
 	@Column(name = "valor")
     private String valor;
-    @ManyToOne
-    @JoinColumn(name = "id_producto_departamento")
-    private ProductoDepartamento productoDepartamento;
     @Column(name = "id_usuario_modificado")
     @JsonProperty(access = Access.WRITE_ONLY)
     private Long idUsuarioModificado;
@@ -103,12 +100,6 @@ public class ProductoDetalle implements Serializable{
 	}
 	public void setValor(String valor) {
 		this.valor = valor;
-	}
-	public ProductoDepartamento getProductoDepartamento() {
-		return productoDepartamento;
-	}
-	public void setProductoDepartamento(ProductoDepartamento productoDepartamento) {
-		this.productoDepartamento = productoDepartamento;
 	}
 	public Long getIdUsuarioModificado() {
 		return idUsuarioModificado;
