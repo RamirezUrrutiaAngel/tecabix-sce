@@ -47,6 +47,7 @@ import mx.tecabix.db.entity.Plantel;
 import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.entity.Trabajador;
 import mx.tecabix.db.service.CajaRegistradoraService;
+import mx.tecabix.db.service.CajaRegistroService;
 import mx.tecabix.db.service.PlantelService;
 import mx.tecabix.db.service.TrabajadorService;
 import mx.tecabix.service.Auth;
@@ -80,6 +81,8 @@ public final class CajaRegistradoraControllerV01 extends Auth{
 	private PlantelService plantelService;
 	@Autowired
 	private CajaRegistradoraService cajaRegistradoraService;
+	@Autowired
+	private CajaRegistroService cajaRegistroService;
 	
 	/**
 	 * 
@@ -309,4 +312,42 @@ public final class CajaRegistradoraControllerV01 extends Auth{
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
+	@ApiOperation(value = "Abrir Caja. ")
+	@PostMapping("registro")
+	public ResponseEntity<CajaRegistro> open(@RequestParam(value="token") UUID token, @RequestBody CajaRegistro cajaRegistro){
+
+		Sesion sesion = getSessionIfIsAuthorized(token, CAJA_REGISTRADORA_ABRIR);
+		if(isNotValid(sesion)) {
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
+		final long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		final String headerLog = formatLogPost(idEmpresa, LOG_URL_REGISTRO);
+		if(isNotValid(TIPO_NUMERIC_NATURAL, Integer.MAX_VALUE, cajaRegistro.getSaldoInicial())){
+			LOG.info("{}El formato del saldo inicial de '{}' es incorrecto.",headerLog, cajaRegistro.getSaldoInicial());
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		Optional<CajaRegistradora> optionalCajaRegistradora = cajaRegistradoraService.findByIdLicencia(sesion.getLicencia().getId());
+		if(optionalCajaRegistradora.isEmpty()) {
+			LOG.info("{}No se encontro la caja registradora {}.",headerLog, sesion.getLicencia().getId());
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		
+		CajaRegistro cajaRegistroNuevo = new CajaRegistro();
+		Catalogo ACTIVO = singletonUtil.getActivo();
+		cajaRegistroNuevo.setCajaRegistradora(optionalCajaRegistradora.get());
+		cajaRegistroNuevo.setSaldoInicial(cajaRegistro.getSaldoInicial());
+		cajaRegistroNuevo.setSaldo(cajaRegistro.getSaldoInicial());
+		cajaRegistroNuevo.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+		cajaRegistroNuevo.setFechaDeModificacion(LocalDateTime.now());
+		cajaRegistroNuevo.setEstatus(ACTIVO);
+		cajaRegistroNuevo.setClave(UUID.randomUUID());
+		
+		if(cajaRegistroNuevo.getCajaRegistradora().getRegistros().stream().filter(x->x.getFechaDeCorte() == null).count()>0) {
+			LOG.info("{}La caja registradora esta abierta {}.",headerLog, cajaRegistroNuevo.getCajaRegistradora().getId());
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
+		}
+		
+		cajaRegistroNuevo = cajaRegistroService.save(cajaRegistroNuevo);
+		return new ResponseEntity<CajaRegistro>(cajaRegistroNuevo,HttpStatus.OK);
+	}
 }
