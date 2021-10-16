@@ -59,6 +59,7 @@ public final class Usuario implements Serializable{
 	
 	public static final short SIZE_NOMBRE = 45;
 	public static final short SIZE_CORREO = 45;
+	public static final short SIZE_PIN = 8;
 	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
@@ -73,6 +74,8 @@ public final class Usuario implements Serializable{
     private String password;
     @Column(name = "correo")
     private String correo;
+    @Column(name = "pin")
+    private String pin;
     @ManyToOne
     @JoinColumn(name = "id_perfil")
     private Perfil perfil;
@@ -91,6 +94,7 @@ public final class Usuario implements Serializable{
     @JsonProperty(access = Access.WRITE_ONLY)
 	@OneToOne(fetch = FetchType.LAZY, mappedBy = "usuario", cascade=CascadeType.REMOVE)
 	private UsuarioPersona usuarioPersona;
+   
 	public Long getId() {
 		return id;
 	}
@@ -114,6 +118,12 @@ public final class Usuario implements Serializable{
 	}
 	public void setCorreo(String correo) {
 		this.correo = correo;
+	}
+	public String getPin() {
+		return pin;
+	}
+	public void setPin(String pin) {
+		this.pin = pin;
 	}
 	public Perfil getPerfil() {
 		return perfil;

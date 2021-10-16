@@ -97,6 +97,7 @@ public final class CajaRegistradora implements Serializable{
     @Column(name = "clave")
     @Type(type="pg-uuid")
     private UUID clave;
+    @JsonProperty(access = Access.WRITE_ONLY)
     @OneToMany(fetch = FetchType.LAZY, mappedBy="cajaRegistradora", cascade=CascadeType.REMOVE)
     private List<CajaRegistro> registros;
     

@@ -46,6 +46,7 @@ import mx.tecabix.db.entity.Catalogo;
 import mx.tecabix.db.entity.Plantel;
 import mx.tecabix.db.entity.Sesion;
 import mx.tecabix.db.entity.Trabajador;
+import mx.tecabix.db.entity.Usuario;
 import mx.tecabix.db.service.CajaRegistradoraService;
 import mx.tecabix.db.service.CajaRegistroService;
 import mx.tecabix.db.service.PlantelService;
@@ -69,6 +70,7 @@ public final class CajaRegistradoraControllerV01 extends Auth{
 	
 	private static final String CAJA_REGISTRADORA = "CAJA_REGISTRADORA";
 	private static final String CAJA_REGISTRADORA_ABRIR = "CAJA_REGISTRADORA_ABRIR";
+	private static final String CAJA_REGISTRADORA_CERRAR = "CAJA_REGISTRADORA_CERRAR";
 	private static final String CAJA_REGISTRADORA_CREAR = "CAJA_REGISTRADORA_CREAR";
 	private static final String CAJA_REGISTRADORA_EDITAR = "CAJA_REGISTRADORA_EDITAR";
 	private static final String CAJA_REGISTRADORA_ELIMINAR = "CAJA_REGISTRADORA_ELIMINAR";
@@ -350,4 +352,88 @@ public final class CajaRegistradoraControllerV01 extends Auth{
 		cajaRegistroNuevo = cajaRegistroService.save(cajaRegistroNuevo);
 		return new ResponseEntity<CajaRegistro>(cajaRegistroNuevo,HttpStatus.OK);
 	}
+	
+	@ApiOperation(value = "Cerrar Caja. ")
+	@DeleteMapping("registro")
+	public ResponseEntity<CajaRegistro> close(@RequestParam(value="token") UUID token,@RequestParam(value="usr-close") String usrNameClose, @RequestParam(value="pin-close", required = false) String usrPinClose, @RequestBody CajaRegistro cajaRegistro){
+
+		Sesion sesion = getSessionIfIsAuthorized(token, CAJA_REGISTRADORA);
+		if(isNotValid(sesion)) {
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
+		final long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		final String headerLog = formatLogDelete(idEmpresa, LOG_URL_REGISTRO);
+		if(isNotValid(TIPO_NUMERIC_NATURAL, Integer.MAX_VALUE, cajaRegistro.getSaldoFinal())){
+			LOG.info("{}El formato del saldo inicial de '{}' es incorrecto.",headerLog, cajaRegistro.getSaldoFinal());
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		Optional<CajaRegistradora> optionalCajaRegistradora = cajaRegistradoraService.findByIdLicencia(sesion.getLicencia().getId());
+		if(optionalCajaRegistradora.isEmpty()) {
+			LOG.info("{}No se encontro la caja registradora {}.",headerLog, sesion.getLicencia().getId());
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		CajaRegistro cajaRegitroCerrar = new CajaRegistro();
+		
+		cajaRegitroCerrar.setCajaRegistradora(optionalCajaRegistradora.get());
+		
+		Optional<CajaRegistro> optionalCajaRejistro = cajaRegitroCerrar.getCajaRegistradora().getRegistros().stream().filter(x->x.getFechaDeCorte() == null).findFirst();
+		
+		if(optionalCajaRejistro.isEmpty()) {
+			LOG.info("{}No se encontro un registro abierto para la licencia {}.",headerLog, sesion.getLicencia().getId());
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		cajaRegitroCerrar = optionalCajaRejistro.get();
+		Usuario usuarioCorte = null;
+		if(sesion.getUsuario().getNombre().equals(usrNameClose)) {
+			usuarioCorte = sesion.getUsuario();
+		}else {
+			Optional<Usuario> optionalUsuario = usuarioService.findByNombre(usrNameClose);
+			if(optionalUsuario.isEmpty()) {
+				LOG.info("{}No se encontro el usuario {}.",headerLog, usrNameClose);
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			}
+			usuarioCorte = optionalUsuario.get();
+			if(!usuarioCorte.getPin().equals(usrPinClose)) {
+				LOG.info("{}El pin del usuario {} no es correcto.",headerLog, usrNameClose);
+				return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+			}
+		}
+		
+		if(usuarioCorte.getPerfil().getAutorizaciones().stream().filter(x->x.getNombre().equals(CAJA_REGISTRADORA_CERRAR)).count()<1) {
+			LOG.info("{}El usuario {} no tiene permiso para cerrar la caja.",headerLog, usrNameClose);
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
+		
+		cajaRegitroCerrar.setIdUsuarioModificado(sesion.getIdUsuarioModificado());
+		cajaRegitroCerrar.setFechaDeModificacion(LocalDateTime.now());
+		cajaRegitroCerrar.setSaldoFinal(cajaRegistro.getSaldoFinal());
+		cajaRegitroCerrar.setFechaDeCorte(LocalDateTime.now());
+		cajaRegitroCerrar.setIdUsuarioCorte(usuarioCorte.getId());
+		cajaRegitroCerrar = cajaRegistroService.update(cajaRegitroCerrar);
+		
+		return new ResponseEntity<CajaRegistro>(cajaRegitroCerrar,HttpStatus.OK);
+	}
+	
+	@ApiOperation(value = "Get Registro. ")
+	@GetMapping("registro")
+	public ResponseEntity<CajaRegistro> getRegistro(@RequestParam(value="token") UUID token){
+
+		Sesion sesion = getSessionIfIsAuthorized(token, CAJA_REGISTRADORA);
+		if(isNotValid(sesion)) {
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
+		final long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		final String headerLog = formatLogGet(idEmpresa, LOG_URL_REGISTRO);
+		
+		Optional<CajaRegistradora> optionalCajaRegistradora = cajaRegistradoraService.findByIdLicencia(sesion.getLicencia().getId());
+		if(optionalCajaRegistradora.isEmpty()) {
+			LOG.info("{}No se encontro la caja registradora {}.",headerLog, sesion.getLicencia().getId());
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		
+		CajaRegistro cajaRegistro = optionalCajaRegistradora.get().getRegistros().stream().filter(x->x.getFechaDeCorte() == null).findFirst().orElse(null);
+		return new ResponseEntity<CajaRegistro>(cajaRegistro,HttpStatus.OK);
+	}
+	
 }
