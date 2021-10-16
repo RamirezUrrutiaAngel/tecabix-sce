@@ -20,16 +20,26 @@ package mx.tecabix.db.repository;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import mx.tecabix.db.entity.PersonaFisica;
+import mx.tecabix.db.entity.CajaRegistradora;
+
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface PersonaFisicaRepository extends JpaRepository<PersonaFisica, Long>{
+public interface CajaRegistradoraRepository  extends JpaRepository<CajaRegistradora, Long>{
 
-	Optional<PersonaFisica> findByClave(UUID uuid);
-	Optional<PersonaFisica> findByPersona(Long idPersona);
+	Page<CajaRegistradora> findByIdEmpresa(Long idEmpresa, Pageable pageable);
+	Page<CajaRegistradora> findLikeNombre(Long idEmpresa, String nombre, Pageable pageable);
+	Page<CajaRegistradora> findLikeDescripcion(Long idEmpresa, String descripcion, Pageable pageable);
+	Page<CajaRegistradora> findLikeMarca(Long idEmpresa, String marca, Pageable pageable);
+	Page<CajaRegistradora> findLikeModelo(Long idEmpresa, String modelo, Pageable pageable);
+	
+	Optional<CajaRegistradora> findByIdLicencia(Long idLicencia);
+	Optional<CajaRegistradora> findByClave(UUID uuid);
+
 }

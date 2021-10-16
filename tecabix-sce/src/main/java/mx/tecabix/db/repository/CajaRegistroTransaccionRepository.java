@@ -15,20 +15,22 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.db.service;
+package mx.tecabix.db.repository;
 
 import java.util.Optional;
 import java.util.UUID;
 
-import mx.tecabix.db.GenericSevice;
-import mx.tecabix.db.entity.PersonaFisica;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import mx.tecabix.db.entity.CajaRegistroTransaccion;
+
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface PersonaFisicaService extends GenericSevice<PersonaFisica, Long>{
+public interface CajaRegistroTransaccionRepository extends JpaRepository<CajaRegistroTransaccion, Long>{
 
-	Optional<PersonaFisica> findByClave(UUID uuid);
-	Optional<PersonaFisica> findByPersona(Long idPersona);
+	Optional<CajaRegistroTransaccion> findByClave(UUID uuid);
+
 }

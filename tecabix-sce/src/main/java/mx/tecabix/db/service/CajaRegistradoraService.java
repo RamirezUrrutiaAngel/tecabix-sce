@@ -20,15 +20,25 @@ package mx.tecabix.db.service;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+
 import mx.tecabix.db.GenericSevice;
-import mx.tecabix.db.entity.PersonaFisica;
+import mx.tecabix.db.entity.CajaRegistradora;
+
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface PersonaFisicaService extends GenericSevice<PersonaFisica, Long>{
+public interface CajaRegistradoraService extends GenericSevice<CajaRegistradora, Long>{
 
-	Optional<PersonaFisica> findByClave(UUID uuid);
-	Optional<PersonaFisica> findByPersona(Long idPersona);
+	Page<CajaRegistradora> findByIdEmpresa(Long idEmpresa, int elements, int page, Sort sort);
+	Page<CajaRegistradora> findLikeNombre(Long idEmpresa, String nombre, int elements, int page, Sort sort);
+	Page<CajaRegistradora> findLikeDescripcion(Long idEmpresa, String descripcion, int elements, int page, Sort sort);
+	Page<CajaRegistradora> findLikeMarca(Long idEmpresa, String marca, int elements, int page, Sort sort);
+	Page<CajaRegistradora> findLikeModelo(Long idEmpresa, String modelo, int elements, int page, Sort sort);
+	
+	Optional<CajaRegistradora> findByIdLicencia(Long idLicencia);
+	Optional<CajaRegistradora> findByClave(UUID uuid);
 }

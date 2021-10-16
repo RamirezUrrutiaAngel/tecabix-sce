@@ -15,20 +15,41 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.db.service;
+package mx.tecabix.db.service.impl;
 
 import java.util.Optional;
 import java.util.UUID;
 
-import mx.tecabix.db.GenericSevice;
-import mx.tecabix.db.entity.PersonaFisica;
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import mx.tecabix.db.GenericSeviceImpl;
+import mx.tecabix.db.entity.CajaRegistro;
+import mx.tecabix.db.repository.CajaRegistroRepository;
+import mx.tecabix.db.service.CajaRegistroService;
+
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface PersonaFisicaService extends GenericSevice<PersonaFisica, Long>{
+@Service
+public class CajaRegistroServiceImpl extends GenericSeviceImpl<CajaRegistro, Long>
+	implements CajaRegistroService{
 
-	Optional<PersonaFisica> findByClave(UUID uuid);
-	Optional<PersonaFisica> findByPersona(Long idPersona);
+	@Autowired
+	private CajaRegistroRepository cajaRegistroRepository;
+	
+	@Override
+	@PostConstruct
+	protected void postConstruct() {
+		setJpaRepository(cajaRegistroRepository);
+	}
+	
+	@Override
+	public Optional<CajaRegistro> findByClave(UUID uuid) {
+		return cajaRegistroRepository.findByClave(uuid);
+	}
 }

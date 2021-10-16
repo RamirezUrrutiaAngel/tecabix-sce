@@ -26,36 +26,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import mx.tecabix.db.GenericSeviceImpl;
-import mx.tecabix.db.entity.PersonaFisica;
-import mx.tecabix.db.repository.PersonaFisicaRepository;
-import mx.tecabix.db.service.PersonaFisicaService;
+import mx.tecabix.db.entity.CajaRegistroTransaccion;
+import mx.tecabix.db.repository.CajaRegistroTransaccionRepository;
+import mx.tecabix.db.service.CajaRegistroTransaccionService;
+
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
 @Service
-public final class PersonaFisicaServiceImpl extends GenericSeviceImpl<PersonaFisica, Long> implements PersonaFisicaService {
+public class CajaRegistroTransaccionServiceImpl extends GenericSeviceImpl<CajaRegistroTransaccion, Long>
+	implements CajaRegistroTransaccionService{
 
 	@Autowired
-	private PersonaFisicaRepository personaFisicaRepository;
-
+	private CajaRegistroTransaccionRepository cajaRegistroTransaccionRepository;
+	
+	@Override
 	@PostConstruct
-	@Override
 	protected void postConstruct() {
-		setJpaRepository(personaFisicaRepository);
-		
+		setJpaRepository(cajaRegistroTransaccionRepository);
 	}
-
+	
 	@Override
-	public Optional<PersonaFisica> findByClave(UUID uuid) {
-		return personaFisicaRepository.findByClave(uuid);
-	}
-
-	@Override
-	public Optional<PersonaFisica> findByPersona(Long idPersona) {
-		return personaFisicaRepository.findByPersona(idPersona);
+	public Optional<CajaRegistroTransaccion> findByClave(UUID uuid) {
+		return cajaRegistroTransaccionRepository.findByClave(uuid);
 	}
 
 	
+
 }

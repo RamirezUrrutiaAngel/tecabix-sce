@@ -29,6 +29,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -43,6 +45,9 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
  */
 @Entity
 @Table(name = "persona_fisica")
+@NamedQueries({
+    @NamedQuery(name = "PersonaFisica.findByPersona",query = "SELECT p FROM PersonaFisica p WHERE p.persona.id = ?1 AND p.estatus.nombre = 'ACTIVO' ")
+})
 public final class PersonaFisica implements Serializable{
 
 	private static final long serialVersionUID = 701859570029260114L;

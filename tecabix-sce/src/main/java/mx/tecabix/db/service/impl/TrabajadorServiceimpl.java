@@ -115,4 +115,9 @@ public final class TrabajadorServiceimpl extends GenericSeviceImpl<Trabajador, L
 	public Optional<Trabajador> findBoss(UUID claveEmpleado) {
 		return trabajadorRepository.findBoss(claveEmpleado);
 	}
+
+	@Override
+	public Optional<Trabajador> findByClaveUsuario(UUID uuidUsuario) {
+		return trabajadorRepository.findByClaveUsuario(uuidUsuario);
+	}
 }

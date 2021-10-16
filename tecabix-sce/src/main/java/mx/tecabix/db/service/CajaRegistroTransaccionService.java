@@ -21,14 +21,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 import mx.tecabix.db.GenericSevice;
-import mx.tecabix.db.entity.PersonaFisica;
+import mx.tecabix.db.entity.CajaRegistroTransaccion;
+
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface PersonaFisicaService extends GenericSevice<PersonaFisica, Long>{
+public interface CajaRegistroTransaccionService extends GenericSevice<CajaRegistroTransaccion, Long>{
 
-	Optional<PersonaFisica> findByClave(UUID uuid);
-	Optional<PersonaFisica> findByPersona(Long idPersona);
+	Optional<CajaRegistroTransaccion> findByClave(UUID uuid);
 }

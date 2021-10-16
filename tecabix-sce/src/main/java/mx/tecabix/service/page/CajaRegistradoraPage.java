@@ -15,20 +15,39 @@
  *   along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-package mx.tecabix.db.service;
+package mx.tecabix.service.page;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.io.Serializable;
+import java.util.List;
 
-import mx.tecabix.db.GenericSevice;
-import mx.tecabix.db.entity.PersonaFisica;
+import org.springframework.data.domain.Page;
+
+import mx.tecabix.db.entity.CajaRegistradora;
+import mx.tecabix.service.PageGeneric;
+
 /**
  * 
  * @author Ramirez Urrutia Angel Abinadi
  * 
  */
-public interface PersonaFisicaService extends GenericSevice<PersonaFisica, Long>{
+public class CajaRegistradoraPage extends PageGeneric implements Serializable{
 
-	Optional<PersonaFisica> findByClave(UUID uuid);
-	Optional<PersonaFisica> findByPersona(Long idPersona);
+	private static final long serialVersionUID = 1225690418481518496L;
+	
+	public List<CajaRegistradora> data;
+	
+	public CajaRegistradoraPage() {}
+	
+	public CajaRegistradoraPage(Page<CajaRegistradora> data) {
+		super(data);
+		this.data = data.getContent();
+	}
+
+	public List<CajaRegistradora> getData() {
+		return data;
+	}
+
+	public void setData(List<CajaRegistradora> data) {
+		this.data = data;
+	}
 }

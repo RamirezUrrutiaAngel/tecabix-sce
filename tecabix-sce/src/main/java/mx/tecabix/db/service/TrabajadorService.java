@@ -44,4 +44,5 @@ public interface TrabajadorService  extends GenericSevice<Trabajador, Long>{
 	
 	Optional<Trabajador> findBoss(UUID claveEmpleado);
 	Optional<Trabajador> findByClave(UUID uuid);
+	Optional<Trabajador> findByClaveUsuario(UUID uuidUsuario);
 }
