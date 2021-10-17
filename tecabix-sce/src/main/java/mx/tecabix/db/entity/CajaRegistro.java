@@ -87,6 +87,7 @@ public class CajaRegistro implements Serializable{
 	@OneToMany(fetch = FetchType.LAZY, mappedBy="cajaRegistro", cascade=CascadeType.REMOVE)
     private List<CajaRegistroTransaccion> transacciones;
 	
+	
 	public Long getId() {
 		return id;
 	}
@@ -110,6 +111,12 @@ public class CajaRegistro implements Serializable{
 	}
 	public void setSaldo(Integer saldo) {
 		this.saldo = saldo;
+	}
+	public Integer getSaldoFinal() {
+		return saldoFinal;
+	}
+	public void setSaldoFinal(Integer saldoFinal) {
+		this.saldoFinal = saldoFinal;
 	}
 	public Long getIdUsuarioCorte() {
 		return idUsuarioCorte;
