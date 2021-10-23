@@ -47,4 +47,9 @@ public class CuentaServiceImpl extends GenericSeviceImpl<Cuenta, Long> implement
 	public Optional<Cuenta> findByClave(UUID uuid) {
 		return cuentaRepository.findByClave(uuid);
 	}
+
+	@Override
+	public Optional<Cuenta> findByPersona(Long idPersona) {
+		return cuentaRepository.findByPersona(idPersona);
+	}
 }

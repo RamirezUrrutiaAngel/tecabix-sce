@@ -28,6 +28,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -43,6 +45,9 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
  */
 @Entity()
 @Table(name = "cuenta")
+@NamedQueries({
+	@NamedQuery(name = "Cuenta.findByPersona",query = "SELECT c FROM Cuenta c WHERE c.id = ?1 AND c.estatus.nombre = 'ACTIVO' ")
+})
 public class Cuenta implements Serializable{
 
 	private static final long serialVersionUID = -4711461989562797237L;
@@ -52,7 +57,7 @@ public class Cuenta implements Serializable{
     @Column(name = "id_cuenta", unique = true, nullable = false)
 	@SequenceGenerator(name = "cuenta_id_cuenta_gen", sequenceName = "tecabix_sce.cuenta_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "cuenta_id_cuenta_gen")
-	private Integer id;
+	private Long id;
 	@ManyToOne
     @JoinColumn(name = "id_persona")
 	@JsonProperty(access = Access.WRITE_ONLY)
@@ -73,10 +78,10 @@ public class Cuenta implements Serializable{
     @Column(name = "clave")
     @Type(type="pg-uuid")
     private UUID clave;
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 	public Persona getPersona() {

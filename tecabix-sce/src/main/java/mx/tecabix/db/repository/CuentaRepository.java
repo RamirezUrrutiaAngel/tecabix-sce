@@ -31,4 +31,5 @@ import mx.tecabix.db.entity.Cuenta;
 public interface CuentaRepository extends JpaRepository<Cuenta, Long>{
 
 	Optional<Cuenta> findByClave(UUID uuid);
+	Optional<Cuenta> findByPersona(Long idPersona);
 }
