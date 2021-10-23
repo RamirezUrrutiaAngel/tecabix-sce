@@ -123,7 +123,7 @@ public final class TrabajadorControllerV01 extends Auth{
 	
 	@Value("${configuracion.resource}")
 	private String configuracionResourcelFile;
-	private String IMG_TRABAJADOR_DIR;
+	private String PATCH_RESOURCE;
 	
 	private static final Logger LOG = LoggerFactory.getLogger(TrabajadorControllerV01.class);
 	private static final String LOG_URL = "/trabajador/v1";
@@ -209,7 +209,7 @@ public final class TrabajadorControllerV01 extends Auth{
 			FileReader fileReader;
 			fileReader = new FileReader(new File(configuracionResourcelFile).getAbsoluteFile());
 			properties.load(fileReader);
-			IMG_TRABAJADOR_DIR = properties.getProperty("IMG_TRABAJADOR_DIR");
+			PATCH_RESOURCE = properties.getProperty("PATCH_RESOURCE");
 			fileReader.close();
 		} catch (FileNotFoundException e) {
 			LOG.error("se produjo un FileNotFoundException en el postConstruct de TrabajadorControllerV01");
@@ -1079,7 +1079,7 @@ public final class TrabajadorControllerV01 extends Auth{
 				LOG.info("{}No se encontro al trabajador.",headerLog);
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
 			}
-			file = new File(this.IMG_TRABAJADOR_DIR.replace(":ID_EMPRESA:", idEmpresa.toString()),trabajador.getId().toString().concat(".jpg"));
+			file = new File(this.PATCH_RESOURCE,trabajador.getClave().toString());
 			if(file.exists()) {
 				file.delete();
 			}
@@ -1144,7 +1144,7 @@ public final class TrabajadorControllerV01 extends Auth{
 			if(!trabajador.getEstatus().equals(singletonUtil.getActivo())) {
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
 			}
-			file = new File(this.IMG_TRABAJADOR_DIR,trabajador.getId().toString().concat(".jpg"));
+			file = new File(this.PATCH_RESOURCE,trabajador.getClave().toString().concat(".jpg"));
 			if(!file.exists()) {
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 			}
