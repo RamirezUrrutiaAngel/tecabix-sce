@@ -17,35 +17,18 @@
  */
 package mx.tecabix.service.controller.v01;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.UUID;
-
-import javax.annotation.PostConstruct;
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
@@ -110,6 +93,7 @@ import mx.tecabix.db.service.TrabajadorService;
 import mx.tecabix.db.service.TurnoService;
 import mx.tecabix.db.service.UsuarioPersonaService;
 import mx.tecabix.service.Auth;
+import mx.tecabix.service.ResourceTCBX;
 import mx.tecabix.service.SingletonUtil;
 import mx.tecabix.service.page.TrabajadorPage;
 /**
@@ -120,17 +104,16 @@ import mx.tecabix.service.page.TrabajadorPage;
 @RestController
 @RequestMapping("trabajador/v1")
 public final class TrabajadorControllerV01 extends Auth{
-	
-	@Value("${configuracion.resource}")
-	private String configuracionResourcelFile;
-	private String PATCH_RESOURCE;
-	
+		
 	private static final Logger LOG = LoggerFactory.getLogger(TrabajadorControllerV01.class);
 	private static final String LOG_URL = "/trabajador/v1";
 	private static final String LOG_URL_IMAGE = "/trabajador/v1/image";
 
 	@Autowired
 	private SingletonUtil singletonUtil;
+	@Autowired
+	private ResourceTCBX resourceTCBX;
+	
 	@Autowired
 	private CatalogoService catalogoService;
 	@Autowired
@@ -200,26 +183,6 @@ public final class TrabajadorControllerV01 extends Auth{
 	private final String TRABAJADOR = "TRABAJADOR";
 	private final String TRABAJADOR_CREAR = "TRABAJADOR_CREAR";
 	private final String TRABAJADOR_ELIMINAR = "TRABAJADOR_ELIMINAR";
-	
-	
-	@PostConstruct
-	private void postConstruct() {
-		try {
-			Properties properties = new Properties();
-			FileReader fileReader;
-			fileReader = new FileReader(new File(configuracionResourcelFile).getAbsoluteFile());
-			properties.load(fileReader);
-			PATCH_RESOURCE = properties.getProperty("PATCH_RESOURCE");
-			fileReader.close();
-		} catch (FileNotFoundException e) {
-			LOG.error("se produjo un FileNotFoundException en el postConstruct de TrabajadorControllerV01");
-			e.printStackTrace();
-			
-		} catch (IOException e) {
-			LOG.error("se produjo un IOException en el postConstruct de TrabajadorControllerV01");
-			e.printStackTrace();
-		}
-	}
 	
 	/**
 	 * 
@@ -1061,31 +1024,22 @@ public final class TrabajadorControllerV01 extends Auth{
 		
 		final Long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
 		final String headerLog = formatLogPut(idEmpresa, LOG_URL_IMAGE);
-		
-		
+
 		if(!imag.getContentType().equals("image/jpeg")) {
 			LOG.info("{}El formato del archivo no es el esperado.",headerLog);
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST); 
 		}
-		File file = null;
-		{
-			Optional<Trabajador> optionalTrabajador = trabajadorService.findByClave(clave);
-			if(optionalTrabajador.isEmpty()) {
-				LOG.info("{}No se encontro la clave del trabajador.",headerLog);
-				return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
-			}
-			Trabajador trabajador = optionalTrabajador.get();
-			if(!trabajador.getEstatus().equals(singletonUtil.getActivo())) {
-				LOG.info("{}No se encontro al trabajador.",headerLog);
-				return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
-			}
-			file = new File(this.PATCH_RESOURCE,trabajador.getClave().toString());
-			if(file.exists()) {
-				file.delete();
-			}
+		Optional<Trabajador> optionalTrabajador = trabajadorService.findByClave(clave);
+		if(optionalTrabajador.isEmpty()) {
+			LOG.info("{}No se encontro la clave del trabajador.",headerLog);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
+		}
+		Trabajador trabajador = optionalTrabajador.get();
+		if(!trabajador.getEstatus().equals(singletonUtil.getActivo())) {
+			LOG.info("{}No se encontro al trabajador.",headerLog);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
 		}
 		try {
-			OutputStream outputStream = new FileOutputStream(file);
 			if(imag.getSize() > 1000_000) {
 				float compresion = 1000_000f/imag.getSize();
 			    if(compresion > 0.8) {
@@ -1093,27 +1047,10 @@ public final class TrabajadorControllerV01 extends Auth{
 			    }else if(compresion < 0.3) {
 			    	compresion = 0.3f;
 			    }
-			    BufferedImage bufferedImage = ImageIO.read(imag.getInputStream());
-
-			    Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("jpg");
-			    ImageWriter writer = (ImageWriter) writers.next();
-
-			    ImageOutputStream ios = ImageIO.createImageOutputStream(outputStream);
-			    writer.setOutput(ios);
-
-			    ImageWriteParam param = writer.getDefaultWriteParam();
-
-			    param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-			    
-			    param.setCompressionQuality(compresion);
-			    writer.write(null, new IIOImage(bufferedImage, null, null), param);
-
-			    ios.close();
-			    writer.dispose();
+			    resourceTCBX.writerJPG(trabajador.getClave().toString(), compresion, imag.getInputStream());
 			}else {
-				outputStream.write(imag.getBytes());
+				resourceTCBX.writer(trabajador.getClave().toString(),imag.getBytes());
 			}
-			outputStream.close();
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (FileNotFoundException e) {
 			LOG.error("{}Se produjo un FileNotFoundException.",headerLog);
@@ -1134,33 +1071,26 @@ public final class TrabajadorControllerV01 extends Auth{
 		if(sesion == null) {
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); 
 		}
+		final Long idEmpresa = sesion.getLicencia().getPlantel().getIdEmpresa();
+		final String headerLog = formatLogGet(idEmpresa, LOG_URL_IMAGE);
+
 		Optional<Trabajador> optionalTrabajador = trabajadorService.findByClave(clave);
 		if(optionalTrabajador.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
-		}
-		File file = null;
-		{
-			Trabajador trabajador = optionalTrabajador.get();
-			if(!trabajador.getEstatus().equals(singletonUtil.getActivo())) {
-				return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
-			}
-			file = new File(this.PATCH_RESOURCE,trabajador.getClave().toString());
-			if(!file.exists()) {
-				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-			}
-			if(!file.canRead()) {
-				return new ResponseEntity<>(HttpStatus.CONFLICT);
-			}
+		}	
+		Trabajador trabajador = optionalTrabajador.get();
+		if(!trabajador.getEstatus().equals(singletonUtil.getActivo())) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
 		}
 		byte[] bytes = null;
 		try {
-			InputStream inputStream = new FileInputStream(file);
-			bytes = inputStream.readAllBytes();
-			inputStream.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			bytes = resourceTCBX.read(trabajador.getClave().toString());
 		} catch (IOException e) {
+			LOG.error("{}Se produjo un IOException.",headerLog);
 			e.printStackTrace();
+		}
+		if(bytes == null || bytes.length == 0 ) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
 		}
 		return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("image/jpeg"))
