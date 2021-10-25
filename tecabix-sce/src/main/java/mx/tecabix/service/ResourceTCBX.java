@@ -26,6 +26,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.Properties;
 
@@ -41,6 +42,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.S3Client;
+
+
 
 /**
  * 
@@ -55,6 +65,12 @@ public class ResourceTCBX {
 	@Value("${configuracion.resource}")
 	private String configuracionResourcelFile;
 	private String PATCH_RESOURCE;
+	private boolean RESOURCE_IS_LOCAL;
+	private String AWS_S3_BUCKET;
+	private String AWS_ACCESS_KEY_ID;
+	private String AWS_SECRET_ACCESS_KEY;
+	private Region AWS_S3_REGION;
+	
 	
 
 	@PostConstruct
@@ -64,7 +80,24 @@ public class ResourceTCBX {
 			FileReader fileReader;
 			fileReader = new FileReader(new File(configuracionResourcelFile).getAbsoluteFile());
 			properties.load(fileReader);
-			PATCH_RESOURCE = properties.getProperty("PATCH_RESOURCE");
+			PATCH_RESOURCE = properties.getProperty("patch_resource");
+			String RESOURCE_IS_LOCAL = properties.getProperty("resource_is_local");
+			this.RESOURCE_IS_LOCAL = (RESOURCE_IS_LOCAL == null || RESOURCE_IS_LOCAL.equalsIgnoreCase("true"));
+			
+			AWS_ACCESS_KEY_ID = properties.getProperty("aws.access_key_id");
+			AWS_SECRET_ACCESS_KEY = properties.getProperty("aws.secret_access_key");
+			AWS_S3_BUCKET = properties.getProperty("aws.s3.bucket");
+			String AWS_S3_REGION = properties.getProperty("aws.s3.region");
+			if(AWS_S3_REGION.equalsIgnoreCase("us-west-1"))this.AWS_S3_REGION = Region.US_WEST_1;
+			else if(AWS_S3_REGION.equalsIgnoreCase("us-west-2"))this.AWS_S3_REGION = Region.US_WEST_2;
+			else if(AWS_S3_REGION.equalsIgnoreCase("us-east-1"))this.AWS_S3_REGION = Region.US_EAST_1;
+			else if(AWS_S3_REGION.equalsIgnoreCase("us-east-2"))this.AWS_S3_REGION = Region.US_EAST_2;
+			else this.RESOURCE_IS_LOCAL = false;
+			
+			this.RESOURCE_IS_LOCAL = (AWS_ACCESS_KEY_ID != null && !AWS_ACCESS_KEY_ID.isBlank() && this.RESOURCE_IS_LOCAL);
+			this.RESOURCE_IS_LOCAL = (AWS_SECRET_ACCESS_KEY != null && ! AWS_SECRET_ACCESS_KEY.isBlank() && this.RESOURCE_IS_LOCAL);
+			this.RESOURCE_IS_LOCAL = (AWS_S3_BUCKET != null && !AWS_S3_BUCKET.isBlank() && this.RESOURCE_IS_LOCAL);
+			
 			fileReader.close();
 		} catch (FileNotFoundException e) {
 			LOG.error("se produjo un FileNotFoundException en el postConstruct de ResourceTCBX");
@@ -83,13 +116,17 @@ public class ResourceTCBX {
 	 * @throws IOException Excepción que se puede producir al intentar guardar la imagen.
 	 */
 	public void writer(String name, byte[] bytes) throws IOException {
-		File file = new File(this.PATCH_RESOURCE,name);
-		if(file.exists()) {
-			file.delete();
+		if(this.RESOURCE_IS_LOCAL) {
+			File file = new File(this.PATCH_RESOURCE,name);
+			if(file.exists()) {
+				file.delete();
+			}
+			OutputStream outputStream = new FileOutputStream(file);
+			outputStream.write(bytes);
+			outputStream.close();
+		}else {
+			amazonWriter(name, bytes);
 		}
-		OutputStream outputStream = new FileOutputStream(file);
-		outputStream.write(bytes);
-		outputStream.close();
 	}
 	
 	/**
@@ -99,35 +136,44 @@ public class ResourceTCBX {
 	 * @param inputStream Flujo de entrada donde se encuentra la imagen.
 	 * @throws IOException Excepción que se puede producir al intentar guardar la imagen.
 	 */
-	public void writerJPG(String name,float compresion,InputStream inputStream) throws IOException {
-		File file = new File(this.PATCH_RESOURCE,name);
-		if(file.exists()) {
+	public void writerJPG(String name, float compresion, InputStream inputStream) throws IOException {
+
+		File file = new File(this.PATCH_RESOURCE, name);
+		if (file.exists()) {
 			file.delete();
 		}
 		OutputStream outputStream = new FileOutputStream(file);
-		
-	    if(compresion > 1) {
-	    	compresion = 1f;
-	    }
-	    
-	    BufferedImage bufferedImage = ImageIO.read(inputStream);
 
-	    Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("jpg");
-	    ImageWriter writer = (ImageWriter) writers.next();
+		if (compresion > 1) {
+			compresion = 1f;
+		}
 
-	    ImageOutputStream ios = ImageIO.createImageOutputStream(outputStream);
-	    writer.setOutput(ios);
+		BufferedImage bufferedImage = ImageIO.read(inputStream);
 
-	    ImageWriteParam param = writer.getDefaultWriteParam();
+		Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("jpg");
+		ImageWriter writer = (ImageWriter) writers.next();
 
-	    param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-	    
-	    param.setCompressionQuality(compresion);
-	    writer.write(null, new IIOImage(bufferedImage, null, null), param);
-	    
-	    ios.close();
-	    writer.dispose();
+		ImageOutputStream ios = ImageIO.createImageOutputStream(outputStream);
+		writer.setOutput(ios);
+
+		ImageWriteParam param = writer.getDefaultWriteParam();
+
+		param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+
+		param.setCompressionQuality(compresion);
+		writer.write(null, new IIOImage(bufferedImage, null, null), param);
+
+		ios.close();
+		writer.dispose();
 		outputStream.close();
+		if (!this.RESOURCE_IS_LOCAL) {
+			FileInputStream fis = new FileInputStream(file);
+			amazonWriter(name, fis.readAllBytes());
+			fis.close();
+			if (file.exists()) {
+				file.delete();
+			}
+		}
 	}
 	
 	/**
@@ -137,16 +183,39 @@ public class ResourceTCBX {
 	 * @throws IOException Excepción que se puede producir al intentar guardar la imagen.
 	 */
 	public byte[] read(String name) throws IOException {
-		File file = new File(this.PATCH_RESOURCE, name);
-		if(!file.exists()) {
-			return null;
+		
+		if(this.RESOURCE_IS_LOCAL) {
+			File file = new File(this.PATCH_RESOURCE, name);
+			if(!file.exists()) {
+				return null;
+			}
+			if(!file.canRead()) {
+				return null;
+			}
+			InputStream inputStream = new FileInputStream(file);
+			byte[] bytes = inputStream.readAllBytes();
+			inputStream.close();
+			return bytes;
+		}else {
+			return amazonReader(name);
 		}
-		if(!file.canRead()) {
-			return null;
-		}
-		InputStream inputStream = new FileInputStream(file);
-		byte[] bytes = inputStream.readAllBytes();
-		inputStream.close();
-		return bytes;
 	}
+
+	private void amazonWriter(String name, byte[] bytes) {
+
+		AwsBasicCredentials awsCreds = AwsBasicCredentials.create(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY);
+		S3Client s3 = S3Client.builder().region(AWS_S3_REGION).credentialsProvider(StaticCredentialsProvider.create(awsCreds)).build();
+		PutObjectRequest objectRequest = PutObjectRequest.builder().bucket(AWS_S3_BUCKET).key(name).build();
+		s3.putObject(objectRequest, RequestBody.fromByteBuffer(ByteBuffer.wrap(bytes)));
+	}
+	
+	
+	private byte[] amazonReader(String name) throws IOException {
+
+		AwsBasicCredentials awsCreds = AwsBasicCredentials.create(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY);
+		S3Client s3 = S3Client.builder().region(AWS_S3_REGION).credentialsProvider(StaticCredentialsProvider.create(awsCreds)).build();
+		GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(AWS_S3_BUCKET).key(name).build();
+		return s3.getObject(getObjectRequest).readAllBytes();
+	}
+	
 }
