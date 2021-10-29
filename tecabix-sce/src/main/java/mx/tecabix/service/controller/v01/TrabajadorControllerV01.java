@@ -56,6 +56,7 @@ import mx.tecabix.db.entity.Contacto;
 import mx.tecabix.db.entity.Correo;
 import mx.tecabix.db.entity.CorreoMsj;
 import mx.tecabix.db.entity.CorreoMsjItem;
+import mx.tecabix.db.entity.Cuenta;
 import mx.tecabix.db.entity.Direccion;
 import mx.tecabix.db.entity.Empresa;
 import mx.tecabix.db.entity.Estado;
@@ -78,6 +79,7 @@ import mx.tecabix.db.service.ContactoService;
 import mx.tecabix.db.service.CorreoMsjItemService;
 import mx.tecabix.db.service.CorreoMsjService;
 import mx.tecabix.db.service.CorreoService;
+import mx.tecabix.db.service.CuentaService;
 import mx.tecabix.db.service.DireccionService;
 import mx.tecabix.db.service.EmpresaService;
 import mx.tecabix.db.service.EstadoService;
@@ -154,6 +156,8 @@ public final class TrabajadorControllerV01 extends Auth{
 	private SalarioService salarioService;
 	@Autowired
 	private SeguroSocialService seguroSocialService;
+	@Autowired
+	private CuentaService cuentaService;
 	
 	private final String TIPO_DE_PERSONA = "TIPO_DE_PERSONA";
 	private final String FISICA = "FISICA";
@@ -962,6 +966,16 @@ public final class TrabajadorControllerV01 extends Auth{
 		persona.setIdEmpresa(idEmpresa);
 		List<Contacto> contactos = persona.getContactos();
 		persona = personaService.save(persona);
+		
+		Cuenta cuenta = new Cuenta();
+		cuenta.setClave(UUID.randomUUID());
+		cuenta.setPersona(persona);
+		cuenta.setSaldo(0);
+		cuenta.setFechaDeModificacion(LocalDateTime.now());
+		cuenta.setFechaDeExpiracion(LocalDateTime.now());
+		cuenta.setIdUsuarioModificado(sesion.getUsuario().getId());
+		cuenta.setEstatus(CAT_ACTIVO);
+		cuenta = cuentaService.save(cuenta);
 		
 		personaFisica.setId(null);
 		personaFisica.setClave(UUID.randomUUID());
