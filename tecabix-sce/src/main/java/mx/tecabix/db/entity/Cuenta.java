@@ -48,7 +48,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @NamedQueries({
 	@NamedQuery(name = "Cuenta.findByPersona",query = "SELECT c FROM Cuenta c WHERE c.id = ?1 AND c.estatus.nombre = 'ACTIVO' ")
 })
-public class Cuenta implements Serializable{
+public final class Cuenta implements Serializable{
 
 	private static final long serialVersionUID = -4711461989562797237L;
 	

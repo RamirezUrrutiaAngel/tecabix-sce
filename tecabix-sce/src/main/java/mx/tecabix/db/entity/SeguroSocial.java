@@ -44,7 +44,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
  */
 @Entity
 @Table(name = "seguro_social")
-public class SeguroSocial implements Serializable{
+public final class SeguroSocial implements Serializable{
 
 	private static final long serialVersionUID = 5434474820126276090L;
 	

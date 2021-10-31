@@ -47,7 +47,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
  */
 @Entity()
 @Table(name = "caja_registro")
-public class CajaRegistro implements Serializable{
+public final class CajaRegistro implements Serializable{
 
 	private static final long serialVersionUID = 7650984265089275683L;
 	

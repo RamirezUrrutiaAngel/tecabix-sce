@@ -17,6 +17,7 @@
  */
 package mx.tecabix.db.entity;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -42,8 +43,10 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
  */
 @Entity()
 @Table(name = "caja_registro_transaccion")
-public class CajaRegistroTransaccion {
+public final class CajaRegistroTransaccion implements Serializable {
 
+	private static final long serialVersionUID = 6435806308210825867L;
+	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
 	@Column(name = "id_caja_registro_transaccion", unique = true, nullable = false)

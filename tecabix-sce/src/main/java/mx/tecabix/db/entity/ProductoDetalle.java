@@ -43,7 +43,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
  */
 @Entity()
 @Table(name = "producto_detalle")
-public class ProductoDetalle implements Serializable{
+public final class ProductoDetalle implements Serializable{
 
 	private static final long serialVersionUID = 2259894254435315526L;
 	
