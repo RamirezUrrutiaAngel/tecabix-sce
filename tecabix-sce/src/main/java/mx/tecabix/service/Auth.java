@@ -143,8 +143,20 @@ public class Auth extends Encrypt{
 	public static final byte TIPO_NUMERIC = 6;
 	public static final byte TIPO_VARIABLE = 7;
 	public static final byte TIPO_NUMERIC_SPACE = 8;
+	/**
+	 * x = { x ∈ N | x < maxZise }  
+	 * x = { 0, 1, 2, 3, ... ,maxZise }
+	 */
 	public static final byte TIPO_NUMERIC_NATURAL = 9;
+	/**
+	 * x = { x ∈ N | 0 < x < maxZise }  
+	 * x = { 1, 2, 3, 4, ... ,maxZise }
+	 */
 	public static final byte TIPO_NUMERIC_POSITIVO = 10;
+	/**
+	 * x = { x ∈ N | 0 > x > maxZise }  
+	 * x = { -1, -2, -3, -4, ... ,maxZise }
+	 */
 	public static final byte TIPO_NUMERIC_NEGATIVO = 11;
 	public static final byte TIPO_URL = 12;
 	
