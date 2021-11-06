@@ -31,6 +31,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -47,6 +49,9 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
  */
 @Entity()
 @Table(name = "caja_registro")
+@NamedQueries({
+	@NamedQuery(name = "CajaRegistro.findByIdLicenciaAndFechaCorteIsNull",query = "SELECT c FROM CajaRegistro c WHERE c.cajaRegistradora.licencia.id = ?1 AND c.fechaDeCorte IS NULL AND c.estatus.nombre = 'ACTIVO' ")
+})
 public final class CajaRegistro implements Serializable{
 
 	private static final long serialVersionUID = 7650984265089275683L;

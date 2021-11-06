@@ -31,6 +31,7 @@ import mx.tecabix.db.entity.CajaRegistro;
  */
 public interface CajaRegistroRepository extends JpaRepository<CajaRegistro, Long>{
 
+	Optional<CajaRegistro> findByIdLicenciaAndFechaCorteIsNull(Long idLicencia);
 	Optional<CajaRegistro> findByClave(UUID uuid);
 
 }

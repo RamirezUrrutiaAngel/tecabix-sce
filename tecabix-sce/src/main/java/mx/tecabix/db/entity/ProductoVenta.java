@@ -19,17 +19,14 @@ package mx.tecabix.db.entity;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
@@ -46,28 +43,28 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
  * 
  */
 @Entity()
-@Table(name = "producto")
-public final class Producto implements Serializable{
+@Table(name = "producto_venta")
+public final class ProductoVenta implements Serializable {
 
-	private static final long serialVersionUID = -559545739586943339L;
-	
-	public static final short SIZE_NOMBRE = 40;
-	public static final short SIZE_DESCRIPCION = 250;
+	private static final long serialVersionUID = 2575161888522394338L;
 	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)
-    @Column(name = "id_producto", unique = true, nullable = false)
-	@SequenceGenerator(name = "producto_id_producto_gen", sequenceName = "tecabix_sce.producto_seq", allocationSize = 1)
+    @Column(name = "id_producto_venta", unique = true, nullable = false)
+	@SequenceGenerator(name = "producto_id_producto_gen", sequenceName = "tecabix_sce.producto_venta_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "producto_id_producto_gen")
 	private Long id;
-	@Column(name = "nombre")
-    private String nombre;
-    @Column(name = "descripcion")
-    private String descripcion;
-    @ManyToOne
-    @JoinColumn(name = "id_producto_departamento")
-    private ProductoDepartamento departamento;
-    @Column(name = "id_usuario_modificado")
+	@OneToOne
+    @JoinColumn(name = "id_producto")
+    private Producto producto;
+	@Column(name = "precio")
+    private Integer precio;
+	@Column(name = "costo")
+    private Integer costo;
+	@ManyToOne
+    @JoinColumn(name = "id_unidad")
+    private Catalogo unidad;
+	@Column(name = "id_usuario_modificado")
     private Long idUsuarioModificado;
     @Column(name = "fecha_modificado")
     private LocalDateTime fechaDeModificacion;
@@ -77,34 +74,36 @@ public final class Producto implements Serializable{
     @Column(name = "clave")
     @Type(type="pg-uuid")
     private UUID clave;
-    @ManyToMany(mappedBy = "producto", cascade = CascadeType.REMOVE)
-	private List<ProductoDetalle> detalles;
-    @OneToOne(mappedBy = "producto", cascade = CascadeType.REMOVE)
-    private ProductoVenta venta;
-
+    
 	public Long getId() {
 		return id;
 	}
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getNombre() {
-		return nombre;
+	public Producto getProducto() {
+		return producto;
 	}
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
+	public void setProducto(Producto producto) {
+		this.producto = producto;
 	}
-	public String getDescripcion() {
-		return descripcion;
+	public Integer getPrecio() {
+		return precio;
 	}
-	public void setDescripcion(String descripcion) {
-		this.descripcion = descripcion;
+	public void setPrecio(Integer precio) {
+		this.precio = precio;
 	}
-	public ProductoDepartamento getDepartamento() {
-		return departamento;
+	public Integer getCosto() {
+		return costo;
 	}
-	public void setDepartamento(ProductoDepartamento departamento) {
-		this.departamento = departamento;
+	public void setCosto(Integer costo) {
+		this.costo = costo;
+	}
+	public Catalogo getUnidad() {
+		return unidad;
+	}
+	public void setUnidad(Catalogo unidad) {
+		this.unidad = unidad;
 	}
 	public Long getIdUsuarioModificado() {
 		return idUsuarioModificado;
@@ -130,18 +129,7 @@ public final class Producto implements Serializable{
 	public void setClave(UUID clave) {
 		this.clave = clave;
 	}
-	public List<ProductoDetalle> getDetalles() {
-		return detalles;
-	}
-	public void setDetalles(List<ProductoDetalle> detalles) {
-		this.detalles = detalles;
-	}
-	public ProductoVenta getVenta() {
-		return venta;
-	}
-	public void setVenta(ProductoVenta venta) {
-		this.venta = venta;
-	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -149,6 +137,7 @@ public final class Producto implements Serializable{
 		result = prime * result + ((clave == null) ? 0 : clave.hashCode());
 		return result;
 	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -157,12 +146,12 @@ public final class Producto implements Serializable{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Producto other = (Producto) obj;
+		ProductoVenta other = (ProductoVenta) obj;
 		if (clave == null) {
 			if (other.clave != null)
 				return false;
 		} else if (!clave.equals(other.clave))
 			return false;
 		return true;
-	}    
+	}
 }

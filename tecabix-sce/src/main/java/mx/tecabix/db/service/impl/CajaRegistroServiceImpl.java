@@ -52,4 +52,9 @@ public class CajaRegistroServiceImpl extends GenericSeviceImpl<CajaRegistro, Lon
 	public Optional<CajaRegistro> findByClave(UUID uuid) {
 		return cajaRegistroRepository.findByClave(uuid);
 	}
+
+	@Override
+	public Optional<CajaRegistro> findByIdLicenciaAndFechaCorteIsNull(Long idLicencia) {
+		return cajaRegistroRepository.findByIdLicenciaAndFechaCorteIsNull(idLicencia);
+	}
 }

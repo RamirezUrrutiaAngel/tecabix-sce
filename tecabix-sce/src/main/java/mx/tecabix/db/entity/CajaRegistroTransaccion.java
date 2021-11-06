@@ -19,15 +19,19 @@ package mx.tecabix.db.entity;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -78,6 +82,9 @@ public final class CajaRegistroTransaccion implements Serializable {
 	@Column(name = "clave")
 	@Type(type = "pg-uuid")
 	private UUID clave;
+	@OneToMany(fetch = FetchType.LAZY, mappedBy="cajaRegistroTransaccion", cascade=CascadeType.REMOVE)
+    private List<CajaRegistroTransaccionItem> registroTransaccionItems;
+	
 	public Long getId() {
 		return id;
 	}
@@ -137,6 +144,12 @@ public final class CajaRegistroTransaccion implements Serializable {
 	}
 	public void setClave(UUID clave) {
 		this.clave = clave;
+	}
+	public List<CajaRegistroTransaccionItem> getRegistroTransaccionItems() {
+		return registroTransaccionItems;
+	}
+	public void setRegistroTransaccionItems(List<CajaRegistroTransaccionItem> registroTransaccionItems) {
+		this.registroTransaccionItems = registroTransaccionItems;
 	}
 	@Override
 	public int hashCode() {

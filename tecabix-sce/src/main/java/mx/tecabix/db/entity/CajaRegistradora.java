@@ -34,6 +34,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -79,7 +80,7 @@ public final class CajaRegistradora implements Serializable{
     private String marca;
     @Column(name = "modelo")
     private String modelo;
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "id_licencia")
 	private Licencia licencia;
     @ManyToOne

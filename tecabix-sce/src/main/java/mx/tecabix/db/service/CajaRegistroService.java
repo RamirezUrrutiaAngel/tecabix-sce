@@ -30,5 +30,6 @@ import mx.tecabix.db.entity.CajaRegistro;
  */
 public interface CajaRegistroService extends GenericSevice<CajaRegistro, Long>{
 
+	Optional<CajaRegistro> findByIdLicenciaAndFechaCorteIsNull(Long idLicencia);
 	Optional<CajaRegistro> findByClave(UUID uuid);
 }

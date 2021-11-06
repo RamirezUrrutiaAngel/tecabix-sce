@@ -65,8 +65,8 @@ public final class Perfil implements Serializable{
 
 	private static final long serialVersionUID = 1945352087628007583L;
 	
-	public static final short SIZE_NOMBRE = 45;
-	public static final short SIZE_DESCRIPCION = 500;
+	public static final short SIZE_NOMBRE = 30;
+	public static final short SIZE_DESCRIPCION = 250;
 	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)

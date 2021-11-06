@@ -71,10 +71,11 @@ public final class CajaRegistroTransaccionItem implements Serializable{
 	@Column(name = "precio_grupal")
 	private Integer precioGrupal;
 	@ManyToOne
-	@JoinColumn(name = "id_tabla")
-	private Catalogo tabla;
+	@JoinColumn(name = "id_entidad")
+	private Catalogo entidad;
 	@Column(name = "identificador")
-	private Long identificador;
+	@Type(type = "pg-uuid")
+	private UUID identificador;
 	@Column(name = "id_usuario_modificado")
 	@JsonProperty(access = Access.WRITE_ONLY)
 	private Long idUsuarioModificado;
@@ -87,7 +88,7 @@ public final class CajaRegistroTransaccionItem implements Serializable{
 	@Column(name = "clave")
 	@Type(type = "pg-uuid")
 	private UUID clave;
-	
+
 	public Long getId() {
 		return id;
 	}
@@ -97,8 +98,8 @@ public final class CajaRegistroTransaccionItem implements Serializable{
 	public CajaRegistroTransaccion getCajaRegistroTransaccion() {
 		return cajaRegistroTransaccion;
 	}
-	public void setCajaRegistroTransaccionItem(CajaRegistroTransaccion cajaRegistroTransaccionItem) {
-		this.cajaRegistroTransaccion = cajaRegistroTransaccionItem;
+	public void setCajaRegistroTransaccion(CajaRegistroTransaccion cajaRegistroTransaccion) {
+		this.cajaRegistroTransaccion = cajaRegistroTransaccion;
 	}
 	public String getDescripcion() {
 		return descripcion;
@@ -130,16 +131,16 @@ public final class CajaRegistroTransaccionItem implements Serializable{
 	public void setPrecioGrupal(Integer precioGrupal) {
 		this.precioGrupal = precioGrupal;
 	}
-	public Catalogo getTabla() {
-		return tabla;
+	public Catalogo getEntidad() {
+		return entidad;
 	}
-	public void setTabla(Catalogo tabla) {
-		this.tabla = tabla;
+	public void setEntidad(Catalogo entidad) {
+		this.entidad = entidad;
 	}
-	public Long getIdentificador() {
+	public UUID getIdentificador() {
 		return identificador;
 	}
-	public void setIdentificador(Long identificador) {
+	public void setIdentificador(UUID identificador) {
 		this.identificador = identificador;
 	}
 	public Long getIdUsuarioModificado() {
