@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,6 +128,7 @@ public final class TurnoControllerV01 extends Auth{
 				return new ResponseEntity<TurnoPage>(HttpStatus.BAD_REQUEST);
 			}
 		}
+		pageTurno.forEach(x-> x.setTurnoDias(x.getTurnoDias().stream().sorted((x1,x2)-> x1.getDia().getOrden().compareTo(x2.getDia().getOrden())).collect(Collectors.toList())));
 		TurnoPage body = new TurnoPage(pageTurno);
 		ResponseEntity<TurnoPage> response = new ResponseEntity<TurnoPage>(body, HttpStatus.OK);
 		return response;

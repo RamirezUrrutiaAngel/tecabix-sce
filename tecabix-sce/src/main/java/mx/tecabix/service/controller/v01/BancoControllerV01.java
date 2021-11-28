@@ -57,6 +57,7 @@ public final class BancoControllerV01 extends Auth{
 	private String ROOT_BANCO_CREAR = "ROOT_BANCO_CREAR";
 	private String ROOT_BANCO_EDITAR = "ROOT_BANCO_EDITAR";
 	private String ROOT_BANCO_ELIMINAR = "ROOT_BANCO_ELIMINAR";
+	private final String TRABAJADOR = "TRABAJADOR";
 	
 	
 	@Autowired
@@ -80,7 +81,8 @@ public final class BancoControllerV01 extends Auth{
 			@RequestParam(value="elements") byte elements,
 			@RequestParam(value="page") short page) {
 		
-		if(isNotAuthorized(token, BANCO, ROOT_BANCO)) {
+		final String PERMISOS[] = { BANCO, ROOT_BANCO, TRABAJADOR };
+		if(isNotAuthorized(token,PERMISOS)) {
 			return new ResponseEntity<BancoPage>(HttpStatus.UNAUTHORIZED);
 		}
 		Page<Banco> result = null;

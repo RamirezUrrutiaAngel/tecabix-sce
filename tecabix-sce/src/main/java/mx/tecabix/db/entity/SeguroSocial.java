@@ -49,7 +49,7 @@ public final class SeguroSocial implements Serializable{
 	private static final long serialVersionUID = 5434474820126276090L;
 	
 	public static final short SIZE_NUMERO = 12;
-	public static final short SIZE_CIUDAD = 100;
+	public static final short SIZE_CIUDAD = 30;
 	public static final short SIZE_CURP = 19;
 	public static final short SIZE_RFC= 16;
 	public static final short SIZE_OBSERVACIONES_BAJA = 200;

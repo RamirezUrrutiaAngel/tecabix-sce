@@ -64,7 +64,7 @@ public final class Plantel implements Serializable{
 	
 	private static final long serialVersionUID = -1144141703432606826L;
 	
-	public static final short SIZE_NOMBRE = 200;
+	public static final short SIZE_NOMBRE = 50;
 	
 	@Id
 	@JsonProperty(access = Access.WRITE_ONLY)

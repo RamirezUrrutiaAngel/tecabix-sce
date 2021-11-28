@@ -78,6 +78,8 @@ public final class PlantelControllerV01 extends Auth{
 	private final String PLANTEL_EDITAR = "PLANTEL_EDITAR";
 	private final String PLANTEL_ELIMINAR = "PLANTEL_ELIMINAR";
 	
+	private final String TRABAJADOR = "TRABAJADOR";
+	
 	/**
 	 * 
 	 * @param by:		NOMBRE, MUNICIPIO, ESTADO
@@ -95,7 +97,7 @@ public final class PlantelControllerV01 extends Auth{
 			@RequestParam(value="elements") byte elements,
 			@RequestParam(value="page") short page) {
 
-		Sesion sesion = getSessionIfIsAuthorized(token, PLANTEL);
+		Sesion sesion = getSessionIfIsAuthorized(token, PLANTEL, TRABAJADOR);
 		if(sesion == null){
 			return new ResponseEntity<PlantelPage>(HttpStatus.UNAUTHORIZED);
 		}

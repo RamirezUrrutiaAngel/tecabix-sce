@@ -52,7 +52,7 @@ public final class PersonaFisica implements Serializable{
 
 	private static final long serialVersionUID = 701859570029260114L;
 	
-	public static final short SIZE_NOMBRE = 45;
+	public static final short SIZE_NOMBRE = 15;
 	public static final short SIZE_APELLIDO_PATERNO = 15;
 	public static final short SIZE_APELLIDO_MATERNO = 15;
 	

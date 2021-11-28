@@ -20,6 +20,8 @@ package mx.tecabix.db.service.impl;
 import java.util.Optional;
 import java.util.UUID;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +40,9 @@ public class CuentaServiceImpl extends GenericSeviceImpl<Cuenta, Long> implement
 
 	@Autowired
 	private CuentaRepository cuentaRepository;
+	
 	@Override
+	@PostConstruct
 	protected void postConstruct() {
 		setJpaRepository(cuentaRepository);
 	}

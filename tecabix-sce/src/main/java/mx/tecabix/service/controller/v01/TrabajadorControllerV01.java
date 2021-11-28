@@ -188,6 +188,8 @@ public final class TrabajadorControllerV01 extends Auth{
 	private final String TRABAJADOR_CREAR = "TRABAJADOR_CREAR";
 	private final String TRABAJADOR_ELIMINAR = "TRABAJADOR_ELIMINAR";
 	
+	private final String PLANTEL = "PLANTEL";
+	
 	/**
 	 * 
 	 * @param by:		NOMBRE, APELLIDO_PATERNO, APELLIDO_MATERNO, CURP, PUESTO, PLANTEL
@@ -208,7 +210,7 @@ public final class TrabajadorControllerV01 extends Auth{
 			@RequestParam(value="elements") byte elements,
 			@RequestParam(value="page") short page) {
 		
-		Sesion sesion = getSessionIfIsAuthorized(token, TRABAJADOR);
+		Sesion sesion = getSessionIfIsAuthorized(token, TRABAJADOR, PLANTEL);
 		if(sesion == null) {
 			return new ResponseEntity<TrabajadorPage>(HttpStatus.UNAUTHORIZED);
 		}
@@ -1099,8 +1101,8 @@ public final class TrabajadorControllerV01 extends Auth{
 		byte[] bytes = null;
 		try {
 			bytes = resourceTCBX.read(trabajador.getClave().toString());
-		} catch (IOException e) {
-			LOG.error("{}Se produjo un IOException.",headerLog);
+		} catch (Exception e) {
+			LOG.error("{}Se produjo un Exception.",headerLog);
 			e.printStackTrace();
 		}
 		if(bytes == null || bytes.length == 0 ) {

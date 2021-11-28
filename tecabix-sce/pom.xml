@@ -13,7 +13,7 @@
 	<artifactId>tecabix-sce</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>tecabix-sce</name>
-	<description>Servicios rest para el pos</description>
+	<description>Servicios rest para tecabix sce</description>
 
 	<properties>
 		<java.version>11</java.version>

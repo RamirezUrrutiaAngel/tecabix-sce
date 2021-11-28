@@ -68,6 +68,8 @@ public final class UsuarioControllerV01 extends Auth {
 	private final String USUARIO ="USUARIO";
 	private final String USUARIO_CREAR ="USUARIO_CREAR";
 	private final String USUARIO_EDITAR ="USUARIO_EDITAR";
+	
+	private final String TRABAJADOR = "TRABAJADOR";
 	/**
 	 * 
 	 * @param by:		NOMBRE, CORREO, PERFIL
@@ -118,7 +120,8 @@ public final class UsuarioControllerV01 extends Auth {
 	
 	@GetMapping("is-username-accepted")
 	public ResponseEntity<?> exists(@RequestParam(value="token") UUID token,@RequestParam(value="username") String usuario){
-		Sesion sesion = getSessionIfIsAuthorized(token,USUARIO);
+		final String PERMISOS[] = { USUARIO, TRABAJADOR };
+		Sesion sesion = getSessionIfIsAuthorized(token,PERMISOS);
 		if(sesion == null) {
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
