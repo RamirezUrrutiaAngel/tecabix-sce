@@ -74,6 +74,7 @@ public final class Usuario implements Serializable{
     private String password;
     @Column(name = "correo")
     private String correo;
+    @JsonProperty(access = Access.WRITE_ONLY)
     @Column(name = "pin")
     private String pin;
     @ManyToOne

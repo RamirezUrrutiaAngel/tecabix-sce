@@ -66,6 +66,7 @@ public class ResourceTCBX {
 	@Value("${configuracion.resource}")
 	private String configuracionResourcelFile;
 	private static String PATCH_RESOURCE;
+	private static String PATCH_RESOURCE_TEMP;
 	private static Boolean RESOURCE_IS_LOCAL;
 	private static String AWS_S3_BUCKET;
 	private static String AWS_ACCESS_KEY_ID;
@@ -84,6 +85,7 @@ public class ResourceTCBX {
 				fileReader = new FileReader(new File(configuracionResourcelFile).getAbsoluteFile());
 				properties.load(fileReader);
 				PATCH_RESOURCE = properties.getProperty("patch_resource");
+				PATCH_RESOURCE_TEMP = properties.getProperty("patch_resource_temp");
 				String RESOURCE_IS_LOCAL = properties.getProperty("resource_is_local");
 				ResourceTCBX.RESOURCE_IS_LOCAL = (RESOURCE_IS_LOCAL == null || RESOURCE_IS_LOCAL.equalsIgnoreCase("true"));
 				
@@ -252,4 +254,7 @@ public class ResourceTCBX {
 		s3.deleteObject(deleteObjectRequest);
 	}
 	
+	public File getPathResource() {
+		return new File(PATCH_RESOURCE_TEMP);
+	}
 }
